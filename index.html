@@ -11,6 +11,18 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body>
+    <!-- Netlify Forms detection — hidden, never shown to users -->
+    <form name="perfect-racket-submission" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <input type="text" name="ntrp" />
+      <input type="text" name="play-style" />
+      <input type="text" name="pain-severity" />
+      <input type="text" name="top-racket" />
+      <input type="text" name="top-string" />
+      <input type="text" name="tension" />
+    </form>
+
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

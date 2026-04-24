@@ -1339,6 +1339,11 @@ export default function PerfectRacket() {
       setTimeout(() => setShaking(false), 400);
       return;
     }
+    // Plausible funnel tracking
+    const stepNames = { 1: "About You", 2: "Your Game", 3: "Arm Health", 4: "Final Details" };
+    if (typeof window.plausible === "function") {
+      window.plausible("Step Completed", { props: { step: stepNames[step] } });
+    }
     if (step < 4) { setDir("left"); setStep(s => s + 1); }
     else startLoad();
   };
@@ -1368,6 +1373,28 @@ export default function PerfectRacket() {
           const result = generateRecommendations(snapshot);
           setRecs(result);
           go("results");
+
+          // Netlify Forms — log completion with top recommendation
+          try {
+            const topRacket = result.racquets?.[0];
+            const topString = result.strings?.[0];
+            const formData = new FormData();
+            formData.append("form-name", "perfect-racket-submission");
+            formData.append("name", snapshot.name || "");
+            formData.append("email", snapshot.email || "");
+            formData.append("ntrp", snapshot.ntrp || "");
+            formData.append("play-style", snapshot.playStyle || "");
+            formData.append("pain-severity", snapshot.painSeverity || "");
+            formData.append("top-racket", topRacket ? `${topRacket.brand} ${topRacket.model}` : "");
+            formData.append("top-string", topString ? topString.name : "");
+            formData.append("tension", result.tension ? `${result.tension.low}-${result.tension.high} lbs` : "");
+            fetch("/", { method: "POST", body: formData });
+          } catch (e) { /* silent fail — never block results */ }
+
+          // Plausible — completion event
+          if (typeof window.plausible === "function") {
+            window.plausible("Form Completed", { props: { ntrp: snapshot.ntrp, painSeverity: snapshot.painSeverity } });
+          }
         } catch (err) {
           console.error("generateRecommendations failed:", err);
           setRecs({ error: true });
@@ -1431,7 +1458,7 @@ export default function PerfectRacket() {
                 </div>
                 <h1 className="lp-h1">Stop guessing.<br/>Find your <em>perfect</em><br/>racket setup.</h1>
                 <p className="lp-hero-sub">Answer 13 questions about your game, arm health, and play style. Get back your top 3 rackets, strings, and an exact tension range -- personalized to protect your arm and elevate your game.</p>
-                <button className="lp-btn-primary" onClick={()=>go("form")}>Get My Free Setup -></button>
+                <button className="lp-btn-primary" onClick={()=>{ if(typeof window.plausible==="function") window.plausible("CTA Clicked",{props:{location:"hero"}}); go("form"); }}>Get My Free Setup -></button>
                 <div style={{display:"flex",alignItems:"center",gap:20,flexWrap:"wrap",marginTop:8}}>
                   <div style={{display:"flex",alignItems:"center",gap:10}}>
                     <div style={{background:"rgba(200,82,42,0.15)",border:"1px solid rgba(200,82,42,0.35)",borderRadius:8,padding:"6px 10px",display:"flex",alignItems:"baseline",gap:4}}>

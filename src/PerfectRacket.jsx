@@ -657,7 +657,7 @@ const REQUIRED = {
 
 const PHASES = [
   "Reading your profile",
-  "Scoring 34 frames",
+  "Scoring 42 frames",
   "Weighing arm health",
   "Matching strings",
   "Building your setup",
@@ -1468,7 +1468,7 @@ export default function PerfectRacket() {
                     <span style={{fontSize:11,color:"rgba(255,255,255,0.4)",fontStyle:"italic",maxWidth:140,lineHeight:1.4}}>No other tool prioritises your arm this heavily</span>
                   </div>
                   <div className="lp-proof-div"/>
-                  <div className="lp-proof-stat"><strong>34</strong><span>frames scored</span></div>
+                  <div className="lp-proof-stat"><strong>42</strong><span>frames scored</span></div>
                   <div className="lp-proof-div"/>
                   <div className="lp-proof-stat"><strong>~3 min</strong><span>to your results</span></div>
                 </div>
@@ -1613,7 +1613,7 @@ export default function PerfectRacket() {
                 <div className="lp-credentials">
                   {[
                     {e:"🔬",t:"Science-backed arm health logic",    d:"Arm health accounts for 40% of every recommendation we make"},
-                    {e:"📊",t:"60+ rackets, rigorously scored",     d:"Every frame rated across 8 technical dimensions - not just marketing copy"},
+                    {e:"📊",t:"42 rackets, rigorously scored",     d:"Every frame rated across 6 technical dimensions - not just marketing copy"},
                     {e:"🎯",t:"Tension calculated for your body",   d:"Not a generic range - a specific starting point based on your arm and play style"},
                   ].map((c,i) => (
                     <div key={i} className="lp-credential">
@@ -1663,7 +1663,7 @@ export default function PerfectRacket() {
               <div className="lp-steps">
                 {[
                   {n:"1",e:"📋",t:"Answer 13 questions",       d:"Tell us about your game, your body, and your arm health. Takes about 3 minutes."},
-                  {n:"2",e:"⚙️",t:"We run the analysis",        d:"Our scoring engine weighs 6 dimensions across 55+ rackets and strings - arm health first."},
+                  {n:"2",e:"⚙️",t:"We run the analysis",        d:"Our scoring engine weighs 6 dimensions across 42 rackets and 28 strings - arm health first."},
                   {n:"3",e:"🎯",t:"Get your personalized setup", d:"Top 3 rackets, top 3 strings, exact tension range, and a script for your stringer."},
                 ].map((s,i) => (
                   <div key={i} className="lp-step">
@@ -1812,7 +1812,7 @@ export default function PerfectRacket() {
                 ))}
               </div>
               <div className="lp-footer-bottom">
-                <p>2025 Perfect Racket. All rights reserved.</p>
+                <p>© 2026 Perfect Racket. All rights reserved.</p>
                 <p>Shop links are affiliate links to Tennis Express. Recommendations are never influenced by commissions.</p>
               </div>
             </div>

@@ -1,0 +1,8 @@
+# Perfect Racket — robots.txt
+# Allow all well-behaved crawlers full access.
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://perfectracket.com/sitemap.xml

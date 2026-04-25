@@ -2,33 +2,158 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Free personalized tennis racket and string recommendation — arm health weighted at 40% of every result." />
-    <meta property="og:title" content="Perfect Racket — Find Your Ideal Tennis Setup" />
-    <meta property="og:description" content="Answer 13 questions. Get your top 3 rackets, strings, tension range, and stringer script — personalized to your arm health and play style." />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+    <!-- ===== PRIMARY SEO ========================================== -->
+    <title>Tennis Racket Finder for Tennis Elbow | Perfect Racket</title>
+    <meta name="description" content="Free personalized tennis racket, string, and tension recommendations weighted around your arm health. 13 questions, 42 rackets scored, results in 3 minutes." />
+    <meta name="keywords" content="tennis racket for tennis elbow, best racket for arm pain, tennis racket finder, tennis string for arm health, arm-friendly tennis racket, tennis racket recommendation, tennis elbow racket" />
+    <link rel="canonical" href="https://perfectracket.com/" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <meta name="author" content="Perfect Racket" />
+
+    <!-- ===== OPEN GRAPH (Facebook, LinkedIn, iMessage) ============ -->
     <meta property="og:type" content="website" />
-    <title>Perfect Racket</title>
-    <!-- Privacy-friendly analytics by Plausible -->
-<script async src="https://plausible.io/js/pa-KCV7KTlkgAmQyYP4cfMEC.js"></script>
-<script>
-  window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
-  plausible.init()
-</script>
+    <meta property="og:site_name" content="Perfect Racket" />
+    <meta property="og:title" content="Tennis Racket Finder for Tennis Elbow | Perfect Racket" />
+    <meta property="og:description" content="Free personalized tennis racket, string, and tension recommendations weighted around your arm health. 13 questions, 42 rackets scored, results in 3 minutes." />
+    <meta property="og:url" content="https://perfectracket.com/" />
+    <meta property="og:image" content="https://perfectracket.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Perfect Racket — Tennis racket finder for arm health" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- ===== TWITTER / X CARD ===================================== -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Tennis Racket Finder for Tennis Elbow | Perfect Racket" />
+    <meta name="twitter:description" content="Free personalized racket, string, and tension recommendations — weighted around your arm health." />
+    <meta name="twitter:image" content="https://perfectracket.com/og-image.png" />
+    <meta name="twitter:image:alt" content="Perfect Racket — Tennis racket finder for arm health" />
+
+    <!-- ===== THEME & APPEARANCE =================================== -->
+    <meta name="theme-color" content="#0D1B2A" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Perfect Racket" />
+
+    <!-- ===== FAVICON SET ==========================================
+         Generate these at realfavicongenerator.net and drop into /public/
+         (file names here match that generator's default output)
+    =============================================================== -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- ===== PERFORMANCE: PRECONNECT TO GOOGLE FONTS =============
+         The app imports Google Fonts via @import in the CSS template
+         literal. Preconnecting here cuts ~200ms off the first paint.
+    =============================================================== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- ===== STRUCTURED DATA: WebApplication ====================== -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Perfect Racket",
+      "url": "https://perfectracket.com/",
+      "description": "Personalized tennis racket, string, and tension recommendation engine weighted around arm health. Scores 42 rackets and 28 strings across 6 technical dimensions.",
+      "applicationCategory": "SportsApplication",
+      "operatingSystem": "All",
+      "browserRequirements": "Requires JavaScript. Requires HTML5.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "Personalized top 3 racket recommendations",
+        "Personalized top 3 string recommendations",
+        "Calculated string tension range",
+        "Copy-paste stringer script",
+        "Arm-health weighted scoring (40% baseline, up to 80%)"
+      ]
+    }
+    </script>
+
+    <!-- ===== STRUCTURED DATA: Organization ======================== -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Perfect Racket",
+      "url": "https://perfectracket.com/",
+      "logo": "https://perfectracket.com/logo-512.png",
+      "description": "The tennis equipment recommendation engine built around your arm health, your game, and your goals."
+    }
+    </script>
+
+    <!-- ===== STRUCTURED DATA: FAQPage =============================
+         Mirrors the five FAQs rendered on the landing page. Keep in
+         sync if FAQ copy changes in PerfectRacket.jsx.
+    =============================================================== -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is this really free?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, completely. Perfect Racket is free to use. We earn a small affiliate commission if you click through and purchase — but your recommendations are never influenced by commission rates."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "I am a beginner. Is this for me?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Absolutely. We cover NTRP levels from 2.5 to 4.5+. Beginners often benefit the most — the right frame makes learning significantly easier, and correct tension prevents injuries before they start."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How is this different from a generic quiz?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Most quizzes ask 3-5 questions and return the same 5 popular rackets. Perfect Racket asks 13 specific questions, weights arm health at 40%, and uses a data-driven algorithm across 6 technical dimensions."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What if I do not have any arm pain?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "You will get recommendations optimized for performance with arm health as a protective factor. Many players discover they have been using equipment that puts them at unnecessary risk — consider it preventive analysis."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I share my results with my coach or stringer?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes — results include a pre-written stringer script you can copy and read aloud at the pro shop. Many coaches use Perfect Racket as a starting point for equipment conversations."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- ===== ANALYTICS ============================================
+         Paste your existing Plausible tag here. Standard tag shown
+         as a reference — replace with whatever you already have so
+         custom events (CTA Clicked, Step 1–4, Form Completed) keep
+         firing.
+    =============================================================== -->
+    <script defer data-domain="perfectracket.com" src="https://plausible.io/js/script.js"></script>
   </head>
   <body>
-    <!-- Netlify Forms detection — hidden, never shown to users -->
-    <form name="perfect-racket-submission" netlify netlify-honeypot="bot-field" hidden>
-      <input type="text" name="name" />
-      <input type="email" name="email" />
-      <input type="text" name="ntrp" />
-      <input type="text" name="play-style" />
-      <input type="text" name="pain-severity" />
-      <input type="text" name="top-racket" />
-      <input type="text" name="top-string" />
-      <input type="text" name="tension" />
-    </form>
-
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

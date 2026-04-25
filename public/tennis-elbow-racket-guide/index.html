@@ -380,48 +380,51 @@
         .a-callout { padding: 20px 22px; font-size: 17px; }
       }
 
-      /* ===== INLINE CTA SECTION ===== */
+      /* ===== INLINE CTA SECTION =====
+         Uses !important on h2 layout properties to GUARANTEE the
+         scoped override wins over the global .a-body h2 rule, which
+         was bleeding through and creating excessive vertical space. */
       .a-cta-section {
         background: var(--navy);
-        margin: 4em -32px 4em;
-        padding: 56px 32px;
+        margin: 2.5em 0;
+        padding: 32px 28px;
         text-align: center;
-        border-radius: 8px;
+        border-radius: 12px;
       }
       @media (max-width: 600px) {
-        .a-cta-section { margin: 3em -20px; padding: 40px 24px; }
+        .a-cta-section { margin: 2em 0; padding: 26px 20px; border-radius: 10px; }
       }
-      .a-cta-eyebrow {
+      .a-cta-section .a-cta-eyebrow {
         font-family: 'DM Mono', monospace;
         font-size: 10px;
-        letter-spacing: 0.2em;
+        letter-spacing: 0.18em;
         text-transform: uppercase;
         color: var(--clay-bright);
-        margin-bottom: 16px;
+        margin: 0 0 12px;
       }
-      .a-cta-h2 {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: clamp(28px, 4.5vw, 40px);
-        font-weight: 700;
-        line-height: 1.15;
-        color: var(--white);
-        margin: 0 0 20px;
-        border: none;
-        padding: 0;
-        display: block;
+      .a-cta-section h2.a-cta-h2 {
+        font-family: 'Cormorant Garamond', serif !important;
+        font-size: clamp(24px, 3.6vw, 30px) !important;
+        font-weight: 700 !important;
+        line-height: 1.2 !important;
+        color: var(--white) !important;
+        margin: 0 0 12px !important;
+        padding: 0 !important;
+        border: none !important;
+        display: block !important;
       }
-      .a-cta-h2 em {
+      .a-cta-section h2.a-cta-h2 em {
         color: var(--clay-bright);
         font-style: italic;
       }
-      .a-cta-text {
-        font-size: 16px;
-        color: rgba(255,255,255,0.65);
-        line-height: 1.65;
-        max-width: 540px;
-        margin: 0 auto 28px;
+      .a-cta-section .a-cta-text {
+        font-size: 14px;
+        color: rgba(255,255,255,0.7);
+        line-height: 1.55;
+        max-width: 520px;
+        margin: 0 auto 18px !important;
       }
-      .a-cta-text strong { color: var(--white); font-weight: 600; }
+      .a-cta-section .a-cta-text strong { color: var(--white); font-weight: 600; }
       .a-btn-primary {
         display: inline-flex;
         align-items: center;
@@ -430,9 +433,9 @@
         color: var(--white);
         border: none;
         border-radius: 8px;
-        padding: 16px 32px;
+        padding: 14px 26px;
         font-family: 'Outfit', sans-serif;
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 600;
         cursor: pointer;
         text-decoration: none;
@@ -444,9 +447,9 @@
         background: var(--clay-bright);
         transform: translateY(-1px);
       }
-      .a-cta-fine {
+      .a-cta-section .a-cta-fine {
         display: block;
-        margin-top: 18px;
+        margin-top: 12px;
         font-family: 'DM Mono', monospace;
         font-size: 10px;
         letter-spacing: 0.14em;

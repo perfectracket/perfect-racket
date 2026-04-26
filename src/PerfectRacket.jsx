@@ -730,12 +730,14 @@ input, select, textarea { font-size: 16px !important; }
 .arm-strip-msg { font-size: var(--text-xs); color: var(--white); opacity: 0.45; line-height: 1.4; }
 
 @media (min-width: 900px) {
+  /* Desktop strategy: keep the polished mobile experience for form and
+     results, just centered on the screen with a subtle background wash.
+     Landing page is unaffected — it has its own .landing-page styling
+     that overrides this and uses the full viewport width. */
+  body { background: var(--cream-dark); }
+  .pr-app { background: var(--cream); box-shadow: 0 0 0 1px rgba(13,27,42,0.04), 0 8px 40px rgba(13,27,42,0.06); }
   .arm-strip { display: none; }
-  .pr-app { max-width: 100%; margin: 0; }
-  .f-shell { flex-direction: row !important; min-height: 100vh; }
-  .f-col-form { width: 480px; flex-shrink: 0; display: flex; flex-direction: column; min-height: 100vh; border-right: 1px solid var(--border); position: relative; }
-  .f-col-panel { display: flex; flex: 1; background: var(--navy); min-height: 100vh; flex-direction: column; align-items: center; justify-content: center; padding: 60px 48px; position: sticky; top: 0; height: 100vh; overflow: hidden; }
-  .f-foot { left: 0 !important; transform: none !important; width: 480px !important; max-width: 480px !important; }
+  .f-col-panel { display: none; }
 }
 
 /* -- ANIMATIONS ---------------------------------------------------- */

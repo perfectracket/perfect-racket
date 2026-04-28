@@ -264,6 +264,18 @@ function getStringShopUrl(s) {
   return buildSearchShopUrl(s.name);
 }
 
+/* Returns true if a racquet has a direct product URL on Tennis Express
+   (i.e., is currently stocked and deep-linkable). Used by the recommendation
+   selection logic to skip products users couldn't shop directly. */
+function isRacquetInStock(r) {
+  return r && r.model && Object.prototype.hasOwnProperty.call(RACQUET_AFFILIATE_URLS, r.model);
+}
+
+/* Same as isRacquetInStock but for strings. */
+function isStringInStock(s) {
+  return s && s.name && Object.prototype.hasOwnProperty.call(STRING_AFFILIATE_URLS, s.name);
+}
+
 function norm(val, min, max) {
   if (max === min) return 50;
   return Math.min(100, Math.max(0, ((val - min) / (max - min)) * 100));
@@ -500,15 +512,37 @@ function selectStrings(d, injuryFactor, painNumeric) {
 
   // Diversity cap: no single type fills more than 2 of the 3 slots.
   // Ensures users always see genuine variety rather than 3x the same type.
+  // Also: skip strings that aren't currently stocked at Tennis Express,
+  // so every recommendation is directly shoppable. (Out-of-stock strings
+  // stay in scoring but never reach the user's results.)
   const picked = [];
   const typeCounts = {};
   for (const s of scored) {
+    if (!isStringInStock(s)) continue;
     const typeCount = typeCounts[s.type] || 0;
     if (typeCount < 2) {
       picked.push(s);
       typeCounts[s.type] = typeCount + 1;
     }
     if (picked.length === 3) break;
+  }
+
+  // Defensive fallback: if the in-stock + diversity-cap combination yields
+  // fewer than 3 strings (effectively impossible with 22 stocked across 4
+  // types), do a second pass without the stock filter to guarantee 3 picks.
+  if (picked.length < 3) {
+    const seen = new Set(picked.map(p => p.name));
+    const typeCounts2 = { ...typeCounts };
+    for (const s of scored) {
+      if (seen.has(s.name)) continue;
+      const typeCount = typeCounts2[s.type] || 0;
+      if (typeCount < 2) {
+        picked.push(s);
+        typeCounts2[s.type] = typeCount + 1;
+        seen.add(s.name);
+      }
+      if (picked.length === 3) break;
+    }
   }
 
   return picked.map((s, i) => ({ ...s, top: i === 0 }));
@@ -730,7 +764,16 @@ function generateRecommendations(d) {
     return a.model.localeCompare(b.model);
   });
 
-  const topRacquets = scored.slice(0, 3).map((r, i) => ({ ...r, top: i === 0, rank: i + 1 }));
+  // In-stock filter: walk the ranked list, take the first 3 racquets that
+  // have direct product URLs at Tennis Express. Out-of-stock products
+  // (PERCEPT 100, Black Ace 300, plus any future stock changes) stay in
+  // scoring but are skipped for display so every shown recommendation
+  // is shoppable. Defensive fallback: if fewer than 3 in-stock rackets
+  // exist (effectively impossible with current 40-of-42 stocked), fall
+  // through to the unfiltered list to guarantee the UI still gets 3.
+  const inStock = scored.filter(isRacquetInStock);
+  const racquetSource = inStock.length >= 3 ? inStock : scored;
+  const topRacquets = racquetSource.slice(0, 3).map((r, i) => ({ ...r, top: i === 0, rank: i + 1 }));
 
   // Post-process: ensure each card has unique whyText
   // When frames are genuinely spec-identical (same beam, pattern, RA tier),

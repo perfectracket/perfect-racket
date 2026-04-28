@@ -118,6 +118,152 @@ const STRING_DB = [
 
 ];
 
+/* =============================================================
+   AFFILIATE URL INFRASTRUCTURE
+   -----------------------------------------------------------
+   Maps each racquet model and string name to its Tennis Express
+   product slug. The buildShopUrl() helper wraps the slug in the
+   Shopify-standard /discount/<code>?redirect=... pattern, which
+   sets the discount cookie AND deep-links to the product page in
+   one click. Products not in the maps fall back to a search URL
+   (still with the discount cookie applied).
+
+   To update a slug or add a new product, edit only this file.
+   The product database (RACQUET_DB / STRING_DB) is unchanged.
+
+   AFFILIATE CODE: change AFFILIATE_CODE if Tucker's discount code
+   ever changes. All 70 product URLs update automatically.
+   ============================================================= */
+
+const AFFILIATE_CODE = "tucktraining";
+const TE_BASE        = "https://www.tennisexpress.com";
+
+const RACQUET_AFFILIATE_URLS = {
+  // Wilson
+  "RF 01 Pro":                    "wilson-rf-01-pro-tennis-racquet-110605",
+  "RF 01":                        "wilson-rf-01-tennis-racquet-110606",
+  "RF 01 Future":                 "wilson-rf-01-future-tennis-racquet-110607",
+  "Clash 100 v3":                 "clash-100-v3-tennis-racquet?variant=49630090199355",
+  "Clash 100L v3":                "clash-100l-v3-tennis-racquet",
+  "Clash 100 Pro v3":             "clash-100-pro-v3-tennis-racquet",
+  "Blade 98 16x19 v9":            "wilson-blade-98-16x19-v90-tennis-racquet-108333?variant=49252088742203",
+  "Blade 100 v9":                 "wilson-blade-100-v90-tennis-racquet-108336?variant=49252087529787",
+  "Blade 98 18x20 v9":            "wilson-blade-98-18x20-v90-tennis-racquet-108334?variant=49252089069883",
+  "Pro Staff 97 v14":             "wilson-pro-staff-97-v140-tennis-racquet-103535?variant=49252099391803",
+  "Ultra 100 v4":                 "ultra-100-v5-tennis-racquet", // AUDIT: links to v5; database says v4
+  // HEAD
+  "Speed Pro 2026":               "speed-pro-2026-tennis-racquet?variant=50778264633659",
+  "Speed Tour 97 2026":           "speed-tour-2026-tennis-racquet?variant=50778266566971",
+  "Speed MP 2026":                "speed-mp-2026-tennis-racquet",
+  "Speed MP L 2026":              "speed-mp-l-2026-tennis-racquet",
+  "Speed MP UL 2026":             "speed-mp-ul-2026-tennis-racquet",
+  "Gravity MP 2025":              "gravity-mp-2025-tennis-racquet",
+  "Gravity Tour 2025":            "gravity-tour-2025-tennis-racquet?variant=49630099702075",
+  "Gravity Pro 2025":             "gravity-pro-2025-tennis-racquet",
+  "Boom MP 2026":                 "boom-mp-2006-tennis-racquet", // AUDIT: TE typo says 2006, link works
+  "Radical MP 2025":              "radical-mp-2025-tennis-racquet",
+  "Extreme MP 2025":              "head-extreme-mp-2024-tennis-racquet-111203", // AUDIT: TE only carries 2024
+  // Babolat
+  "Pure Aero 2026":               "pure-aero-2026-tennis-racquet",
+  "Pure Aero 98 2026":            "pure-aero-98-2026-tennis-racquet",
+  "Pure Drive 2025":              "pure-drive-gen11-tennis-racquet-blue-1?variant=49630300471611",
+  "Pure Strike 100":              "pure-strike-100-16-19-tennis-racquet-carbon-grey?variant=49783552966971",
+  "Pure Strike Team":             "pure-strike-team-tennis-racquet-carbon-grey",
+  "Pure Strike 100 16x20 Carbon Grey": "pure-strike-100-16-20-tennis-racquet-carbon-grey?variant=49784043045179",
+  // Yonex
+  "EZONE 100 2025":               "ezone-100-tennis-racquet-blast-blue?variant=49630090854715",
+  "EZONE 98 2025":                "ezone-98-tennis-racquet-blast-blue",
+  "VCORE 98 8th Gen 2026":        "vcore-98-tennis-racquet-ruby-red",
+  "VCORE 100 2026":               "vcore-100-tennis-racquet-ruby-red?variant=50810432291131",
+  // PERCEPT 100 — search fallback (not currently stocked at TE)
+  "PERCEPT 97":                   "percept-97-tennis-racquet-midnight-navy?variant=50271763759419",
+  // Dunlop
+  "CX 200 16x19":                 "cx200-limited-edition-16x19-tennis-racquet",
+  "SX 300 2025":                  "sx-tennis-racquet",
+  "SX 300 Lite 2025":             "sx-300-lite-tennis-racquet",
+  // Tecnifibre
+  "TFight 305":                   "t-fight-305s-performance-tennis-racquet",
+  "TFight 315":                   "t-fight-315s-performance-tennis-racquet",
+  // Solinco
+  "Blackout V2 300":              "blackout-v2-300g-tennis-racquet?variant=50589652943163",
+  // ProKennex
+  "Ki Q+5":                       "ki-q-5x-pro-tennis-racquet?variant=50403074179387",
+  // Black Ace 300 — search fallback (not currently stocked at TE)
+};
+
+const STRING_AFFILIATE_URLS = {
+  // Polyester
+  "Luxilon ALU Power 125":        "alu-power-125-seed-string",
+  "Babolat RPM Blast 125":        "rpm-blast-125-touch-vs-130-150-year-anniversary-tennis-string", // AUDIT: anniversary edition
+  "Luxilon ALU Power Rough 125":  "luxilon-big-banger-alu-power-125-rough-17g-string-4577",
+  // Solinco Tour Bite 16 — search fallback (only Diamond Rough/Soft/reel available)
+  "Solinco Hyper-G 17":           "solinco-hyper-g-round-tennis-string-109223?variant=49252049944891",
+  // Yonex Poly Tour Pro 125 — search fallback (not in stock)
+  "Head Hawk 16":                 "head-hawk-16g-tennis-string-white-35714?variant=49386878599483",
+  "Tecnifibre Black Code 16":     "tecnifibre-black-code-16g-strings-11857",
+  "Wilson Revolve 16":            "wilson-revolve-tennis-string-41953?variant=49387716641083",
+  "Kirschbaum Pro Line II 17":    "pro-line-ii-1-30-black-tennis-string-17984",
+  "Tecnifibre Razor Code 16":     "tecnifibre-razor-code-white-tennis-string-77873?variant=49387651563835",
+  "Babolat RPM Team 125":         "rpm-team-tennis-string-black",
+  "Head Lynx Tour 17":            "head-lynx-tour-tennis-string-82579?variant=49386880926011",
+  "Volkl Cyclone 16":             "volkl-cyclone-16g-tennis-string-graphite-109134",
+  // Multifilament
+  "Tecnifibre NRG2 17":           "tecnifibre-nrg2-tennis-string-72763?variant=49387649368379",
+  "Tecnifibre X-One Biphase 16":  "tecnifibre-x-one-biphase-tennis-string-natural-72747?variant=49387653726523",
+  "Wilson NXT 16":                "wilson-nxt-tennis-string-38687?variant=49387715428667",
+  "Head Velocity MLT 16":         "head-velocity-mlt-tennis-string-45456?variant=49386893115707",
+  "Yonex Rexis 125":              "yonex-rexis-comfort-tennis-string-91647", // AUDIT: links to Rexis Comfort variant
+  // Wilson Clash Duo 16 — search fallback (not stocked at TE)
+  "Babolat Xcel 16":              "xcel-tennis-string?variant=49630501634363",
+  // Synthetic Gut
+  // Prince Synthetic Gut 16 — search fallback (not stocked)
+  "Wilson Synthetic Gut Power 16":"wilson-synthetic-gut-power-tennis-string-38706?variant=49387720802619",
+  "Babolat Synthetic Gut 16":     "babolat-syn-gut-tennis-string-82888?variant=49386672554299",
+  "Gamma Synthetic Gut 16":       "gamma-synthetic-gut-tennis-string-white-73467",
+  // Natural Gut
+  // Babolat Natural Gut 16 — search fallback (not stocked)
+  "Wilson Natural Gut 16":        "wilson-natural-gut-tennis-string-53981?variant=49387713986875",
+  // Klip Legend Natural Gut 16 — search fallback (not stocked)
+};
+
+/* Wraps a Tennis Express product slug in the Shopify discount-redirect
+   URL pattern. The result simultaneously sets Tucker's discount cookie
+   AND deep-links to the product page. Pass slug=null to get a discount-
+   only URL (lands on TE homepage with cookie set).
+
+   The redirect value is URL-encoded so slugs containing ?variant=... or
+   other query strings survive intact through Shopify's redirect handler. */
+function buildShopUrl(slug) {
+  const base = `${TE_BASE}/discount/${AFFILIATE_CODE}`;
+  if (!slug) return base;
+  return `${base}?redirect=${encodeURIComponent("/products/" + slug)}`;
+}
+
+/* Wraps a Tennis Express SEARCH URL in the same discount-redirect pattern.
+   Used for products not in the affiliate URL maps — user lands on a
+   search results page with discount cookie applied at any eventual
+   checkout. */
+function buildSearchShopUrl(query) {
+  const search = `/search?q=${encodeURIComponent(query)}`;
+  return `${TE_BASE}/discount/${AFFILIATE_CODE}?redirect=${encodeURIComponent(search)}`;
+}
+
+/* Returns the appropriate Tennis Express URL for a given racquet object.
+   Looks up the model in RACQUET_AFFILIATE_URLS; falls back to search if
+   not present. */
+function getRacquetShopUrl(r) {
+  const slug = RACQUET_AFFILIATE_URLS[r.model];
+  if (slug) return buildShopUrl(slug);
+  return buildSearchShopUrl(`${r.brand} ${r.model}`);
+}
+
+/* Returns the appropriate Tennis Express URL for a given string object. */
+function getStringShopUrl(s) {
+  const slug = STRING_AFFILIATE_URLS[s.name];
+  if (slug) return buildShopUrl(slug);
+  return buildSearchShopUrl(s.name);
+}
+
 function norm(val, min, max) {
   if (max === min) return 50;
   return Math.min(100, Math.max(0, ((val - min) / (max - min)) * 100));
@@ -2107,8 +2253,9 @@ export default function PerfectRacket() {
                     {r.budgetFlag === "in-budget" && <span className="r-tag" style={{background:"rgba(40,200,122,.1)",color:"#1A8055"}}>In Budget</span>}
                     {r.budgetFlag === "over-budget" && <span className="r-tag" style={{background:"rgba(232,84,84,.1)",color:"var(--red)"}}>Over Budget</span>}
                   </div>
-                  <a href={`https://www.tennisexpress.com/search?q=${encodeURIComponent(r.brand+" "+r.model)}`}
-                     target="_blank" rel="noopener noreferrer" style={{textDecoration:"none"}}>
+                  <a href={getRacquetShopUrl(r)}
+                     target="_blank" rel="noopener noreferrer" style={{textDecoration:"none"}}
+                     onClick={() => { if (typeof window.plausible === "function") window.plausible("Shop Click", { props: { product: `${r.brand} ${r.model}`, type: "racquet" } }); }}>
                     <button className={`shop-btn${r.top ? "" : " secondary"}`}>Shop on Tennis Express</button>
                   </a>
                 </div>
@@ -2157,8 +2304,9 @@ export default function PerfectRacket() {
                     <div className="r-why-l">Why this string</div>
                     <div className="r-why-t">{s.why}</div>
                   </div>
-                  <a href={`https://www.tennisexpress.com/search?q=${encodeURIComponent(s.name)}`}
-                     target="_blank" rel="noopener noreferrer" style={{textDecoration:"none"}}>
+                  <a href={getStringShopUrl(s)}
+                     target="_blank" rel="noopener noreferrer" style={{textDecoration:"none"}}
+                     onClick={() => { if (typeof window.plausible === "function") window.plausible("Shop Click", { props: { product: s.name, type: "string" } }); }}>
                     <button className={`shop-btn${s.top ? "" : " secondary"}`}>Shop on Tennis Express</button>
                   </a>
                 </div>

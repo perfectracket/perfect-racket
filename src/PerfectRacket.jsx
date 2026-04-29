@@ -1243,11 +1243,11 @@ const landingCss = `
   .lp-mc-tension-val { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--gold); line-height: 1; }
   .lp-eyebrow { display: inline-flex; align-items: center; gap: 10px; background: rgba(200,82,42,0.15); border: 1px solid rgba(200,82,42,0.3); border-radius: 100px; padding: 6px 16px 6px 8px; margin-bottom: 28px; animation: lp-fadeUp 0.6s ease both; }
   .lp-edot { width: 8px; height: 8px; background: var(--clay-bright); border-radius: 50%; }
-  .lp-eyebrow span { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--clay-bright); }
+  .lp-eyebrow span { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--clay-bright); }
   @keyframes lp-fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   .lp-h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(48px, 8vw, 84px); font-weight: 700; line-height: 1.0; color: var(--white); margin-bottom: 24px; animation: lp-fadeUp 0.6s 0.1s ease both; }
   .lp-h1 em { font-style: italic; color: var(--clay-bright); }
-  .lp-hero-sub { font-size: 17px; font-weight: 300; color: rgba(255,255,255,0.6); line-height: 1.7; max-width: 500px; margin-bottom: 36px; animation: lp-fadeUp 0.6s 0.2s ease both; }
+  .lp-hero-sub { font-size: 20px; font-weight: 300; color: rgba(255,255,255,0.65); line-height: 1.65; max-width: 520px; margin-bottom: 36px; animation: lp-fadeUp 0.6s 0.2s ease both; }
   .lp-btn-primary { display: inline-flex; align-items: center; background: var(--clay); color: var(--white); border: none; border-radius: 8px; padding: 16px 28px; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s, transform 0.15s; letter-spacing: 0.02em; margin-bottom: 16px; animation: lp-fadeUp 0.6s 0.3s ease both; }
   .lp-btn-primary:hover { background: var(--clay-bright); transform: translateY(-2px); }
   .lp-proof-strip { position: absolute; bottom: 36px; left: 48px; right: 48px; display: flex; align-items: center; gap: 28px; flex-wrap: wrap; z-index: 2; }
@@ -1256,12 +1256,12 @@ const landingCss = `
   .lp-avatars { display: flex; }
   .lp-avatar { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--navy); margin-right: -7px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--white); }
   .lp-avatar-1 { background: #4A7A8A; } .lp-avatar-2 { background: #7A4A8A; } .lp-avatar-3 { background: #8A6A3A; } .lp-avatar-4 { background: var(--clay); }
-  .lp-proof-txt { font-size: 13px; color: rgba(255,255,255,0.45); }
+  .lp-proof-txt { font-size: 14px; color: rgba(255,255,255,0.5); }
   .lp-proof-txt strong { color: rgba(255,255,255,0.75); }
   .lp-proof-div { width: 1px; height: 22px; background: rgba(255,255,255,0.1); flex-shrink: 0; }
   .lp-proof-stat strong { display: block; font-size: 18px; font-weight: 700; color: var(--white); font-family: 'Cormorant Garamond', serif; }
   .lp-proof-stat span { font-size: 11px; color: rgba(255,255,255,0.4); }
-  .lp-section-label { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--clay); margin-bottom: 14px; }
+  .lp-section-label { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--clay); margin-bottom: 14px; }
   .lp-label-gold { color: #E0B84A; }
   .lp-section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(34px, 5vw, 56px); font-weight: 700; line-height: 1.1; color: var(--ink); margin-bottom: 18px; }
   .lp-section-title em { font-style: italic; color: var(--clay); }
@@ -1275,10 +1275,10 @@ const landingCss = `
   .lp-pain-cards { display: flex; flex-direction: column; gap: 14px; }
   .lp-pain-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; display: flex; align-items: flex-start; gap: 14px; box-shadow: 0 2px 12px rgba(13,27,42,0.06); transition: transform 0.2s, box-shadow 0.2s; }
   .lp-pain-card:hover { transform: translateX(4px); box-shadow: 0 4px 20px rgba(13,27,42,0.1); }
-  .lp-pain-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-  .lp-pain-red { background: rgba(200,82,42,0.1); } .lp-pain-amber { background: rgba(196,154,60,0.1); } .lp-pain-blue { background: rgba(13,27,42,0.07); }
-  .lp-pain-card h4 { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
-  .lp-pain-card p { font-size: 13px; color: var(--light); line-height: 1.5; margin: 0; }
+  .lp-pain-stripe { width: 4px; align-self: stretch; border-radius: 2px; flex-shrink: 0; }
+  .lp-pain-red { background: var(--clay); } .lp-pain-amber { background: var(--gold); } .lp-pain-blue { background: var(--navy-light); }
+  .lp-pain-card h4 { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 6px; line-height: 1.3; }
+  .lp-pain-card p { font-size: 15px; color: var(--mid); line-height: 1.6; margin: 0; }
   .lp-cta-strip { display: flex; justify-content: center; padding: 0 48px 40px; }
   .lp-cta-strip.on-navy { background: var(--navy); padding-top: 40px; }
   .lp-cta-strip.on-navy-mid { background: var(--navy-mid); }
@@ -1290,12 +1290,12 @@ const landingCss = `
   .lp-guide::before { content: ''; position: absolute; top: -200px; right: -200px; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(200,82,42,0.12) 0%, transparent 70%); pointer-events: none; }
   .lp-guide-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: start; position: relative; z-index: 1; }
   @media (max-width: 800px) { .lp-guide-inner { grid-template-columns: 1fr; gap: 48px; } }
-  .lp-guide-body { font-size: 16px; font-weight: 300; color: rgba(255,255,255,0.55); line-height: 1.8; margin-bottom: 28px; }
+  .lp-guide-body { font-size: 18px; font-weight: 300; color: rgba(255,255,255,0.62); line-height: 1.7; margin-bottom: 28px; }
   .lp-credentials { display: flex; flex-direction: column; gap: 14px; }
   .lp-credential { display: flex; align-items: center; gap: 14px; padding: 14px 18px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; }
-  .lp-cred-icon { font-size: 22px; width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; background: rgba(200,82,42,0.15); border-radius: 10px; flex-shrink: 0; }
-  .lp-credential h4 { font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 3px; }
-  .lp-credential p { font-size: 12px; color: rgba(255,255,255,0.4); margin: 0; }
+  .lp-cred-bullet { width: 8px; height: 8px; border-radius: 50%; background: var(--clay); flex-shrink: 0; align-self: center; }
+  .lp-credential h4 { font-size: 16px; font-weight: 600; color: var(--white); margin-bottom: 4px; line-height: 1.3; }
+  .lp-credential p { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.5; margin: 0; }
   .lp-score-mockup { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 28px; }
   .lp-mockup-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
   .lp-mockup-ttl { font-size: 13px; color: rgba(255,255,255,0.5); font-family: 'DM Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase; }
@@ -1321,10 +1321,9 @@ const landingCss = `
   @media (max-width: 700px) { .lp-steps { grid-template-columns: 1fr; } }
   .lp-step { background: var(--white); padding: 44px 32px; position: relative; transition: background 0.2s; }
   .lp-step:hover { background: #F0EBE3; }
-  .lp-step-num { font-family: 'Cormorant Garamond', serif; font-size: 68px; font-weight: 700; color: var(--clay); opacity: 0.12; line-height: 1; margin-bottom: 6px; }
-  .lp-step-icon { font-size: 26px; margin-bottom: 14px; }
-  .lp-step h3 { font-size: 19px; font-weight: 600; color: var(--ink); margin-bottom: 10px; }
-  .lp-step p { font-size: 14px; color: var(--mid); line-height: 1.7; margin: 0; }
+  .lp-step-num { font-family: 'Cormorant Garamond', serif; font-size: 68px; font-weight: 700; color: var(--clay); opacity: 0.12; line-height: 1; margin-bottom: 18px; }
+  .lp-step h3 { font-size: 20px; font-weight: 600; color: var(--ink); margin-bottom: 10px; line-height: 1.3; }
+  .lp-step p { font-size: 16px; color: var(--mid); line-height: 1.65; margin: 0; }
   .lp-step-arrow { position: absolute; right: -18px; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; background: var(--clay); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 15px; z-index: 2; box-shadow: 0 0 0 4px var(--cream); }
   @media (max-width: 700px) { .lp-step-arrow { display: none; } }
   .lp-social-proof { background: var(--navy-mid); padding: 88px 48px; }
@@ -1336,7 +1335,7 @@ const landingCss = `
   .lp-testimonial { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 28px 24px; transition: transform 0.2s, border-color 0.2s; }
   .lp-testimonial:hover { transform: translateY(-4px); border-color: rgba(200,82,42,0.3); }
   .lp-testi-stars { color: var(--gold); font-size: 13px; letter-spacing: 2px; margin-bottom: 14px; }
-  .lp-testi-quote { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-style: italic; color: rgba(255,255,255,0.8); line-height: 1.6; margin-bottom: 20px; }
+  .lp-testi-quote { font-family: 'Cormorant Garamond', serif; font-size: 19px; font-style: italic; color: rgba(255,255,255,0.8); line-height: 1.6; margin-bottom: 20px; }
   .lp-testi-author { display: flex; align-items: center; gap: 12px; }
   .lp-testi-avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--white); flex-shrink: 0; }
   .lp-testi-name { font-size: 13px; font-weight: 600; color: var(--white); }
@@ -1786,13 +1785,13 @@ export default function PerfectRacket() {
               </div>
               <div className="lp-pain-cards">
                 {[
-                  {c:"red",  e:"🎾", t:"The just-try-it trap",          d:"Demo programs are hit-or-miss. Without knowing your specs, you could demo 10 rackets and still pick the wrong one."},
-                  {c:"amber",e:"⚠️", t:"Arm pain that keeps coming back", d:"Tennis elbow, shoulder strain, and wrist pain are often equipment problems masquerading as technique problems."},
-                  {c:"blue", e:"❓", t:"Confusing specs, no clear guide",  d:"RA ratings, swing weight, beam width - the spec sheets are there, but no one translates them for your situation."},
-                  {c:"red",  e:"💸", t:"Expensive mistakes",               d:"At $200+ per racket, a wrong purchase stings. Most players end up with frames sitting in the closet."},
+                  {c:"red",  t:"The just-try-it trap",          d:"You can demo ten rackets and still pick the wrong one without knowing your specs."},
+                  {c:"amber",t:"Arm pain that keeps coming back", d:"Tennis elbow, shoulder strain, and wrist pain are usually equipment problems mistaken for technique problems."},
+                  {c:"blue", t:"Confusing specs, no guide",       d:"RA, swing weight, beam width — the numbers are everywhere, but nobody translates them for your situation."},
+                  {c:"red",  t:"Expensive mistakes",              d:"At $200+ per racket, a wrong purchase stings. Most players end up with frames sitting in the closet."},
                 ].map((p,i) => (
                   <div key={i} className="lp-pain-card">
-                    <div className={`lp-pain-icon lp-pain-${p.c}`}>{p.e}</div>
+                    <div className={`lp-pain-stripe lp-pain-${p.c}`}/>
                     <div><h4>{p.t}</h4><p>{p.d}</p></div>
                   </div>
                 ))}
@@ -1811,15 +1810,15 @@ export default function PerfectRacket() {
               <div>
                 <div className="lp-section-label lp-label-gold">Your guide</div>
                 <h2 className="lp-section-title lp-title-white">Built by players who have been through it.</h2>
-                <p className="lp-guide-body">Perfect Racket was built after one too many arm injuries caused by bad equipment advice. We combined sports science research, professional stringer knowledge, and data from thousands of player profiles to build a recommendation engine that actually accounts for your arm health - not just your play style.</p>
+                <p className="lp-guide-body">Perfect Racket exists because too many players are sold the wrong gear, develop arm pain, and never connect the dots. We built a recommendation engine that puts arm health first.</p>
                 <div className="lp-credentials">
                   {[
-                    {e:"🔬",t:"Science-backed arm health logic",    d:"Arm health accounts for 40% of every recommendation we make"},
-                    {e:"📊",t:"42 rackets, rigorously scored",     d:"Every frame rated across 6 technical dimensions - not just marketing copy"},
-                    {e:"🎯",t:"Tension calculated for your body",   d:"Not a generic range - a specific starting point based on your arm and play style"},
+                    {t:"Arm health, weighted at 40%",       d:"Every recommendation we make. No other tool weights arm health this heavily."},
+                    {t:"42 rackets, rigorously scored",     d:"Each frame rated across 6 technical dimensions — not marketing copy."},
+                    {t:"Tension calculated for your body",  d:"Not a generic range. A specific starting number based on your arm, your game, and your level."},
                   ].map((c,i) => (
                     <div key={i} className="lp-credential">
-                      <div className="lp-cred-icon">{c.e}</div>
+                      <div className="lp-cred-bullet"/>
                       <div><h4>{c.t}</h4><p>{c.d}</p></div>
                     </div>
                   ))}
@@ -1864,13 +1863,12 @@ export default function PerfectRacket() {
               </div>
               <div className="lp-steps">
                 {[
-                  {n:"1",e:"📋",t:"Answer 13 questions",       d:"Tell us about your game, your body, and your arm health. Takes about 3 minutes."},
-                  {n:"2",e:"⚙️",t:"We run the analysis",        d:"Our scoring engine weighs 6 dimensions across 42 rackets and 28 strings - arm health first."},
-                  {n:"3",e:"🎯",t:"Get your personalized setup", d:"Top 3 rackets, top 3 strings, exact tension range, and a script for your stringer."},
+                  {n:"1",t:"Answer 13 questions",       d:"Tell us about your game, your body, and your arm health. Takes 3 minutes."},
+                  {n:"2",t:"We run the analysis",        d:"Our scoring engine weighs 6 dimensions across 42 rackets and 28 strings — arm health first."},
+                  {n:"3",t:"Get your personalized setup", d:"Top 3 rackets, top 3 strings, an exact tension range, and a script for your stringer."},
                 ].map((s,i) => (
                   <div key={i} className="lp-step">
                     <div className="lp-step-num">{s.n}</div>
-                    <div className="lp-step-icon">{s.e}</div>
                     <h3>{s.t}</h3>
                     <p>{s.d}</p>
                     {i<2 && <div className="lp-step-arrow">-></div>}

@@ -1003,6 +1003,10 @@ select.ti { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w
 .lo:hover { border-color: rgba(200,82,42,0.4); }
 .lo.sel { background: var(--sel-bg); border-color: var(--sel-border); box-shadow: 0 0 0 3px rgba(200,82,42,0.14); }
 .lo-e { font-size: 24px; flex-shrink: 0; }
+.lo-stripe { width: 4px; align-self: stretch; border-radius: 2px; flex-shrink: 0; }
+.lo-stripe.c-clay { background: var(--clay); }
+.lo-stripe.c-gold { background: var(--gold); }
+.lo-stripe.c-blue { background: var(--navy-light); }
 .lo-c { flex: 1; }
 .lo-t { font-size: var(--text-base); font-weight: 700; color: var(--ink); margin-bottom: 2px; }
 .lo.sel .lo-t { color: var(--clay-bright); }
@@ -1034,6 +1038,10 @@ select.ti { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w
 .gchip.sel { background: var(--sel-bg); border-color: var(--sel-border); color: var(--clay-bright); box-shadow: 0 0 0 3px rgba(200,82,42,0.14); }
 .gchip.sel .gchip-check { display: flex; }
 .gchip-check { display: none; width: 18px; height: 18px; background: var(--clay); border-radius: 50%; align-items: center; justify-content: center; font-size: 10px; color: white; font-weight: 900; flex-shrink: 0; }
+.gchip-stripe { width: 4px; align-self: stretch; border-radius: 2px; flex-shrink: 0; }
+.gchip-stripe.c-clay { background: var(--clay); }
+.gchip-stripe.c-gold { background: var(--gold); }
+.gchip-stripe.c-blue { background: var(--navy-light); }
 
 /* -- FOOTER NAV ---------------------------------------------------- */
 .f-foot { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: linear-gradient(to top, var(--cream) 72%, transparent); padding: var(--sp-4) var(--sp-5) calc(var(--sp-5) + var(--safe-b)); display: flex; gap: var(--sp-3); z-index: 40; }
@@ -2487,9 +2495,9 @@ export default function PerfectRacket() {
                     <div className="flbl">Age Range <span className="req">*</span></div>
                     <div className="fhint">Age affects injury risk and frame weight recommendations</div>
                     <div className="grid2">
-                      {[["🎓","18-25"],["💼","26-35"],["🏋️","36-45"],["🎾","46-55"],["🏆","56-65"],["⭐","66+"]].map(([e,l]) => (
+                      {[["18-25"],["26-35"],["36-45"],["46-55"],["56-65"],["66+"]].map(([l]) => (
                         <div key={l} className={`go${d.ageRange===l?" sel":""}`} onClick={()=>{upd("ageRange",l);}}>
-                          <span className="go-e">{e}</span><span className="go-l">{l}</span>
+                          <span className="go-l">{l}</span>
                           {d.ageRange===l && <div className="chk">✓</div>}
                         </div>
                       ))}
@@ -2513,7 +2521,7 @@ export default function PerfectRacket() {
                     <div className="flbl">Current Grip Size <span className="fopt">(Optional)</span></div>
                     <div className="fhint">Grip size affects arm health — too small can increase forearm tension and elbow stress</div>
                     <div className="grid2">
-                      {[["4","Small"],["4⅛","Small-Med"],["4¼","Medium"],["4⅜","Med-Large"],["4½","Large"],["🤷","Not Sure"]].map(([size,label]) => (
+                      {[["4","Small"],["4⅛","Small-Med"],["4¼","Medium"],["4⅜","Med-Large"],["4½","Large"],["—","Not Sure"]].map(([size,label]) => (
                         <div key={size} className={`go${d.gripSize===size?" sel":""}`} onClick={()=>upd("gripSize",size)}>
                           <span className="go-l" style={{fontSize:"var(--text-md)",fontFamily:"'Bebas Neue',sans-serif"}}>{size}</span>
                           <span style={{fontSize:"var(--text-xs)",color:"var(--mid)"}}>{label}</span>
@@ -2559,9 +2567,9 @@ export default function PerfectRacket() {
                   <div className="field">
                     <div className="flbl">Play Frequency <span className="req">*</span></div>
                     <div className="grid2">
-                      {[["📅","< 1x/wk"],["🎾","1-2x/wk"],["💪","3-4x/wk"],["🔥","5+x/wk"]].map(([e,l]) => (
+                      {[["< 1x/wk"],["1-2x/wk"],["3-4x/wk"],["5+x/wk"]].map(([l]) => (
                         <div key={l} className={`go${d.playFrequency===l?" sel":""}`} onClick={()=>{upd("playFrequency",l);}}>
-                          <span className="go-e">{e}</span><span className="go-l">{l}</span>
+                          <span className="go-l">{l}</span>
                           {d.playFrequency===l && <div className="chk">✓</div>}
                         </div>
                       ))}
@@ -2574,13 +2582,13 @@ export default function PerfectRacket() {
                   <div className="shd"><span className="shd-e">⚡</span><span className="shd-t">Swing</span></div>
                   <div className="field">
                     <div className="flbl">Swing Speed <span className="req">*</span></div>
-                    {[["🐢","Slow & Controlled","Smooth, measured swings"],
-                      ["⚡","Moderate","Good pace with controlled acceleration"],
-                      ["🚀","Fast & Aggressive","Hard swings with lots of racquet head speed"],
-                      ["🤷","Not sure","I do not know my swing speed"],
-                    ].map(([e,t,desc]) => (
+                    {[["Slow & Controlled","Smooth, measured swings"],
+                      ["Moderate","Good pace with controlled acceleration"],
+                      ["Fast & Aggressive","Hard swings with lots of racquet head speed"],
+                      ["Not sure","I do not know my swing speed"],
+                    ].map(([t,desc],i) => (
                       <div key={t} className={`lo${d.swingSpeed===t?" sel":""}`} onClick={()=>upd("swingSpeed",t)}>
-                        <span className="lo-e">{e}</span>
+                        <span className={`lo-stripe ${["c-clay","c-gold","c-blue"][i%3]}`}/>
                         <div className="lo-c"><div className="lo-t">{t}</div><div className="lo-d">{desc}</div></div>
                         {d.swingSpeed===t && <div className="chk">✓</div>}
                       </div>
@@ -2621,9 +2629,9 @@ export default function PerfectRacket() {
                     <div className="flbl">Where does it hurt?</div>
                     <div className="fhint">Select all that apply</div>
                     <div className="grid2">
-                      {[["🙅","No Pain"],["💪","Elbow"],["🤸","Shoulder"],["✋","Wrist"]].map(([e,t]) => (
+                      {[["No Pain"],["Elbow"],["Shoulder"],["Wrist"]].map(([t]) => (
                         <div key={t} className={`go${(d.painLocations||[]).includes(t)?" sel":""}`} onClick={()=>togglePain(t)}>
-                          <span className="go-e">{e}</span><span className="go-l">{t}</span>
+                          <span className="go-l">{t}</span>
                           {(d.painLocations||[]).includes(t) && <div className="chk">✓</div>}
                         </div>
                       ))}
@@ -2635,8 +2643,9 @@ export default function PerfectRacket() {
                       ["Mild discomfort after playing","Some soreness after sessions"],
                       ["Pain during play but manageable","Affects play but you push through"],
                       ["Severe pain that limits play","Significant impact on your game"],
-                    ].map(([t,desc]) => (
+                    ].map(([t,desc],i) => (
                       <div key={t} className={`lo${d.painSeverity===t?" sel":""}`} onClick={()=>{upd("painSeverity",t);}}>
+                        <span className={`lo-stripe ${["c-clay","c-gold","c-blue"][i%3]}`}/>
                         <div className="lo-c"><div className="lo-t">{t}</div><div className="lo-d">{desc}</div></div>
                         {d.painSeverity===t && <div className="chk">✓</div>}
                       </div>
@@ -2651,10 +2660,10 @@ export default function PerfectRacket() {
                     <div className="flbl">Any previous arm injuries?</div>
                     <div className="fhint">Past injuries affect your risk profile even when currently pain-free. Select all that apply.</div>
                     <div className="grid2">
-                      {[["💪","Elbow"],["🤸","Shoulder"],["✋","Wrist"],["✅","None"]].map(([e,t]) => (
+                      {[["Elbow"],["Shoulder"],["Wrist"],["None"]].map(([t]) => (
                         <div key={t} className={`go${(d.pastInjuries||[]).includes(t)?" sel":""}`}
                           onClick={() => {togglePastInjury(t);}}>
-                          <span className="go-e">{e}</span><span className="go-l">{t}</span>
+                          <span className="go-l">{t}</span>
                           {(d.pastInjuries||[]).includes(t) && <div className="chk">✓</div>}
                         </div>
                       ))}
@@ -2667,14 +2676,14 @@ export default function PerfectRacket() {
                     <div className="shd"><span className="shd-e">🏥</span><span className="shd-t">Managing It?</span></div>
                     <div className="field">
                       <div className="flbl">Are you currently doing anything to manage it?</div>
-                      {[["💆","Nothing","Not actively managing it"],
-                        ["🏃","Physical Therapy","Working with a physio"],
-                        ["🏋️","Strength Training","Doing rehab exercises"],
-                        ["📉","Load Management","Reducing volume or intensity"],
-                        ["🛌","Resting It","Taking time off"],
-                      ].map(([e,t,desc]) => (
+                      {[["Nothing","Not actively managing it"],
+                        ["Physical Therapy","Working with a physio"],
+                        ["Strength Training","Doing rehab exercises"],
+                        ["Load Management","Reducing volume or intensity"],
+                        ["Resting It","Taking time off"],
+                      ].map(([t,desc],i) => (
                         <div key={t} className={`lo${d.rehabStatus===t?" sel":""}`} onClick={()=>{upd("rehabStatus",t);}}>
-                          <span className="lo-e">{e}</span>
+                          <span className={`lo-stripe ${["c-clay","c-gold","c-blue"][i%3]}`}/>
                           <div className="lo-c"><div className="lo-t">{t}</div><div className="lo-d">{desc}</div></div>
                           {d.rehabStatus===t && <div className="chk">✓</div>}
                         </div>
@@ -2761,9 +2770,9 @@ export default function PerfectRacket() {
                   <div className="field">
                     <div className="flbl">What is your budget? <span className="fopt">(Optional)</span></div>
                     <div className="fhint">We will flag which recommendations are within your range. Your score is never affected by budget.</div>
-                    {[["💰","Under $150"],["💳","$150-$220"],["💎","$220+"],["🤷","No preference"]].map(([e,l]) => (
+                    {[["Under $150"],["$150-$220"],["$220+"],["No preference"]].map(([l],i) => (
                       <div key={l} className={`lo${d.budget===l?" sel":""}`} onClick={()=>{upd("budget",l);}}>
-                        <span className="lo-e">{e}</span>
+                        <span className={`lo-stripe ${["c-clay","c-gold","c-blue"][i%3]}`}/>
                         <div className="lo-c"><div className="lo-t">{l}</div></div>
                         {d.budget===l && <div className="chk">✓</div>}
                       </div>
@@ -2777,13 +2786,13 @@ export default function PerfectRacket() {
                     <div className="flbl">Goals for the next year <span className="fopt">(Select all that apply)</span></div>
                     <div className="fhint">The more specific you are, the better we can tailor the reasoning behind your recommendations.</div>
                     <div className="gchips">
-                      {[["🛡️","Reduce arm pain and play more comfortably"],
-                        ["🎯","Improve consistency on groundstrokes"],
-                        ["👥","Play more doubles and improve net game"],
-                        ["💪","Add more power without sacrificing control"],
-                        ["🎾","Find a setup I can stick with long-term"],
-                        ["⚡","Generate more spin on my forehand"],
-                      ].map(([e,t]) => {
+                      {[["Reduce arm pain and play more comfortably"],
+                        ["Improve consistency on groundstrokes"],
+                        ["Play more doubles and improve net game"],
+                        ["Add more power without sacrificing control"],
+                        ["Find a setup I can stick with long-term"],
+                        ["Generate more spin on my forehand"],
+                      ].map(([t],i) => {
                         const selected = (d.goals||[]).includes(t);
                         return (
                           <div key={t}
@@ -2795,7 +2804,7 @@ export default function PerfectRacket() {
                                 : [...curr, t]
                               );
                             }}>
-                            <span style={{fontSize:"var(--text-md)"}}>{e}</span>
+                            <span className={`gchip-stripe ${["c-clay","c-gold","c-blue"][i%3]}`}/>
                             <span style={{flex:1}}>{t}</span>
                             {selected && <div className="gchip-check">✓</div>}
                           </div>

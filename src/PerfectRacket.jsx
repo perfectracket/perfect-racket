@@ -705,7 +705,18 @@ function generateRecommendations(d) {
     const advancedBonus = (ntrpNum2 >= 4.0 && perfFirst2)
       ? (sub.spinScore - 60) * 0.06 + (sub.controlScore - 60) * 0.04
       : 0;
-    const styleFitBonus = baseBonus + powerFrameBonus + Math.max(0, advancedBonus);
+    // Classic power-frame bonus: rewards true power-frame designs (RA >= 66)
+    // for healthy 4.0+ performance-first players. Without this, scoring
+    // structurally favors lower-RA frames even when arm-health weighting is
+    // near zero, leaving popular frames (Pure Drive, EZONE 100, Pure Aero,
+    // SX 300) crowded out for the exact users who would benefit from them.
+    // Trigger conditions narrow it to the segment that needs it: arm-conscious
+    // users (injuryFactor >= 0.15) are completely unaffected.
+    const classicPowerFrame = (r.ra ?? SETTINGS.BlankRA_Default) >= 66;
+    const armFree = injuryFactor < 0.15;
+    const classicPowerBonus = (ntrpNum2 >= 4.0 && perfFirst2 && armFree && classicPowerFrame)
+      ? sub.powerScore * 0.04 : 0;
+    const styleFitBonus = baseBonus + powerFrameBonus + Math.max(0, advancedBonus) + classicPowerBonus;
     const userRiskPenalty = injuryFactor * sub.frameRiskScore * SETTINGS.RiskWeight;
     const painLocs = d.painLocations || [];
     const elbowInvolved = painLocs.includes("Elbow") || painLocs.includes("Multiple");

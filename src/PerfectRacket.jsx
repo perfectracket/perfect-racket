@@ -1583,20 +1583,55 @@ export default function PerfectRacket() {
           setRecs(result);
           go("results");
 
-          // Netlify Forms — log completion with top recommendation
+          // Netlify Forms — full capture of every form answer + top 3 recs + tension data
+          // 25 fields total. Existing field names preserved for backwards compatibility.
+          // Multi-selects joined with "; " so CSV exports survive cleanly.
           try {
-            const topRacket = result.racquets?.[0];
-            const topString = result.strings?.[0];
+            const r1 = result.racquets?.[0];
+            const r2 = result.racquets?.[1];
+            const r3 = result.racquets?.[2];
+            const s1 = result.strings?.[0];
+            const s2 = result.strings?.[1];
+            const s3 = result.strings?.[2];
+            const fmtRacket = (r) => r ? `${r.brand} ${r.model}` : "";
+            const fmtList = (a) => Array.isArray(a) ? a.join("; ") : "";
             const formData = new FormData();
             formData.append("form-name", "perfect-racket-submission");
+            // Identity
             formData.append("name", snapshot.name || "");
             formData.append("email", snapshot.email || "");
+            // Profile
+            formData.append("age-range", snapshot.ageRange || "");
             formData.append("ntrp", snapshot.ntrp || "");
+            formData.append("grip-size", snapshot.gripSize || "");
+            formData.append("current-racket", snapshot.currentRacket || "");
+            formData.append("budget", snapshot.budget || "");
+            // Game
             formData.append("play-style", snapshot.playStyle || "");
+            formData.append("play-frequency", snapshot.playFrequency || "");
+            formData.append("swing-speed", snapshot.swingSpeed || "");
+            formData.append("comfort-vs-perf", snapshot.comfortVsPerf || "");
+            formData.append("goals", fmtList(snapshot.goals));
+            // Health
+            formData.append("pain-locations", fmtList(snapshot.painLocations));
             formData.append("pain-severity", snapshot.painSeverity || "");
-            formData.append("top-racket", topRacket ? `${topRacket.brand} ${topRacket.model}` : "");
-            formData.append("top-string", topString ? topString.name : "");
+            formData.append("past-injury-elbow", snapshot.pastInjuryElbow || "No");
+            formData.append("past-injury-shoulder", snapshot.pastInjuryShoulder || "No");
+            formData.append("past-injury-wrist", snapshot.pastInjuryWrist || "No");
+            formData.append("rehab-status", snapshot.rehabStatus || "");
+            // Current setup
+            formData.append("string-type", snapshot.stringType || "");
+            formData.append("tension-range", snapshot.tensionRange || "");
+            // Recommendations
+            formData.append("top-racket", fmtRacket(r1));
+            formData.append("racket-2", fmtRacket(r2));
+            formData.append("racket-3", fmtRacket(r3));
+            formData.append("top-string", s1 ? s1.name : "");
+            formData.append("string-2", s2 ? s2.name : "");
+            formData.append("string-3", s3 ? s3.name : "");
             formData.append("tension", result.tension ? `${result.tension.low}-${result.tension.high} lbs` : "");
+            formData.append("tension-recommended", result.tension ? String(result.tension.recommended) : "");
+            formData.append("injury-factor", result.injuryFactor != null ? result.injuryFactor.toFixed(3) : "");
             fetch("/", { method: "POST", body: formData });
           } catch (e) { /* silent fail — never block results */ }
 

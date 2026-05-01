@@ -154,6 +154,50 @@
     <script defer data-domain="perfectracket.com" src="https://plausible.io/js/script.js"></script>
   </head>
   <body>
+    <!-- ===== NETLIFY FORMS SCHEMA DECLARATION =====================
+         Hidden static form that declares every field name our JS
+         submission will POST. Netlify scans this on each deploy and
+         pre-registers the schema, so all 30 fields are captured
+         instead of being silently dropped. This form is never seen
+         by users - the hidden attribute keeps it out of the layout.
+
+         IMPORTANT: When adding a new field to the form submission
+         in PerfectRacket.jsx, also add an <input> here with the
+         matching name attribute. Otherwise Netlify will drop that
+         new field on submission.
+    =============================================================== -->
+    <form name="perfect-racket-submission" data-netlify="true" hidden>
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <input type="text" name="age-range" />
+      <input type="text" name="ntrp" />
+      <input type="text" name="grip-size" />
+      <input type="text" name="current-racket" />
+      <input type="text" name="budget" />
+      <input type="text" name="play-style" />
+      <input type="text" name="play-frequency" />
+      <input type="text" name="swing-speed" />
+      <input type="text" name="comfort-vs-perf" />
+      <input type="text" name="goals" />
+      <input type="text" name="pain-locations" />
+      <input type="text" name="pain-severity" />
+      <input type="text" name="past-injury-elbow" />
+      <input type="text" name="past-injury-shoulder" />
+      <input type="text" name="past-injury-wrist" />
+      <input type="text" name="rehab-status" />
+      <input type="text" name="string-type" />
+      <input type="text" name="tension-range" />
+      <input type="text" name="top-racket" />
+      <input type="text" name="racket-2" />
+      <input type="text" name="racket-3" />
+      <input type="text" name="top-string" />
+      <input type="text" name="string-2" />
+      <input type="text" name="string-3" />
+      <input type="text" name="tension" />
+      <input type="text" name="tension-recommended" />
+      <input type="text" name="injury-factor" />
+    </form>
+
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

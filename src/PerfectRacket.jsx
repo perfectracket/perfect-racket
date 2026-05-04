@@ -2112,7 +2112,7 @@ export default function PerfectRacket() {
                   <span>Free personalized equipment analysis</span>
                 </div>
                 <h1 className="lp-h1">Stop guessing.<br/>Find your <em>perfect</em><br/>racket setup.</h1>
-                <p className="lp-hero-sub">Answer 13 questions about your game, arm health, and play style. Get back your top 3 rackets, strings, and an exact tension range -- personalized to protect your arm and elevate your game.</p>
+                <p className="lp-hero-sub">Answer a few questions about how you play and what matters most. Get back your top 3 rackets, strings, and an exact tension range -- whether you are protecting your arm, chasing your game, or both.</p>
                 <button className="lp-btn-primary" onClick={()=>{ if(typeof window.plausible==="function") window.plausible("CTA Clicked",{props:{location:"hero"}}); go("modeselect"); }}>Get My Free Setup -></button>
                 <div style={{display:"flex",alignItems:"center",gap:20,flexWrap:"wrap",marginTop:8}}>
                   <div style={{display:"flex",alignItems:"center",gap:10}}>
@@ -2120,7 +2120,7 @@ export default function PerfectRacket() {
                       <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:26,fontWeight:700,color:"var(--clay-bright)",lineHeight:1}}>40%</span>
                       <span style={{fontFamily:"'DM Mono',monospace",fontSize:9,letterSpacing:"0.1em",textTransform:"uppercase",color:"rgba(200,82,42,0.7)"}}>arm health weight</span>
                     </div>
-                    <span style={{fontSize:11,color:"rgba(255,255,255,0.4)",fontStyle:"italic",maxWidth:140,lineHeight:1.4}}>No other tool prioritises your arm this heavily</span>
+                    <span style={{fontSize:11,color:"rgba(255,255,255,0.4)",fontStyle:"italic",maxWidth:140,lineHeight:1.4}}>On the arm-health path -- heaviest weighting in the category</span>
                   </div>
                   <div className="lp-proof-div"/>
                   <div className="lp-proof-stat"><strong>42</strong><span>frames scored</span></div>
@@ -2139,7 +2139,7 @@ export default function PerfectRacket() {
                     <div className="lp-phone-status">
                       <div>
                         <div className="lp-phone-status-title">Your Setup</div>
-                        <div className="lp-phone-status-sub">Personalized to your game and arm health</div>
+                        <div className="lp-phone-status-sub">Personalized to how you play</div>
                       </div>
                       <div className="lp-phone-check">✓</div>
                     </div>

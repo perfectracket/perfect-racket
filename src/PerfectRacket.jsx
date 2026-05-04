@@ -1711,15 +1711,16 @@ const landingCss = `
   .lp-plan-inner { max-width: 1100px; margin: 0 auto; }
   .lp-plan-hdr { text-align: center; max-width: 580px; margin: 0 auto 60px; }
   .lp-plan-hdr p { font-size: 16px; color: var(--mid); font-weight: 300; line-height: 1.7; margin-top: 16px; }
-  .lp-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: var(--border); border-radius: 16px; overflow: hidden; }
-  @media (max-width: 700px) { .lp-steps { grid-template-columns: 1fr; } }
+  .lp-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; background: var(--border); border-radius: 16px; overflow: hidden; }
+  @media (max-width: 900px) { .lp-steps { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 600px) { .lp-steps { grid-template-columns: 1fr; } }
   .lp-step { background: var(--white); padding: 44px 32px; position: relative; transition: background 0.2s; }
   .lp-step:hover { background: #F0EBE3; }
   .lp-step-num { font-family: 'Cormorant Garamond', serif; font-size: 68px; font-weight: 700; color: var(--clay); opacity: 0.12; line-height: 1; margin-bottom: 18px; }
   .lp-step h3 { font-size: 20px; font-weight: 600; color: var(--ink); margin-bottom: 10px; line-height: 1.3; }
   .lp-step p { font-size: 16px; color: var(--mid); line-height: 1.65; margin: 0; }
   .lp-step-arrow { position: absolute; right: -18px; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; background: var(--clay); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 15px; z-index: 2; box-shadow: 0 0 0 4px var(--cream); }
-  @media (max-width: 700px) { .lp-step-arrow { display: none; } }
+  @media (max-width: 900px) { .lp-step-arrow { display: none; } }
   .lp-social-proof { background: var(--navy-mid); padding: 88px 48px; }
   @media (max-width: 600px) { .lp-social-proof { padding: 64px 24px; } }
   .lp-sp-inner { max-width: 1100px; margin: 0 auto; }
@@ -2312,20 +2313,21 @@ export default function PerfectRacket() {
             <div className="lp-plan-inner">
               <div className="lp-plan-hdr">
                 <div className="lp-section-label">How it works</div>
-                <h2 className="lp-section-title">Three steps to your <em>ideal setup</em></h2>
+                <h2 className="lp-section-title">Four steps to your <em>ideal setup</em></h2>
                 <p>No equipment expertise required. Just answer honestly - we do the analysis.</p>
               </div>
               <div className="lp-steps">
                 {[
-                  {n:"1",t:"Answer 13 questions",       d:"Tell us about your game, your body, and your arm health. Takes 3 minutes."},
-                  {n:"2",t:"We run the analysis",        d:"Our scoring engine weighs 6 dimensions across 42 rackets and 28 strings — arm health first."},
-                  {n:"3",t:"Get your personalized setup", d:"Top 3 rackets, top 3 strings, an exact tension range, and a script for your stringer."},
+                  {n:"1",t:"Pick your path",             d:"Performance Fit or Arm Health Fit. The path you pick shapes the whole analysis."},
+                  {n:"2",t:"Answer a few questions",     d:"Tell us about your game and how you play. Takes about 3 minutes."},
+                  {n:"3",t:"We run the analysis",        d:"Our scoring engine weighs 6 dimensions across 42 rackets and 28 strings."},
+                  {n:"4",t:"Get your personalized setup", d:"Top 3 rackets, top 3 strings, an exact tension range, and a script for your stringer."},
                 ].map((s,i) => (
                   <div key={i} className="lp-step">
                     <div className="lp-step-num">{s.n}</div>
                     <h3>{s.t}</h3>
                     <p>{s.d}</p>
-                    {i<2 && <div className="lp-step-arrow">-></div>}
+                    {i<3 && <div className="lp-step-arrow">-></div>}
                   </div>
                 ))}
               </div>

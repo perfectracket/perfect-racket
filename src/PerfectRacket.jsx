@@ -2264,12 +2264,12 @@ export default function PerfectRacket() {
               <div>
                 <div className="lp-section-label lp-label-gold">Your guide</div>
                 <h2 className="lp-section-title lp-title-white">Built by players who have been through it.</h2>
-                <p className="lp-guide-body">Perfect Racket exists because too many players are sold the wrong gear, develop arm pain, and never connect the dots. We built a recommendation engine that puts arm health first.</p>
+                <p className="lp-guide-body">Perfect Racket exists because too many players spend years with the wrong gear -- paying for it in frustration, arm pain, or both. The wrong racket can hurt you. The right one fits how you play. We help you find it -- whether you are protecting your arm, chasing your game, or both.</p>
                 <div className="lp-credentials">
                   {[
-                    {t:"Arm health, weighted at 40%",       d:"Every recommendation we make. No other tool weights arm health this heavily."},
+                    {t:"Two paths, one engine",             d:"Performance Fit tunes for your game. Arm Health Fit weights protection at 40% — heaviest in the category."},
                     {t:"42 rackets, rigorously scored",     d:"Each frame rated across 6 technical dimensions — not marketing copy."},
-                    {t:"Tension calculated for your body",  d:"Not a generic range. A specific starting number based on your arm, your game, and your level."},
+                    {t:"Tension calculated for your body",  d:"Not a generic range. A specific starting number based on your game, your level, and your arm."},
                   ].map((c,i) => (
                     <div key={i} className="lp-credential">
                       <div className="lp-cred-bullet"/>

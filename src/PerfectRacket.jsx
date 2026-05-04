@@ -672,7 +672,219 @@ function whyText(r, d, injuryFactor, painNumeric) {
   return parts.slice(0, 2).join(" ");
 }
 
+// === PERFORMANCE MODE SCORING HELPERS =======================================
+// These functions implement the v4 performance-mode algorithm. They run
+// independently of the arm-health scoring path. generateRecommendations
+// branches at the top based on d.mode and dispatches to the right scoring path.
+//
+// Key differences from arm-health mode:
+//  - Comfort weight = 0 (computed but never used in weighting)
+//  - Power scoring NOT damped at high NTRP
+//  - Control scoring ignores stiffness (RA)
+//  - Spin scoring amplified for fast-swing baseliners (1.30x at 4.0+)
+//  - Maneuverability dampened harder for fast swingers (0.70x)
+//  - Pain has zero influence anywhere
+//  - NTRP-tier rewards heavy/dense at 4.5+, penalizes <295g; rewards light at 3.0
+//  - Category specialists get +6 bonus when matching priority focus
+//  - Anti-comfort penalty: armFriendly frames get -4 when priority is Power or Spin
+//  - Control elite bonus: +3 for 305g+ AND +2 for 18x20 when control priority
+
+const POWER_SPECIALISTS = [
+  "Pure Drive 2025", "Ultra 100 v4", "EZONE 100 2025",
+  "VCORE 100 2026", "SX 300 2025"
+];
+const SPIN_SPECIALISTS = [
+  "Pure Aero 2026", "Pure Aero 98 2026", "VCORE 100 2026",
+  "VCORE 98 8th Gen 2026", "SX 300 2025", "Extreme MP 2025"
+];
+const CONTROL_SPECIALISTS = [
+  "Blade 98 16x19 v9", "Blade 98 18x20 v9", "Pro Staff 97 v14",
+  "Pure Strike 100 16x20 Carbon Grey", "EZONE 98 2025", "VCORE 98 8th Gen 2026",
+  "Speed Pro 2026", "Gravity Pro 2025", "Radical MP 2025",
+  "TFight 305", "TFight 315"
+];
+
+function performanceSubscores(r, d) {
+  const ra = r.ra ?? SETTINGS.BlankRA_Default;
+  const sw = r.swingWeight, density = r.mains * r.crosses;
+  const ntrp = parseFloat(d.ntrp) || 3.5;
+  const fastSwing = d.swingSpeed === "Fast & Aggressive";
+  const slowSwing = d.swingSpeed === "Slow & Controlled";
+
+  let powerScore = norm(r.headSize, 95, 115) * 0.30
+                 + norm(r.beamWidth, 18, 30) * 0.40
+                 + norm(sw, 280, 360) * 0.15
+                 + norm(ra, 50, 75) * 0.15;
+
+  let controlScore = normInv(density, 280, 380) * 0.45
+                   + normInv(r.headSize, 95, 115) * 0.35
+                   + normInv(r.beamWidth, 18, 30) * 0.20;
+  if (ntrp >= 4.5) controlScore *= 1.25;
+  else if (ntrp >= 4.0) controlScore *= 1.15;
+  else if (ntrp <= 3.0) controlScore *= 0.85;
+  if (r.mains === 18 && r.crosses === 20) controlScore = Math.min(100, controlScore * 1.18);
+
+  let spinScore = normInv(density, 280, 380) * 0.55 + norm(r.headSize, 95, 115) * 0.45;
+  if (d.playStyle === "Baseliner" && ntrp >= 4.0) spinScore *= 1.30;
+  if (fastSwing) spinScore *= 1.15;
+
+  const swingMult = fastSwing ? 0.70 : slowSwing ? 1.25 : 1.0;
+  const maneuverabilityScore = normInv(r.weight, 240, 340) * 0.50 * swingMult
+                             + normInv(sw, 280, 360) * 0.50;
+
+  return {
+    powerScore: clamp(powerScore),
+    controlScore: clamp(controlScore),
+    comfortScore: 0,
+    spinScore: clamp(spinScore),
+    maneuverabilityScore: clamp(maneuverabilityScore),
+    frameRiskScore: 0,
+  };
+}
+
+function performanceWeights(d) {
+  const psw = {
+    "Baseliner":      { power: 0.32, control: 0.20, comfort: 0, spin: 0.32, maneuverability: 0.16 },
+    "All-Court":      { power: 0.24, control: 0.22, comfort: 0, spin: 0.22, maneuverability: 0.32 },
+    "Doubles-First":  { power: 0.16, control: 0.28, comfort: 0, spin: 0.14, maneuverability: 0.42 },
+    "Serve & Volley": { power: 0.16, control: 0.34, comfort: 0, spin: 0.14, maneuverability: 0.36 },
+  };
+  let w = { ...(psw[d.playStyle] || psw["All-Court"]) };
+
+  const priorityMult = {
+    "Power":           { power: 1.85, control: 0.75, comfort: 1, spin: 1.05, maneuverability: 0.85 },
+    "Control":         { power: 0.75, control: 1.65, comfort: 1, spin: 0.90, maneuverability: 1.00 },
+    "Spin":            { power: 1.00, control: 0.90, comfort: 1, spin: 1.85, maneuverability: 0.90 },
+    "Maneuverability": { power: 0.85, control: 1.00, comfort: 1, spin: 0.90, maneuverability: 1.65 },
+    "Balanced":        { power: 1.00, control: 1.00, comfort: 1, spin: 1.00, maneuverability: 1.00 },
+  };
+  const pm = priorityMult[d.priorityFocus] || priorityMult["Balanced"];
+  Object.keys(w).forEach(k => { w[k] *= pm[k]; });
+
+  let total = Object.values(w).reduce((a, b) => a + b, 0);
+  Object.keys(w).forEach(k => { w[k] /= total; });
+  return w;
+}
+
+function ntrpTierAdjustment(r, ntrp) {
+  let adj = 0;
+  const density = r.mains * r.crosses;
+  const ra = r.ra ?? SETTINGS.BlankRA_Default;
+  if (ntrp >= 4.5) {
+    if (r.weight >= 305 && density >= 320) adj += 5;
+    if (r.weight >= 305) adj += 2;
+    if (ra <= 65) adj += 2;
+    if (r.weight < 295) adj -= 6;
+    if (r.weight < 285) adj -= 3;
+  } else if (ntrp >= 4.0) {
+    if (r.weight >= 295 && r.weight <= 315) adj += 3;
+    if (r.weight < 285) adj -= 4;
+  } else if (ntrp <= 3.0) {
+    if (r.weight <= 295) adj += 4;
+    if (r.beamWidth >= 24) adj += 2;
+    if (r.headSize >= 100) adj += 2;
+    if (r.weight >= 310) adj -= 5;
+    if (density >= 360) adj -= 3;
+  }
+  return adj;
+}
+
+function categorySpecialistBonus(r, priorityFocus) {
+  if (priorityFocus === "Power"   && POWER_SPECIALISTS.includes(r.model))   return 6;
+  if (priorityFocus === "Spin"    && SPIN_SPECIALISTS.includes(r.model))    return 6;
+  if (priorityFocus === "Control" && CONTROL_SPECIALISTS.includes(r.model)) return 6;
+  return 0;
+}
+
+function antiComfortPenalty(r, priorityFocus) {
+  if (!r.armFriendly) return 0;
+  if (priorityFocus === "Power" || priorityFocus === "Spin") return -4;
+  return 0;
+}
+
+function controlEliteBonus(r, priorityFocus) {
+  if (priorityFocus !== "Control") return 0;
+  let bonus = 0;
+  if (r.weight >= 305) bonus += 3;
+  if (r.mains * r.crosses >= 360) bonus += 2;
+  return bonus;
+}
+
+// Performance-mode string selection: style-only logic, no pain considerations,
+// no current-string considerations. Uses NTRP, swing speed, play style, and
+// priority focus to score strings. No premium-fit penalties.
+function selectStringsPerformance(d) {
+  const ntrp = parseFloat(d.ntrp) || 3.5;
+  const fastSwing = d.swingSpeed === "Fast & Aggressive";
+  const slowSwing = d.swingSpeed === "Slow & Controlled";
+  const baseliner = d.playStyle === "Baseliner";
+
+  return STRING_DB.map(s => {
+    let score = 50;
+
+    // Polyester: rewarded for advanced players with fast swings (control/spin)
+    if (s.type === "Polyester") {
+      if (ntrp >= 4.5) score += 18;
+      else if (ntrp >= 4.0) score += 12;
+      else if (ntrp <= 3.0) score -= 5;
+      if (fastSwing) score += 8;
+      if (slowSwing) score -= 6;
+      if (baseliner) score += 4;
+      if (d.priorityFocus === "Spin" && s.tags && s.tags.includes("Spin")) score += 12;
+      if (d.priorityFocus === "Control" && s.tags && s.tags.includes("Control")) score += 8;
+      if (d.priorityFocus === "Power") score -= 4;
+    }
+
+    // Multifilament: solid mid-range, rewarded for slower swings and lower NTRP
+    if (s.type === "Multifilament") {
+      if (slowSwing) score += 8;
+      if (ntrp <= 3.5) score += 6;
+      if (ntrp >= 4.5) score -= 4;
+      if (d.priorityFocus === "Power") score += 6;
+    }
+
+    // Synthetic gut: budget-friendly tweener
+    if (s.type === "Synthetic Gut") {
+      if (ntrp <= 3.0) score += 8;
+      if (ntrp >= 4.5) score -= 8;
+    }
+
+    // Natural gut: premium feel + power, but expensive
+    if (s.type === "Natural Gut") {
+      if (ntrp >= 4.5) score += 6;
+      if (d.priorityFocus === "Power") score += 8;
+      if (slowSwing) score += 4;
+      // Performance mode doesn't penalize this for budget-conscious users
+    }
+
+    return { ...s, finalScore: Math.max(0, score) };
+  }).sort((a, b) => b.finalScore - a.finalScore);
+}
+
+// Performance-mode tension: NTRP and swing speed only. No pain-driven reductions.
+function tensionRangePerformance(d) {
+  let base = 52;
+  const ntrp = parseFloat(d.ntrp) || 3.5;
+  if (ntrp >= 4.5) base += 2;
+  else if (ntrp <= 3.0) base -= 2;
+  if (d.swingSpeed === "Fast & Aggressive") base += 2;
+  else if (d.swingSpeed === "Slow & Controlled") base -= 2;
+  // Priority focus: control players string slightly tighter, power players slightly looser
+  if (d.priorityFocus === "Control") base += 1;
+  if (d.priorityFocus === "Power") base -= 1;
+  base = Math.min(58, Math.max(46, base));
+  return { low: base - 2, high: base + 2, recommended: base };
+}
+
+// === END PERFORMANCE MODE SCORING ============================================
+
 function generateRecommendations(d) {
+  // PERFORMANCE MODE BRANCH — uses the v4 algorithm with no arm-health considerations
+  if (d.mode === "performance") {
+    return generateRecommendationsPerformance(d);
+  }
+
+  // ARM HEALTH MODE — existing logic, unchanged
   const painNumeric = PAIN_NUMERIC[d.painSeverity] ?? 0;
   const injuryFactor = computeInjuryFactor(d, painNumeric);
   const weights = computeWeights(d, injuryFactor);
@@ -846,22 +1058,145 @@ function generateRecommendations(d) {
            stringerScript, injuryFactor, painNumeric, setupText, weights, allOverBudget };
 }
 
+// === PERFORMANCE MODE PIPELINE ==============================================
+// Mirrors the structure of the arm-health pipeline but uses the v4 scoring
+// helpers. No pain processing, no injury factor, no risk penalties. The
+// returned object shape matches arm-health mode exactly so the results page
+// renders identically; injuryFactor is hardcoded to 0 and painNumeric to 0.
+
+function generateRecommendationsPerformance(d) {
+  const weights = performanceWeights(d);
+  const ntrpNum = parseFloat(d.ntrp) || 3.5;
+
+  const scored = RACQUET_DB.map(r => {
+    const sub = performanceSubscores(r, d);
+    const baseScore =
+      sub.powerScore * weights.power +
+      sub.controlScore * weights.control +
+      sub.spinScore * weights.spin +
+      sub.maneuverabilityScore * weights.maneuverability;
+
+    const tierAdj = ntrpTierAdjustment(r, ntrpNum);
+    const specialistBonus = categorySpecialistBonus(r, d.priorityFocus);
+    const armPenalty = antiComfortPenalty(r, d.priorityFocus);
+    const ctrlEliteBonus = controlEliteBonus(r, d.priorityFocus);
+
+    const finalScore = Math.max(0, baseScore + tierAdj + specialistBonus + armPenalty + ctrlEliteBonus);
+    const strengths = topStrengths(sub);
+    const budget = budgetFlag(r.price, d.budget);
+
+    return {
+      brand: r.brand, model: r.model, finalScore, performanceScore: baseScore,
+      userRiskPenalty: 0, hardGatePenalty: 0, budgetFlag: budget,
+      topStrengths: strengths, armFriendly: r.armFriendly, price: r.price,
+      whyText: whyText(r, d, 0, 0),
+      specs: {
+        "HEAD SIZE": `${r.headSize} sq in`,
+        "WEIGHT": `${r.weight}g`,
+        "BALANCE": `${r.balance} pts HL`,
+        "STIFFNESS": `RA ${r.ra ?? SETTINGS.BlankRA_Default}`,
+        "PATTERN": `${r.mains}x${r.crosses}`,
+        "PRICE": `$${r.price}`,
+      },
+      scores: {
+        power: Math.round(sub.powerScore), control: Math.round(sub.controlScore),
+        comfort: 0, spin: Math.round(sub.spinScore),
+        maneuverability: Math.round(sub.maneuverabilityScore),
+      },
+      weights,
+    };
+  });
+
+  scored.sort((a, b) => {
+    if (Math.abs(b.finalScore - a.finalScore) > 0.01) return b.finalScore - a.finalScore;
+    if (Math.abs(b.scores.control - a.scores.control) > 0.01) return b.scores.control - a.scores.control;
+    return a.model.localeCompare(b.model);
+  });
+
+  // In-stock filter (same logic as arm-health mode)
+  const inStock = scored.filter(isRacquetInStock);
+  const racquetSource = inStock.length >= 3 ? inStock : scored;
+  const topRacquets = racquetSource.slice(0, 3).map((r, i) => ({ ...r, top: i === 0, rank: i + 1 }));
+
+  // Dedupe whyText
+  const seenTexts = new Set();
+  topRacquets.forEach(rc => {
+    if (seenTexts.has(rc.whyText)) {
+      const raw = RACQUET_DB.find(f => f.brand === rc.brand && f.model === rc.model);
+      if (raw) {
+        const altWeight = raw.weight >= 310
+          ? `At ${raw.weight}g it carries more mass than the other picks, adding stability under pace.`
+          : raw.weight >= 295
+          ? `Its ${raw.weight}g weight sits in the middle of the pack — predictable and easy to adjust to.`
+          : `At ${raw.weight}g it is the lightest of the three options, making it the easiest to swing quickly.`;
+        const altSW = raw.swingWeight >= 325
+          ? `A swing weight of ${raw.swingWeight} gives it a planted, heavy feel at the baseline.`
+          : raw.swingWeight >= 310
+          ? `At ${raw.swingWeight} swing weight it has a slightly heavier feel through contact than most alternatives.`
+          : `Its ${raw.swingWeight} swing weight makes it one of the more maneuverable options in the top three.`;
+        const alt1 = rc.whyText.split(". ")[0] + ". " + altWeight;
+        const alt2 = rc.whyText.split(". ")[0] + ". " + altSW;
+        rc.whyText = seenTexts.has(alt1) ? alt2 : alt1;
+      }
+    }
+    seenTexts.add(rc.whyText);
+  });
+
+  const strings = selectStringsPerformance(d).slice(0, 3).map((s, i) => ({ ...s, top: i === 0 }));
+  const tension = tensionRangePerformance(d);
+
+  const topRacquet = topRacquets[0];
+  const topString = strings[0];
+  const gripNote = (d.gripSize && d.gripSize !== "🤷" && d.gripSize !== "Not Sure")
+    ? ` in grip size ${d.gripSize}` : "";
+  const stringerScript = `I would like to string my ${topRacquet.model}${gripNote} with ${topString.name} at ${tension.low}-${tension.high} lbs, starting at ${tension.recommended} lbs.`;
+
+  // Performance-mode setupText: no pain language, focuses on style/level fit
+  const setupParts = [];
+  if (d.currentRacket && d.currentRacket.trim()) {
+    setupParts.push(`Based on your current ${d.currentRacket.trim()} and your stated priorities, here is the recommended setup.`);
+  }
+  const priorityNote = d.priorityFocus && d.priorityFocus !== "Balanced"
+    ? ` Your ${d.priorityFocus.toLowerCase()} priority drove this ranking.` : "";
+  setupParts.push(`At ${d.ntrp || "your"} NTRP, playing ${d.playFrequency || "regularly"} as a ${d.playStyle || "all-court"} player, your top match scored ${Math.round(topRacquet.finalScore)}/100.${priorityNote}`);
+  const setupText = setupParts.join(" ");
+
+  const allOverBudget = d.budget && d.budget !== "No preference" &&
+    topRacquets.every(r => r.budgetFlag === "over-budget");
+
+  return { racquets: topRacquets, allRacquets: scored, strings, tension,
+           stringerScript, injuryFactor: 0, painNumeric: 0, setupText, weights, allOverBudget };
+}
+
 // --- CONSTANTS ----------------------------------------------------------------
 
 const REQUIRED = {
   1: ["name", "email", "ageRange", "ntrp"],
-  2: ["playStyle", "playFrequency", "swingSpeed"],
+  2: ["playStyle", "playFrequency", "swingSpeed", "priorityFocus"],
   3: ["painSeverity", "comfortVsPerf", "stringType"],
   4: [],
 };
+// Fields in Step 3 only validated when arm-health mode (performance mode skips step 3)
+const STEP3_ARMHEALTH_ONLY = ["painSeverity", "comfortVsPerf", "stringType"];
 
-const PHASES = [
+const PHASES_ARMHEALTH = [
   "Reading your profile",
   "Scoring 42 frames",
   "Weighing arm health",
   "Matching strings",
   "Building your setup",
 ];
+
+const PHASES_PERFORMANCE = [
+  "Reading your profile",
+  "Scoring 42 frames",
+  "Applying your priority focus",
+  "Matching strings",
+  "Building your setup",
+];
+
+// Backwards-compat: legacy PHASES reference defaults to arm-health phases
+const PHASES = PHASES_ARMHEALTH;
 
 const FACTS = [
   "String tension affects arm stress more than frame stiffness in most cases.",
@@ -1178,6 +1513,57 @@ select.ti { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w
 
 .restart-btn { width: 100%; background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; padding: var(--sp-4) var(--sp-5); font-family: 'Outfit', sans-serif; font-size: var(--text-sm); font-weight: 600; color: var(--mid); cursor: pointer; transition: all 0.18s; display: flex; align-items: center; justify-content: center; gap: var(--sp-2); margin-bottom: calc(var(--sp-8) + var(--safe-b)); -webkit-tap-highlight-color: transparent; }
 .restart-btn:hover { border-color: var(--clay); color: var(--ink); }
+
+/* ===== MODE SELECT SCREEN — navy tile editorial luxe ===== */
+.ms-wrap { min-height: 100vh; background: var(--cream-dark); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: max(80px, calc(60px + var(--safe-t))) 32px calc(80px + var(--safe-b)); position: relative; }
+.ms-back { position: absolute; top: max(24px, calc(24px + var(--safe-t))); left: 32px; background: transparent; border: none; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--mid); cursor: pointer; padding: 8px 12px; border-radius: 6px; transition: color 0.15s; -webkit-tap-highlight-color: transparent; }
+.ms-back:hover { color: var(--clay); }
+
+.ms-eyebrow { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--clay); font-weight: 700; margin-bottom: 22px; text-align: center; }
+.ms-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(40px, 6vw, 60px); font-weight: 500; color: var(--navy); line-height: 1.05; letter-spacing: -0.025em; margin-bottom: 16px; text-align: center; max-width: 720px; }
+.ms-title em { font-style: italic; color: var(--clay); font-weight: 400; }
+.ms-sub { font-size: 15px; color: var(--mid); line-height: 1.7; text-align: center; max-width: 460px; margin-bottom: 24px; font-weight: 300; }
+
+/* Magazine-style divider */
+.ms-divider { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 48px; width: 100%; max-width: 200px; }
+.ms-divider::before, .ms-divider::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+.ms-divider-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--clay); flex-shrink: 0; }
+
+/* Tile grid */
+.ms-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; width: 100%; max-width: 920px; }
+@media (max-width: 760px) { .ms-tiles { grid-template-columns: 1fr; gap: 18px; max-width: 480px; } }
+
+/* Navy tile — solid brand-blue surface with cream content */
+.ms-tile { background: var(--navy); border: 1px solid var(--navy-light); border-radius: 14px; padding: 36px 32px 30px; cursor: pointer; transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; text-align: left; font-family: inherit; -webkit-tap-highlight-color: transparent; box-shadow: 0 4px 16px rgba(13,27,42,0.10); display: flex; flex-direction: column; min-height: 320px; }
+@media (max-width: 760px) { .ms-tile { padding: 32px 26px 26px; min-height: 280px; } }
+
+/* Gold thread on hover — sweeps across top edge */
+.ms-tile::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--gold); transform: scaleX(0); transform-origin: left; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+.ms-tile:hover::before { transform: scaleX(1); }
+.ms-tile:hover { border-color: var(--clay); transform: translateY(-3px); box-shadow: 0 16px 40px rgba(13,27,42,0.20); }
+
+/* Chapter numeral — large italic terracotta against navy */
+.ms-tile-numeral { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 400; font-size: 52px; color: var(--clay); line-height: 1; letter-spacing: -0.02em; margin-bottom: 10px; opacity: 0.95; transition: opacity 0.3s; }
+.ms-tile:hover .ms-tile-numeral { opacity: 1; }
+
+.ms-tile-eyebrow { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.28em; text-transform: uppercase; color: rgba(250,247,242,0.55); font-weight: 600; margin-bottom: 8px; }
+.ms-tile-title { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 500; color: var(--cream); line-height: 1.1; margin-bottom: 14px; letter-spacing: -0.02em; }
+@media (max-width: 760px) { .ms-tile-title { font-size: 28px; } }
+
+/* Thin rule between title and bullets */
+.ms-tile-rule { width: 32px; height: 1px; background: var(--clay); margin-bottom: 18px; transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+.ms-tile:hover .ms-tile-rule { width: 56px; }
+
+/* Bullets — tighter, refined */
+.ms-tile-bullets { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.ms-tile-bullet { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; color: rgba(250,247,242,0.78); line-height: 1.55; font-weight: 300; }
+.ms-tile-bullet-mark { color: var(--gold); font-weight: 700; flex-shrink: 0; line-height: 1.55; font-size: 14px; }
+
+/* CTA — refined monospace */
+.ms-tile-cta { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--clay); font-weight: 700; transition: gap 0.2s, letter-spacing 0.2s; display: inline-flex; align-items: center; gap: 8px; margin-top: 24px; }
+.ms-tile:hover .ms-tile-cta { gap: 14px; letter-spacing: 0.28em; color: var(--clay-bright); }
+.ms-tile-cta-arrow { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.ms-tile:hover .ms-tile-cta-arrow { transform: translateX(4px); }
 `;
 
 
@@ -1446,10 +1832,11 @@ export default function PerfectRacket() {
   const bodyRef = useRef(null);
 
   const [d, setD] = useState({
+    mode:"",
     name:"", email:"", ageRange:"", ntrp:"", budget:"",
     currentRacket:"", gripSize:"",
     playStyle:"", playFrequency:"", swingSpeed:"",
-    whatMatters:"", comfortVsPerf:"",
+    whatMatters:"", comfortVsPerf:"", priorityFocus:"",
     painLocations:[], painSeverity:"",
     pastInjuryElbow:"No", pastInjuryShoulder:"No", pastInjuryWrist:"No",
     pastInjuries:[],
@@ -1532,6 +1919,12 @@ export default function PerfectRacket() {
 
   const validate = (s) => {
     const errs = {};
+    const isPerf = d.mode === "performance";
+    // Performance mode skips step 3 entirely; if validate is somehow called for step 3 in perf, pass through
+    if (isPerf && s === 3) {
+      setErrors({});
+      return true;
+    }
     (REQUIRED[s] || []).forEach(k => {
       if (!d[k] || (typeof d[k] === "string" && !d[k].trim())) errs[k] = "Required";
     });
@@ -1551,15 +1944,29 @@ export default function PerfectRacket() {
     // Plausible funnel tracking
     const stepNames = { 1: "About You", 2: "Your Game", 3: "Arm Health", 4: "Final Details" };
     if (typeof window.plausible === "function") {
-      window.plausible("Step Completed", { props: { step: stepNames[step] } });
+      window.plausible("Step Completed", { props: { step: stepNames[step], mode: d.mode || "armhealth" } });
     }
-    if (step < 4) { setDir("left"); setStep(s => s + 1); }
-    else startLoad();
+    const isPerf = d.mode === "performance";
+    if (step < 4) {
+      setDir("left");
+      // Performance mode: jump from step 2 directly to step 4, skipping arm health
+      if (isPerf && step === 2) setStep(4);
+      else setStep(s => s + 1);
+    } else {
+      startLoad();
+    }
   };
 
   const prev = () => {
-    if (step > 1) { setDir("right"); setStep(s => s - 1); }
-    else go("landing");
+    if (step > 1) {
+      setDir("right");
+      const isPerf = d.mode === "performance";
+      // Performance mode: stepping back from step 4 goes to step 2, not step 3
+      if (isPerf && step === 4) setStep(2);
+      else setStep(s => s - 1);
+    } else {
+      go("modeselect");
+    }
   };
 
   const startLoad = () => {
@@ -1597,6 +2004,8 @@ export default function PerfectRacket() {
             const fmtList = (a) => Array.isArray(a) ? a.join("; ") : "";
             const formData = new FormData();
             formData.append("form-name", "perfect-racket-submission");
+            // Mode (which path the user chose)
+            formData.append("mode", snapshot.mode || "armhealth");
             // Identity
             formData.append("name", snapshot.name || "");
             formData.append("email", snapshot.email || "");
@@ -1610,6 +2019,7 @@ export default function PerfectRacket() {
             formData.append("play-style", snapshot.playStyle || "");
             formData.append("play-frequency", snapshot.playFrequency || "");
             formData.append("swing-speed", snapshot.swingSpeed || "");
+            formData.append("priority-focus", snapshot.priorityFocus || "");
             formData.append("comfort-vs-perf", snapshot.comfortVsPerf || "");
             formData.append("goals", fmtList(snapshot.goals));
             // Health
@@ -1649,10 +2059,11 @@ export default function PerfectRacket() {
   };
 
   const reset = () => {
-    setD({ name:"", email:"", ageRange:"", ntrp:"", budget:"",
+    setD({ mode:"",
+           name:"", email:"", ageRange:"", ntrp:"", budget:"",
            currentRacket:"", gripSize:"",
            playStyle:"", playFrequency:"", swingSpeed:"",
-           whatMatters:"", comfortVsPerf:"",
+           whatMatters:"", comfortVsPerf:"", priorityFocus:"",
            painLocations:[], painSeverity:"",
            pastInjuryElbow:"No", pastInjuryShoulder:"No", pastInjuryWrist:"No",
            pastInjuries:[], rehabStatus:"", stringType:"", tensionRange:"", goals:[] });
@@ -1675,7 +2086,7 @@ export default function PerfectRacket() {
               <li><a href="#lp-how">How it works</a></li>
               <li><a href="#lp-results">What you get</a></li>
               <li><a href="#lp-faq">FAQ</a></li>
-              <li><button className="lp-nav-cta" onClick={()=>go("form")}>Get My Setup</button></li>
+              <li><button className="lp-nav-cta" onClick={()=>go("modeselect")}>Get My Setup</button></li>
             </ul>
           </nav>
 
@@ -1702,7 +2113,7 @@ export default function PerfectRacket() {
                 </div>
                 <h1 className="lp-h1">Stop guessing.<br/>Find your <em>perfect</em><br/>racket setup.</h1>
                 <p className="lp-hero-sub">Answer 13 questions about your game, arm health, and play style. Get back your top 3 rackets, strings, and an exact tension range -- personalized to protect your arm and elevate your game.</p>
-                <button className="lp-btn-primary" onClick={()=>{ if(typeof window.plausible==="function") window.plausible("CTA Clicked",{props:{location:"hero"}}); go("form"); }}>Get My Free Setup -></button>
+                <button className="lp-btn-primary" onClick={()=>{ if(typeof window.plausible==="function") window.plausible("CTA Clicked",{props:{location:"hero"}}); go("modeselect"); }}>Get My Free Setup -></button>
                 <div style={{display:"flex",alignItems:"center",gap:20,flexWrap:"wrap",marginTop:8}}>
                   <div style={{display:"flex",alignItems:"center",gap:10}}>
                     <div style={{background:"rgba(200,82,42,0.15)",border:"1px solid rgba(200,82,42,0.35)",borderRadius:8,padding:"6px 10px",display:"flex",alignItems:"baseline",gap:4}}>
@@ -1844,7 +2255,7 @@ export default function PerfectRacket() {
 
           {/* CTA after Problem */}
           <div className="lp-cta-strip on-cream">
-            <button className="lp-btn-primary" onClick={()=>go("form")}>Get My Free Setup -></button>
+            <button className="lp-btn-primary" onClick={()=>go("modeselect")}>Get My Free Setup -></button>
           </div>
 
           {/* THE GUIDE */}
@@ -1893,7 +2304,7 @@ export default function PerfectRacket() {
 
           {/* CTA after Guide */}
           <div className="lp-cta-strip on-navy">
-            <button className="lp-btn-primary" onClick={()=>go("form")}>Get My Free Setup -></button>
+            <button className="lp-btn-primary" onClick={()=>go("modeselect")}>Get My Free Setup -></button>
           </div>
 
           {/* THE PLAN */}
@@ -1949,7 +2360,7 @@ export default function PerfectRacket() {
 
           {/* CTA after Testimonials */}
           <div className="lp-cta-strip on-navy-mid">
-            <button className="lp-btn-primary" onClick={()=>go("form")}>Get My Free Setup -></button>
+            <button className="lp-btn-primary" onClick={()=>go("modeselect")}>Get My Free Setup -></button>
           </div>
 
           {/* WHAT YOU GET */}
@@ -2014,7 +2425,7 @@ export default function PerfectRacket() {
               <div className="lp-section-label" style={{color:"rgba(255,255,255,0.6)"}}>Ready?</div>
               <h2 className="lp-cta-h2">Your arm will<br/>thank you <em>later.</em></h2>
               <p className="lp-cta-sub">It takes 3 minutes. It is completely free. And it might be the best equipment decision you have ever made.</p>
-              <button className="lp-btn-white" onClick={()=>go("form")}>Start My Analysis -></button>
+              <button className="lp-btn-white" onClick={()=>go("modeselect")}>Start My Analysis -></button>
             </div>
           </section>
 
@@ -2066,6 +2477,62 @@ export default function PerfectRacket() {
     );
   }
 
+  // -- MODE SELECT ------------------------------------------------------------
+  if (screen === "modeselect") {
+    const pickMode = (mode) => {
+      setD(prev => ({ ...prev, mode }));
+      if (typeof window.plausible === "function") {
+        window.plausible("Mode Selected", { props: { mode } });
+      }
+      go("form");
+    };
+    return (
+      <>
+        <style>{css}</style>
+        <div className="ms-wrap">
+          <button className="ms-back" onClick={() => go("landing")}>← Back</button>
+          <div className="ms-eyebrow">Choose Your Path</div>
+          <h1 className="ms-title">What are you <em>looking for</em>?</h1>
+          <p className="ms-sub">Same algorithm, different priorities.</p>
+          <div className="ms-divider"><span className="ms-divider-dot"/></div>
+          <div className="ms-tiles">
+
+            <button type="button" className="ms-tile" onClick={() => pickMode("performance")}>
+              <div className="ms-tile-numeral">01</div>
+              <div className="ms-tile-eyebrow">The Player's Path</div>
+              <div className="ms-tile-title">Performance Fit</div>
+              <div className="ms-tile-rule"/>
+              <ul className="ms-tile-bullets">
+                <li className="ms-tile-bullet"><span className="ms-tile-bullet-mark">+</span><span>Tuned for power, control, spin, and feel</span></li>
+                <li className="ms-tile-bullet"><span className="ms-tile-bullet-mark">+</span><span>Skips arm-health screening</span></li>
+              </ul>
+              <div className="ms-tile-cta">
+                <span>Find My Game</span>
+                <span className="ms-tile-cta-arrow">→</span>
+              </div>
+            </button>
+
+            <button type="button" className="ms-tile" onClick={() => pickMode("armhealth")}>
+              <div className="ms-tile-numeral">02</div>
+              <div className="ms-tile-eyebrow">The Protective Path</div>
+              <div className="ms-tile-title">Arm Health Fit</div>
+              <div className="ms-tile-rule"/>
+              <ul className="ms-tile-bullets">
+                <li className="ms-tile-bullet"><span className="ms-tile-bullet-mark">+</span><span>40% scoring weight on arm-friendliness</span></li>
+                <li className="ms-tile-bullet"><span className="ms-tile-bullet-mark">+</span><span>Full health and injury profile</span></li>
+              </ul>
+              <div className="ms-tile-cta">
+                <span>Protect My Arm</span>
+                <span className="ms-tile-cta-arrow">→</span>
+              </div>
+            </button>
+
+          </div>
+        </div>
+      </>
+    );
+  }
+
   // -- LOADING ----------------------------------------------------------------
   if (screen === "loading") {
     const firstName = (d.name || "").split(" ")[0] || null;
@@ -2101,12 +2568,12 @@ export default function PerfectRacket() {
 
             {/* Phase text with fade transition */}
             <div className="l-phase-wrap">
-              <h2 className={`l-phase${phaseFade ? " fade" : ""}`}>{PHASES[phase]}</h2>
+              <h2 className={`l-phase${phaseFade ? " fade" : ""}`}>{(d.mode === "performance" ? PHASES_PERFORMANCE : PHASES_ARMHEALTH)[phase]}</h2>
             </div>
 
             {/* Step indicator dots */}
             <div className="l-steps">
-              {PHASES.map((_, i) => (
+              {(d.mode === "performance" ? PHASES_PERFORMANCE : PHASES_ARMHEALTH).map((_, i) => (
                 <div key={i} className={`l-step-dot${i === phase ? " active" : i < phase ? " done" : ""}`}/>
               ))}
             </div>
@@ -2157,7 +2624,7 @@ export default function PerfectRacket() {
             <div className="r-hdr">
               <div className="r-check">✓</div>
               <h1 className="r-title">Your Setup</h1>
-              <p className="r-sub">Personalized to your game and arm health</p>
+              <p className="r-sub">{d.mode === "performance" ? "Personalized to your game, level, and priorities" : "Personalized to your game and arm health"}</p>
             </div>
             <div className="r-body">
               {/* Arm health impact callout */}
@@ -2465,11 +2932,16 @@ export default function PerfectRacket() {
   }
 
   // -- FORM -------------------------------------------------------------------
-  const pct = Math.round(((step - 1) / 4) * 100);
-  const tabs = [
-    { e:"👤", t:"You" }, { e:"🎾", t:"Game" },
-    { e:"💪", t:"Arm" }, { e:"🎯", t:"Goals" },
-  ];
+  const isPerf = d.mode === "performance";
+  const totalSteps = isPerf ? 3 : 4;
+  // Map actual step to user-visible step number (perf mode skips step 3, so step 4 displays as "step 3 of 3")
+  const displayedStep = isPerf && step === 4 ? 3 : step;
+  const pct = Math.round(((displayedStep - 1) / totalSteps) * 100);
+  const tabs = isPerf
+    ? [{ e:"👤", t:"You" }, { e:"🎾", t:"Game" }, { e:"🎯", t:"Goals" }]
+    : [{ e:"👤", t:"You" }, { e:"🎾", t:"Game" }, { e:"💪", t:"Arm" }, { e:"🎯", t:"Goals" }];
+  // Tab index for highlighting active/done state (perf step 4 = tab index 2 = "Goals")
+  const activeTabIdx = isPerf && step === 4 ? 2 : step - 1;
 
   return (
     <>
@@ -2482,12 +2954,12 @@ export default function PerfectRacket() {
           {/* Header */}
           <div className="f-hdr">
             <div className="f-hdr-top">
-              <span className="step-lbl">Step {step} of 4</span>
+              <span className="step-lbl">Step {displayedStep} of {totalSteps}</span>
               <span className="step-pct">{pct}% complete</span>
             </div>
             <div className="tab-nav">
               {tabs.map((t, i) => (
-                <div key={i} className={`tab${step===i+1?" active":step>i+1?" done":""}`}>
+                <div key={i} className={`tab${activeTabIdx===i?" active":activeTabIdx>i?" done":""}`}>
                   <span className="tab-e">{t.e}</span>
                   <span className="tab-t">{t.t}</span>
                 </div>
@@ -2629,6 +3101,27 @@ export default function PerfectRacket() {
                       </div>
                     ))}
                     <Err k="swingSpeed"/>
+                  </div>
+                </div>
+
+                <div className="scard" id="card-priority-focus">
+                  <div className="shd"><span className="shd-e">🎯</span><span className="shd-t">Priority Focus</span></div>
+                  <div className="field">
+                    <div className="flbl">What matters most to you? <span className="req">*</span></div>
+                    <div className="fhint">Pick the single trait you'd most want to optimize. Drives the biggest weight in your final ranking.</div>
+                    {[["Power","More pop on every shot, easy depth"],
+                      ["Control","Precision over force; place the ball where you want"],
+                      ["Spin","More RPM on groundstrokes for shape and bite"],
+                      ["Maneuverability","Quick handling, easy to whip around at net"],
+                      ["Balanced","No single trait dominant; well-rounded fit"],
+                    ].map(([t,desc],i) => (
+                      <div key={t} className={`lo${d.priorityFocus===t?" sel":""}`} onClick={()=>upd("priorityFocus",t)}>
+                        <span className={`lo-stripe ${["c-clay","c-gold","c-blue"][i%3]}`}/>
+                        <div className="lo-c"><div className="lo-t">{t}</div><div className="lo-d">{desc}</div></div>
+                        {d.priorityFocus===t && <div className="chk">✓</div>}
+                      </div>
+                    ))}
+                    <Err k="priorityFocus"/>
                   </div>
                 </div>
               </div>
@@ -2885,7 +3378,10 @@ export default function PerfectRacket() {
           <div className={`f-foot${shaking?" shake":""}`}>
             <button className="btn-back" onClick={prev}>Back</button>
             <button className="btn-next" onClick={next}>
-              {step === 4 ? "Get My Setup" : step === 1 ? "Your Game" : step === 2 ? "Arm Health" : "Goals"}
+              {step === 4 ? "Get My Setup"
+                : step === 1 ? "Your Game"
+                : step === 2 ? (isPerf ? "Goals" : "Arm Health")
+                : "Goals"}
             </button>
           </div>
 

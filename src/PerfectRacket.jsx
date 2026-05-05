@@ -2113,7 +2113,7 @@ export default function PerfectRacket() {
                   <span>Free personalized equipment analysis</span>
                 </div>
                 <h1 className="lp-h1">Stop guessing.<br/>Find your <em>perfect</em><br/>racket setup.</h1>
-                <p className="lp-hero-sub">Answer a few questions about how you play and what matters most. Get back your top 3 rackets, strings, and an exact tension range -- whether you are protecting your arm, chasing your game, or both.</p>
+                <p className="lp-hero-sub">Answer a few questions about how you play and what matters most. Get back your top 3 rackets, strings, and an exact tension range. Whether you are protecting your arm, chasing your game, or both.</p>
                 <button className="lp-btn-primary" onClick={()=>{ if(typeof window.plausible==="function") window.plausible("CTA Clicked",{props:{location:"hero"}}); go("modeselect"); }}>Get My Free Setup -></button>
                 <div style={{display:"flex",alignItems:"center",gap:20,flexWrap:"wrap",marginTop:8}}>
                   <div style={{display:"flex",alignItems:"center",gap:10}}>
@@ -2121,7 +2121,7 @@ export default function PerfectRacket() {
                       <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:26,fontWeight:700,color:"var(--clay-bright)",lineHeight:1}}>40%</span>
                       <span style={{fontFamily:"'DM Mono',monospace",fontSize:9,letterSpacing:"0.1em",textTransform:"uppercase",color:"rgba(200,82,42,0.7)"}}>arm health weight</span>
                     </div>
-                    <span style={{fontSize:11,color:"rgba(255,255,255,0.4)",fontStyle:"italic",maxWidth:140,lineHeight:1.4}}>On the arm-health path -- heaviest weighting in the category</span>
+                    <span style={{fontSize:11,color:"rgba(255,255,255,0.4)",fontStyle:"italic",maxWidth:140,lineHeight:1.4}}>On the arm-health path. Heaviest weighting in the category.</span>
                   </div>
                   <div className="lp-proof-div"/>
                   <div className="lp-proof-stat"><strong>42</strong><span>frames scored</span></div>
@@ -2265,10 +2265,10 @@ export default function PerfectRacket() {
               <div>
                 <div className="lp-section-label lp-label-gold">Your guide</div>
                 <h2 className="lp-section-title lp-title-white">Built by players who have been through it.</h2>
-                <p className="lp-guide-body">Perfect Racket exists because too many players spend years with the wrong gear -- paying for it in frustration, arm pain, or both. The wrong racket can hurt you. The right one fits how you play. We help you find it -- whether you are protecting your arm, chasing your game, or both.</p>
+                <p className="lp-guide-body">Perfect Racket exists because too many players spend years with the wrong gear, paying for it in frustration, arm pain, or both. The wrong racket can hurt you. The right one fits how you play. We help you find it, whether you are protecting your arm, chasing your game, or both.</p>
                 <div className="lp-credentials">
                   {[
-                    {t:"Two paths, one engine",             d:"Performance Fit tunes for your game. Arm Health Fit weights protection at 40% — heaviest in the category."},
+                    {t:"Two paths, one engine",             d:"Performance Fit tunes for your game. Arm Health Fit weights protection at 40%, heaviest in the category."},
                     {t:"42 rackets, rigorously scored",     d:"Each frame rated across 6 technical dimensions — not marketing copy."},
                     {t:"Tension calculated for your body",  d:"Not a generic range. A specific starting number based on your game, your level, and your arm."},
                   ].map((c,i) => (

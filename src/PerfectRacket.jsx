@@ -283,6 +283,23 @@ function norm(val, min, max) {
 function normInv(val, min, max) { return 100 - norm(val, min, max); }
 function clamp(v, lo=0, hi=100) { return Math.min(hi, Math.max(lo, v)); }
 
+// Shared comfort scoring helper. Used by both arm-health mode (with the
+// user's computed injuryFactor) and performance mode (with a neutral 0.5
+// baseline so the displayed comfort reflects the frame's structural arm-
+// friendliness, not the user's risk). The caller decides whether to use
+// the returned value for scoring or for display only — performance mode's
+// weights set comfort: 0 so the value is informational there.
+function computeFrameComfort(r, armRisk) {
+  const ra = r.ra ?? SETTINGS.BlankRA_Default;
+  const raComfortContrib = normInv(ra, 50, 75) * (0.15 + 0.85 * armRisk);
+  const balanceVal = Math.min(8, Math.max(3, r.balance > 0 ? r.balance : 5));
+  return clamp(
+    raComfortContrib * 0.50 +
+    normInv(r.weight, 240, 340) * 0.30 +
+    norm(balanceVal, 3, 8) * 0.20
+  );
+}
+
 function computeSubscores(r, d, painNumeric, injuryFactor) {
   const ra = r.ra ?? SETTINGS.BlankRA_Default;
   const sw = r.swingWeight ?? SETTINGS.BlankSW_Default;
@@ -320,14 +337,7 @@ function computeSubscores(r, d, painNumeric, injuryFactor) {
     controlScore = Math.min(100, controlScore * 1.06);
   }
 
-  const injF = injuryFactor ?? 0;
-  const raComfortContrib = normInv(ra, 50, 75) * (0.15 + 0.85 * injF);
-  const balanceVal = Math.min(8, Math.max(3, r.balance > 0 ? r.balance : 5));
-  const comfortScore = clamp(
-    raComfortContrib * 0.50 +
-    normInv(r.weight, 240, 340) * 0.30 +
-    norm(balanceVal, 3, 8) * 0.20
-  );
+  const comfortScore = computeFrameComfort(r, injuryFactor ?? 0);
 
   let spinScore = normInv(density, 280, 380) * 0.60 + norm(r.headSize, 95, 115) * 0.40;
   if (d.playStyle === "Baseliner" && ntrp >= 4.0) spinScore *= 1.15;
@@ -735,7 +745,7 @@ function performanceSubscores(r, d) {
   return {
     powerScore: clamp(powerScore),
     controlScore: clamp(controlScore),
-    comfortScore: 0,
+    comfortScore: computeFrameComfort(r, 0.5),
     spinScore: clamp(spinScore),
     maneuverabilityScore: clamp(maneuverabilityScore),
     frameRiskScore: 0,
@@ -1122,7 +1132,7 @@ function generateRecommendationsPerformance(d) {
       },
       scores: {
         power: Math.round(sub.powerScore), control: Math.round(sub.controlScore),
-        comfort: 0, spin: Math.round(sub.spinScore),
+        comfort: Math.round(sub.comfortScore), spin: Math.round(sub.spinScore),
         maneuverability: Math.round(sub.maneuverabilityScore),
       },
       weights,

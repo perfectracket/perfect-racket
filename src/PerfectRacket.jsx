@@ -2343,9 +2343,9 @@ export default function PerfectRacket() {
               </div>
               <div className="lp-testimonials">
                 {[
-                  {q:"I had been playing with the wrong racket for two years. Perfect Racket flagged that my RA rating was too high for my elbow issue and recommended the Clash 100. Three months in, zero pain.",name:"Marcus T.",detail:"NTRP 3.5 · Lateral epicondylitis",bg:"#4A7A8A",l:"M"},
-                  {q:"The tension recommendation alone was worth it. I went from 58 lbs to 47 lbs with a multifilament and my shoulder stopped aching after the second session.",name:"Sandra R.",detail:"NTRP 4.0 · Shoulder impingement",bg:"#7A4A6A",l:"S"},
-                  {q:"As a coach, I have started using Perfect Racket with my students. I print the PDF and bring it to their lesson. It opens a great conversation about equipment.",name:"James W.",detail:"USPTA Coach · 12 years teaching",bg:"#3A6A5A",l:"J"},
+                  {q:"Took the quiz on a whim after years of elbow pain and a graveyard of 'arm-friendly' setups that didn't help. Three weeks on the racket it recommended and my elbow finally feels normal. Wish I'd found this sooner.",name:"Josh S.",detail:"NTRP 4.0 · Former NFL Athlete",bg:"#4A7A8A",l:"J"},
+                  {q:"Was looking for a real upgrade and the quiz pointed me to the Yonex EZONE 100. Demoed it that weekend, bought it Tuesday, and I'm hitting better than I have in years.",name:"William Bo",detail:"NTRP 4.0 · UTR Singles Player",bg:"#7A4A6A",l:"W"},
+                  {q:"I play doubles four nights a week and finally found a quiz that actually asked about it. The setup they recommended is faster at the net and way more comfortable on my volleys. My partner noticed the difference right away.",name:"Freddy L.",detail:"NTRP 3.5 · 40+ Doubles Player",bg:"#3A6A5A",l:"F"},
                 ].map((t,i) => (
                   <div key={i} className="lp-testimonial">
                     <div className="lp-testi-stars">★★★★★</div>
@@ -2441,8 +2441,8 @@ export default function PerfectRacket() {
               {[
                 {q:"Is this really free?",                                   a:"Yes, completely. Perfect Racket is free to use. We earn a small affiliate commission if you click through and purchase - but your recommendations are never influenced by commission rates."},
                 {q:"I am a beginner. Is this for me?",                       a:"Absolutely. We cover NTRP levels from 2.5 to 4.5+. Beginners often benefit the most - the right frame makes learning significantly easier, and correct tension prevents injuries before they start."},
-                {q:"How is this different from a generic quiz?",              a:"Most quizzes ask 3-5 questions and return the same 5 popular rackets. Perfect Racket asks 13 specific questions, weights arm health at 40%, and uses a data-driven algorithm across 6 technical dimensions."},
-                {q:"What if I do not have any arm pain?",                    a:"You will get recommendations optimized for performance with arm health as a protective factor. Many players discover they have been using equipment that puts them at unnecessary risk - consider it preventive analysis."},
+                {q:"How is this different from a generic quiz?",              a:"Most quizzes ask 3-5 questions and return the same 5 popular rackets. Perfect Racket asks 10+ specific questions and uses a data-driven algorithm across 6 technical dimensions. Pick Arm Health Fit and protection is weighted at 40% of your score, the heaviest in the category. Pick Performance Fit and the algorithm tunes for power, control, spin, or whatever you are optimizing for."},
+                {q:"What if I do not have any arm pain?",                    a:"Then Performance Fit is your path. Eleven questions tuned to your level, style, and what you are optimizing for, whether that is power, control, spin, maneuverability, or balanced. Arm Health Fit is still there if you want protection weighted in. Many players run both and compare."},
                 {q:"Can I share my results with my coach or stringer?",      a:"Yes - results include a pre-written stringer script you can copy and read aloud at the pro shop. Many coaches use Perfect Racket as a starting point for equipment conversations."},
               ].map((f,i) => <FaqItem key={i} q={f.q} a={f.a}/>)}
             </div>

@@ -779,20 +779,42 @@ function ntrpTierAdjustment(r, ntrp) {
   } else if (ntrp >= 4.0) {
     if (r.weight >= 295 && r.weight <= 315) adj += 3;
     if (r.weight < 285) adj -= 4;
+  } else if (ntrp >= 3.5) {
+    // 3.5: developing competitive player. Mild middle-weight reward,
+    // light penalties for extremes. Without this branch, 3.5 players
+    // received zero tier adjustment, leaving the specialist bonus
+    // unchecked.
+    if (r.weight >= 290 && r.weight <= 310) adj += 2;
+    if (r.weight < 280) adj -= 2;
+    if (r.weight >= 320) adj -= 2;
   } else if (ntrp <= 3.0) {
     if (r.weight <= 295) adj += 4;
     if (r.beamWidth >= 24) adj += 2;
     if (r.headSize >= 100) adj += 2;
     if (r.weight >= 310) adj -= 5;
     if (density >= 360) adj -= 3;
+    // Stiffness penalty: developing players cannot safely absorb the
+    // shock of off-center hits on very stiff frames. Stacks for the
+    // stiffest frames in the database.
+    if (ra >= 68) adj -= 3;
+    if (ra >= 71) adj -= 2;
   }
   return adj;
 }
 
-function categorySpecialistBonus(r, priorityFocus) {
-  if (priorityFocus === "Power"   && POWER_SPECIALISTS.includes(r.model))   return 6;
-  if (priorityFocus === "Spin"    && SPIN_SPECIALISTS.includes(r.model))    return 6;
-  if (priorityFocus === "Control" && CONTROL_SPECIALISTS.includes(r.model)) return 6;
+function categorySpecialistBonus(r, priorityFocus, ntrp) {
+  let isSpecialist = false;
+  if (priorityFocus === "Power"   && POWER_SPECIALISTS.includes(r.model))   isSpecialist = true;
+  if (priorityFocus === "Spin"    && SPIN_SPECIALISTS.includes(r.model))    isSpecialist = true;
+  if (priorityFocus === "Control" && CONTROL_SPECIALISTS.includes(r.model)) isSpecialist = true;
+  if (!isSpecialist) return 0;
+  // Scale by NTRP. Specialists are category-defining frames meant for elite
+  // play. At 4.0+ they earn the full reward. At 3.5 they are aspirational
+  // but appropriate, so half. At 3.0 they should rarely surface, so minimal.
+  // At 2.5 they are categorically wrong for a developing player, so zero.
+  if (ntrp >= 4.0) return 6;
+  if (ntrp >= 3.5) return 3;
+  if (ntrp >= 3.0) return 1;
   return 0;
 }
 
@@ -1077,7 +1099,7 @@ function generateRecommendationsPerformance(d) {
       sub.maneuverabilityScore * weights.maneuverability;
 
     const tierAdj = ntrpTierAdjustment(r, ntrpNum);
-    const specialistBonus = categorySpecialistBonus(r, d.priorityFocus);
+    const specialistBonus = categorySpecialistBonus(r, d.priorityFocus, ntrpNum);
     const armPenalty = antiComfortPenalty(r, d.priorityFocus);
     const ctrlEliteBonus = controlEliteBonus(r, d.priorityFocus);
 

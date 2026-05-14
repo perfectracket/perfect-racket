@@ -776,7 +776,48 @@ function performanceWeights(d) {
   return w;
 }
 
-function ntrpTierAdjustment(r, ntrp) {
+// Returns the weight (grams) of the best-matched database racket from the
+// user's current-racket free text, or null if no confident match. Used to
+// soften the NTRP 3.0 light-frame bias when a user demonstrates they already
+// play a heavier frame comfortably. See ntrpTierAdjustment for application.
+function currentRacketWeightLookup(currentRacketText) {
+  if (!currentRacketText || !currentRacketText.trim()) return null;
+  const normalize = s => s.toLowerCase().replace(/[^a-z0-9]+/g, ' ').replace(/\s+/g, ' ').trim();
+  const input = normalize(currentRacketText);
+  if (input.length < 3) return null;
+
+  let bestMatch = null;
+  let bestScore = 0;
+
+  for (const r of RACQUET_DB) {
+    const dbModel = normalize(r.model);
+    if (!dbModel) continue;
+
+    // Strict path: full model name appears as substring of user input.
+    // Example: input "babolat pure drive 2024" matches DB "Pure Drive 2025".
+    if (input.includes(dbModel)) {
+      return r.weight;
+    }
+
+    // Token path: at least 2 model words (length >= 3) appear in input.
+    // Example: input "wilson pro staff" matches "Pro Staff 97 v14" on
+    // "pro" + "staff".
+    const dbWords = dbModel.split(' ').filter(w => w.length >= 3);
+    if (dbWords.length < 2) continue;
+    const matches = dbWords.filter(w => input.includes(w)).length;
+    if (matches < 2) continue;
+
+    const score = matches / dbWords.length;
+    if (score > bestScore) {
+      bestScore = score;
+      bestMatch = r;
+    }
+  }
+
+  return bestMatch ? bestMatch.weight : null;
+}
+
+function ntrpTierAdjustment(r, ntrp, currentWeight) {
   let adj = 0;
   const density = r.mains * r.crosses;
   const ra = r.ra ?? SETTINGS.BlankRA_Default;
@@ -798,10 +839,27 @@ function ntrpTierAdjustment(r, ntrp) {
     if (r.weight < 280) adj -= 2;
     if (r.weight >= 320) adj -= 2;
   } else if (ntrp <= 3.0) {
-    if (r.weight <= 295) adj += 4;
+    // Weight-based adjustments soften when the user's current racket
+    // demonstrates capability with heavier frames. Non-weight adjustments
+    // (head size, beam, density, RA) reflect playability concerns unrelated
+    // to swing-weight tolerance and stay unchanged regardless.
+    const cw = currentWeight || 0;
+    if (cw >= 300) {
+      // User already plays 300g+ comfortably. Remove weight bias entirely.
+      // No light-frame bonus, no heavy-frame penalty.
+    } else if (cw >= 286) {
+      // User plays a moderate-weight frame. Soften both ends.
+      if (r.weight <= 295) adj += 2;
+      if (r.weight >= 310) adj -= 2;
+    } else {
+      // Default 3.0 protective behavior (no current-racket signal or
+      // user plays a light frame).
+      if (r.weight <= 295) adj += 4;
+      if (r.weight >= 310) adj -= 5;
+    }
+
     if (r.beamWidth >= 24) adj += 2;
     if (r.headSize >= 100) adj += 2;
-    if (r.weight >= 310) adj -= 5;
     if (density >= 360) adj -= 3;
     // Stiffness penalty: developing players cannot safely absorb the
     // shock of off-center hits on very stiff frames. Stacks for the
@@ -1099,6 +1157,7 @@ function generateRecommendations(d) {
 function generateRecommendationsPerformance(d) {
   const weights = performanceWeights(d);
   const ntrpNum = parseFloat(d.ntrp) || 3.5;
+  const currentWeight = currentRacketWeightLookup(d.currentRacket);
 
   const scored = RACQUET_DB.map(r => {
     const sub = performanceSubscores(r, d);
@@ -1108,7 +1167,7 @@ function generateRecommendationsPerformance(d) {
       sub.spinScore * weights.spin +
       sub.maneuverabilityScore * weights.maneuverability;
 
-    const tierAdj = ntrpTierAdjustment(r, ntrpNum);
+    const tierAdj = ntrpTierAdjustment(r, ntrpNum, currentWeight);
     const specialistBonus = categorySpecialistBonus(r, d.priorityFocus, ntrpNum);
     const armPenalty = antiComfortPenalty(r, d.priorityFocus);
     const ctrlEliteBonus = controlEliteBonus(r, d.priorityFocus);
@@ -3086,7 +3145,7 @@ export default function PerfectRacket() {
                   <div className="shd"><span className="shd-e">🎾</span><span className="shd-t">Playing Style</span></div>
                   <div className="field">
                     <div className="flbl">Current Racket <span className="fopt">(Optional)</span></div>
-                    <div className="fhint">Knowing your current frame helps us explain exactly why we're recommending something different</div>
+                    <div className="fhint">Helps us calibrate against what you already play comfortably and explain why a recommendation is different. Worth filling in.</div>
                     <input className="ti" placeholder="e.g. Wilson Clash 100, Babolat Pure Drive, not sure"
                       value={d.currentRacket} onChange={e=>upd("currentRacket",e.target.value)}/>
                   </div>

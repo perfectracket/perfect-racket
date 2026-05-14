@@ -38,7 +38,7 @@ const RACQUET_DB = [
   { brand:"Wilson",     model:"Clash 100L v3",         headSize:100, weight:280, balance:6,  swingWeight:301, mains:16, crosses:19, beamWidth:25, ra:54, length:27.0, price:289, armFriendly:true  },
   { brand:"Wilson",     model:"Clash 100 Pro v3",      headSize:100, weight:303, balance:10, swingWeight:327, mains:16, crosses:20, beamWidth:25, ra:57, length:27.0, price:259, armFriendly:true  },
   { brand:"Wilson",     model:"Blade 98 16x19 v9",     headSize:98,  weight:305, balance:5,  swingWeight:323, mains:16, crosses:19, beamWidth:21, ra:62, length:27.0, price:269, armFriendly:true  },
-  { brand:"Wilson",     model:"Blade 100 v9",          headSize:100, weight:300, balance:5,  swingWeight:318, mains:16, crosses:19, beamWidth:23, ra:62, length:27.0, price:269, armFriendly:true  },
+  { brand:"Wilson",     model:"Blade 100 v9",          headSize:100, weight:300, balance:5,  swingWeight:318, mains:16, crosses:19, beamWidth:23, ra:65, length:27.0, price:269, armFriendly:false },
   { brand:"Wilson",     model:"Blade 98 18x20 v9",     headSize:98,  weight:305, balance:4,  swingWeight:330, mains:18, crosses:20, beamWidth:21, ra:60, length:27.0, price:269, armFriendly:true  },
   { brand:"Wilson",     model:"Pro Staff 97 v14",      headSize:97,  weight:315, balance:3,  swingWeight:325, mains:16, crosses:19, beamWidth:21, ra:66, length:27.0, price:289, armFriendly:false },
   { brand:"Wilson",     model:"Ultra 100 v4",          headSize:100, weight:300, balance:6,  swingWeight:318, mains:16, crosses:19, beamWidth:26, ra:68, length:27.0, price:249, armFriendly:false },
@@ -3047,9 +3047,9 @@ export default function PerfectRacket() {
                   </div>
                   <div className="field">
                     <div className="flbl">NTRP Level <span className="req">*</span></div>
-                    <div className="fhint">2.5 = beginner, 3.0 = improving, 3.5 = intermediate, 4.0 = strong amateur, 4.5 = advanced</div>
+                    <div className="fhint">2.5 = beginner, 3.0 = improving, 3.5 = intermediate, 4.0 = strong amateur, 4.5+ = advanced</div>
                     <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:"var(--sp-2)"}}>
-                      {["2.5","3.0","3.5","4.0","4.5"].map(l => (
+                      {["2.5","3.0","3.5","4.0","4.5+"].map(l => (
                         <div key={l} className={`go${d.ntrp===l?" sel":""}`} onClick={()=>{upd("ntrp",l);}}>
                           <span className="go-l" style={{fontSize:"var(--text-lg)",fontFamily:"'Bebas Neue',sans-serif"}}>{l}</span>
                           {d.ntrp===l && <div className="chk">✓</div>}
@@ -3060,11 +3060,11 @@ export default function PerfectRacket() {
                   </div>
                   <div className="field" style={{marginBottom:0}}>
                     <div className="flbl">Current Grip Size <span className="fopt">(Optional)</span></div>
-                    <div className="fhint">Grip size affects arm health — too small can increase forearm tension and elbow stress</div>
+                    <div className="fhint">Grip size affects arm health — too small can increase forearm tension and elbow stress. Numbers shown are the standard 1-5 grip size scale.</div>
                     <div className="grid2">
-                      {[["4","Small"],["4⅛","Small-Med"],["4¼","Medium"],["4⅜","Med-Large"],["4½","Large"],["—","Not Sure"]].map(([size,label]) => (
+                      {[["4","1","Small"],["4⅛","2","Small-Med"],["4¼","3","Medium"],["4⅜","4","Med-Large"],["4½","5","Large"],["—","","Not Sure"]].map(([size,num,label]) => (
                         <div key={size} className={`go${d.gripSize===size?" sel":""}`} onClick={()=>upd("gripSize",size)}>
-                          <span className="go-l" style={{fontSize:"var(--text-md)",fontFamily:"'Bebas Neue',sans-serif"}}>{size}</span>
+                          <span className="go-l" style={{fontSize:"var(--text-md)",fontFamily:"'Bebas Neue',sans-serif"}}>{size}{num && <span style={{fontSize:"var(--text-xs)",color:"var(--mid)",marginLeft:"6px",letterSpacing:"1px"}}>· {num}</span>}</span>
                           <span style={{fontSize:"var(--text-xs)",color:"var(--mid)"}}>{label}</span>
                           {d.gripSize===size && <div className="chk">✓</div>}
                         </div>
@@ -3123,9 +3123,9 @@ export default function PerfectRacket() {
                   <div className="shd"><span className="shd-e">⚡</span><span className="shd-t">Swing</span></div>
                   <div className="field">
                     <div className="flbl">Swing Speed <span className="req">*</span></div>
-                    {[["Slow & Controlled","Smooth, measured swings"],
-                      ["Moderate","Good pace with controlled acceleration"],
-                      ["Fast & Aggressive","Hard swings with lots of racquet head speed"],
+                    {[["Slow & Controlled","Smooth, measured swings with shorter follow-through"],
+                      ["Moderate","Good pace with controlled acceleration through the ball"],
+                      ["Fast & Aggressive","Full long strokes with high racquet head speed"],
                       ["Not sure","I do not know my swing speed"],
                     ].map(([t,desc],i) => (
                       <div key={t} className={`lo${d.swingSpeed===t?" sel":""}`} onClick={()=>upd("swingSpeed",t)}>

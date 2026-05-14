@@ -3060,9 +3060,9 @@ export default function PerfectRacket() {
                   </div>
                   <div className="field" style={{marginBottom:0}}>
                     <div className="flbl">Current Grip Size <span className="fopt">(Optional)</span></div>
-                    <div className="fhint">Grip size affects arm health — too small can increase forearm tension and elbow stress. Numbers shown are the standard 1-5 grip size scale.</div>
+                    <div className="fhint">Grip size affects arm health — too small can increase forearm tension and elbow stress. Numbers shown are the standard 0-5 grip size scale.</div>
                     <div className="grid2">
-                      {[["4","1","Small"],["4⅛","2","Small-Med"],["4¼","3","Medium"],["4⅜","4","Med-Large"],["4½","5","Large"],["—","","Not Sure"]].map(([size,num,label]) => (
+                      {[["4","0","X-Small"],["4⅛","1","Small"],["4¼","2","Small-Med"],["4⅜","3","Medium"],["4½","4","Med-Large"],["4⅝","5","Large"],["—","","Not Sure"]].map(([size,num,label]) => (
                         <div key={size} className={`go${d.gripSize===size?" sel":""}`} onClick={()=>upd("gripSize",size)}>
                           <span className="go-l" style={{fontSize:"var(--text-md)",fontFamily:"'Bebas Neue',sans-serif"}}>{size}{num && <span style={{fontSize:"var(--text-xs)",color:"var(--mid)",marginLeft:"6px",letterSpacing:"1px"}}>· {num}</span>}</span>
                           <span style={{fontSize:"var(--text-xs)",color:"var(--mid)"}}>{label}</span>

@@ -1922,6 +1922,10 @@ export default function PerfectRacket() {
   const [recs, setRecs] = useState(null);
 
   const bodyRef = useRef(null);
+  // History-management ref: true while we're applying a popstate event (i.e.
+  // the user hit browser back/forward). When set, screen/step changes must
+  // not push *new* history entries — that would cause runaway pushState loops.
+  const isPoppingRef = useRef(false);
 
   const [d, setD] = useState({
     mode:"",
@@ -1935,6 +1939,43 @@ export default function PerfectRacket() {
     rehabStatus:"", stringType:"", tensionRange:"",
     goals:[],
   });
+
+  // Browser back/forward navigation. The app uses internal React state for
+  // screen + step, so by default the browser back button leaves the site
+  // entirely instead of stepping back through the quiz. This effect:
+  //   1. Seeds the initial landing state on mount via replaceState so the
+  //      user's first back press has something to land on.
+  //   2. Listens for popstate (back/forward) events and syncs React state
+  //      from the history entry's stored state object.
+  // The isPoppingRef flag prevents the synced setScreen/setStep from
+  // triggering another pushState in the next effect below (which would
+  // create an infinite loop).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.history.replaceState({ screen: "landing", step: 1 }, "", window.location.pathname);
+    const onPop = (e) => {
+      const s = (e.state && typeof e.state === "object") ? e.state : { screen: "landing", step: 1 };
+      isPoppingRef.current = true;
+      setScreen(s.screen || "landing");
+      setStep(s.step || 1);
+      // Clear the flag on the next tick so subsequent user-driven changes
+      // resume pushing history entries normally.
+      setTimeout(() => { isPoppingRef.current = false; }, 0);
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  // Push a new history entry whenever the user navigates via app controls.
+  // Skipped during popstate handling (above) to avoid recursion. The "loading"
+  // screen is transient (~2.8s) and intentionally not pushed; users hitting
+  // back during loading land on the previous step, which is correct.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (isPoppingRef.current) return;
+    if (screen === "loading") return;
+    window.history.pushState({ screen, step }, "", window.location.pathname);
+  }, [screen, step]);
 
   useLayoutEffect(() => {
     if (bodyRef.current) bodyRef.current.scrollTop = 0;
@@ -2550,7 +2591,7 @@ export default function PerfectRacket() {
                 {[
                   {h:"Product",   links:[["How it works","#lp-how"],["What you get","#lp-results"],["Get started free","#"]]},
                   {h:"Resources", links:[["Tennis Elbow Guide","/tennis-elbow-racket-guide"],["String Guide","#"],["Racket Spec Glossary","#"]]},
-                  {h:"Company",   links:[["About","#"],["Privacy Policy","#"],["Contact","#"]]},
+                  {h:"Company",   links:[["About","#"],["Privacy Policy","/privacy.html"],["Contact","mailto:hello@perfectracket.com"]]},
                 ].map((col,i) => (
                   <div key={i} className="lp-footer-col">
                     <h4>{col.h}</h4>
@@ -3080,7 +3121,7 @@ export default function PerfectRacket() {
                   </div>
                   <div className="field">
                     <div className="flbl">Email <span className="req">*</span></div>
-                    <div className="fhint">We will send your recommendations here</div>
+                    <div className="fhint">We will send your recommendations here. We do not sell your data. <a href="/privacy.html" target="_blank" rel="noopener" style={{color:"var(--clay)",textDecoration:"underline"}}>Privacy policy</a>.</div>
                     <input className={`ti${errors.email?" inp-err":""}`} type="email"
                       placeholder="your@email.com" value={d.email}
                       onChange={e=>upd("email",e.target.value)}

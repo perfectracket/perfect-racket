@@ -2590,7 +2590,7 @@ export default function PerfectRacket() {
                 </div>
                 {[
                   {h:"Product",   links:[["How it works","#lp-how"],["What you get","#lp-results"],["Get started free","#"]]},
-                  {h:"Resources", links:[["Tennis Elbow Guide","/tennis-elbow-racket-guide"],["String Guide","#"],["Racket Spec Glossary","#"]]},
+                  {h:"Resources", links:[["Tennis Elbow Guide","/tennis-elbow-racket-guide"],["String Guide","/string-guide.html"],["Racket Spec Glossary","/racket-spec-glossary.html"]]},
                   {h:"Company",   links:[["About","#"],["Privacy Policy","/privacy.html"],["Contact","mailto:hello@perfectracket.com"]]},
                 ].map((col,i) => (
                   <div key={i} className="lp-footer-col">

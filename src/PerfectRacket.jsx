@@ -825,19 +825,63 @@ function ntrpTierAdjustment(r, ntrp, currentWeight) {
     if (r.weight >= 305 && density >= 320) adj += 5;
     if (r.weight >= 305) adj += 2;
     if (ra <= 65) adj += 2;
-    if (r.weight < 295) adj -= 6;
-    if (r.weight < 285) adj -= 3;
+
+    // Light-frame penalties soften when the user's current racket
+    // demonstrates comfort with a lighter frame. Symmetric to the 3.0
+    // override (which softens the heavy-frame penalty when a user plays
+    // heavier comfortably). Without this, female players, smaller-framed
+    // players, and other legitimate light-frame users get inappropriately
+    // steered to 300g+ frames.
+    const cw = currentWeight || 0;
+    if (cw > 0 && cw < 290) {
+      // User comfortably plays a sub-290g frame. Apply softened penalties.
+      if (r.weight < 295) adj -= 3;
+      if (r.weight < 285) adj -= 3;
+    } else {
+      // Default protective behavior (blank current racket or user plays
+      // a heavier frame). Ultra-light suppression at 4.5+: a teaching pro
+      // or competitive player at this level cannot drive through the ball
+      // with a 265g frame regardless of stated priority. The -14 total
+      // ensures ultra-lights stay out of the top 3.
+      if (r.weight < 295) adj -= 6;
+      if (r.weight < 285) adj -= 8;
+    }
   } else if (ntrp >= 4.0) {
     if (r.weight >= 295 && r.weight <= 315) adj += 3;
-    if (r.weight < 285) adj -= 4;
+
+    // Mirror the 4.5+ inverse override. At 4.0 with a demonstrated
+    // light-frame current racket, skip the ultra-light penalty entirely.
+    const cw = currentWeight || 0;
+    if (cw > 0 && cw < 290) {
+      // No light-frame penalty applied — user plays light comfortably.
+    } else {
+      // Strengthened from -4 to -7. The original -4 was not enough to
+      // overcome the maneuverability subscore advantage on ultra-light
+      // frames when a 4.0 user picks Fast & Aggressive swing speed,
+      // surfacing Speed MP UL and SX 300 Lite as #1 even for capable
+      // players. Mirrors the structural protection at 4.5+.
+      if (r.weight < 285) adj -= 7;
+    }
   } else if (ntrp >= 3.5) {
-    // 3.5: developing competitive player. Mild middle-weight reward,
-    // light penalties for extremes. Without this branch, 3.5 players
-    // received zero tier adjustment, leaving the specialist bonus
-    // unchecked.
+    // 3.5: developing competitive player. Mild middle-weight reward.
+    // Inverse override mirrors the 4.0 and 4.5+ branches: if the user's
+    // current racket demonstrates light-frame capability, skip the
+    // light-frame penalties entirely. This protects female players,
+    // smaller-framed players, and others who legitimately want a sub-285g
+    // frame from being inappropriately steered to 300g recommendations.
     if (r.weight >= 290 && r.weight <= 310) adj += 2;
-    if (r.weight < 280) adj -= 2;
     if (r.weight >= 320) adj -= 2;
+
+    const cw = currentWeight || 0;
+    if (cw > 0 && cw < 285) {
+      // No light-frame penalty applied — user plays light comfortably.
+    } else {
+      // Default protective behavior. Stronger than the prior -2 to handle
+      // the Fast-swing Maneuverability-weighted case where ultra-lights
+      // were surfacing for capable 3.5 players who already play 300g.
+      if (r.weight < 290) adj -= 3;
+      if (r.weight < 280) adj -= 3;
+    }
   } else if (ntrp <= 3.0) {
     // Weight-based adjustments soften when the user's current racket
     // demonstrates capability with heavier frames. Non-weight adjustments

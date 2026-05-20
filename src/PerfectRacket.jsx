@@ -890,11 +890,20 @@ function ntrpTierAdjustment(r, ntrp, currentWeight) {
     const cw = currentWeight || 0;
     if (cw >= 300) {
       // User already plays 300g+ comfortably. Remove weight bias entirely.
-      // No light-frame bonus, no heavy-frame penalty.
+      // No light-frame bonus, no heavy-frame penalty. Add active ultra-light
+      // suppression — when a 3.0 user demonstrates 300g capability, the
+      // algorithm should not steer them to 265-275g frames even when the
+      // maneuverability subscore favors light frames. Same architectural
+      // pattern as the 4.5+ branch.
+      if (r.weight <= 280) adj -= 6;
+      if (r.weight <= 290) adj -= 2;
     } else if (cw >= 286) {
-      // User plays a moderate-weight frame. Soften both ends.
+      // User plays a moderate-weight frame. Soften both ends and apply
+      // a mild ultra-light penalty (a 30g jump down from a 295g current
+      // racket is still inappropriate for a developing player).
       if (r.weight <= 295) adj += 2;
       if (r.weight >= 310) adj -= 2;
+      if (r.weight <= 280) adj -= 3;
     } else {
       // Default 3.0 protective behavior (no current-racket signal or
       // user plays a light frame).

@@ -119,6 +119,78 @@ const STRING_DB = [
 ];
 
 /* =============================================================
+   CURRENT RACKET DROPDOWN OPTIONS
+   -----------------------------------------------------------
+   Grouped by brand, alphabetical within brand. The `value` is the
+   exact RACQUET_DB model string so the weight lookup resolves
+   precisely. The `label` is a cleaned display name: year/version
+   suffixes (2025, 2026, v9, 8th Gen) are stripped to avoid confusing
+   users who own an adjacent model year, but variant descriptors
+   (L, UL, Pro, Tour, Lite, string pattern) are kept because they
+   distinguish genuinely different frames with different specs.
+   ============================================================= */
+const CURRENT_RACKET_OPTIONS = [
+  { brand: "Babolat", items: [
+    { label: "Pure Aero", value: "Pure Aero 2026" },
+    { label: "Pure Aero 98", value: "Pure Aero 98 2026" },
+    { label: "Pure Drive", value: "Pure Drive 2025" },
+    { label: "Pure Strike 100", value: "Pure Strike 100" },
+    { label: "Pure Strike 100 (16x20)", value: "Pure Strike 100 16x20 Carbon Grey" },
+    { label: "Pure Strike Team", value: "Pure Strike Team" },
+  ]},
+  { brand: "Dunlop", items: [
+    { label: "CX 200 (16x19)", value: "CX 200 16x19" },
+    { label: "SX 300", value: "SX 300 2025" },
+    { label: "SX 300 Lite", value: "SX 300 Lite 2025" },
+  ]},
+  { brand: "HEAD", items: [
+    { label: "Boom MP", value: "Boom MP 2026" },
+    { label: "Extreme MP", value: "Extreme MP 2025" },
+    { label: "Gravity MP", value: "Gravity MP 2025" },
+    { label: "Gravity Pro", value: "Gravity Pro 2025" },
+    { label: "Gravity Tour", value: "Gravity Tour 2025" },
+    { label: "Radical MP", value: "Radical MP 2025" },
+    { label: "Speed MP", value: "Speed MP 2026" },
+    { label: "Speed MP L", value: "Speed MP L 2026" },
+    { label: "Speed MP UL", value: "Speed MP UL 2026" },
+    { label: "Speed Pro", value: "Speed Pro 2026" },
+    { label: "Speed Tour 97", value: "Speed Tour 97 2026" },
+  ]},
+  { brand: "ProKennex", items: [
+    { label: "Black Ace 300", value: "Black Ace 300" },
+    { label: "Ki Q+5", value: "Ki Q+5" },
+  ]},
+  { brand: "Solinco", items: [
+    { label: "Blackout V2 300", value: "Blackout V2 300" },
+  ]},
+  { brand: "Tecnifibre", items: [
+    { label: "TFight 305", value: "TFight 305" },
+    { label: "TFight 315", value: "TFight 315" },
+  ]},
+  { brand: "Wilson", items: [
+    { label: "Blade 98 (16x19)", value: "Blade 98 16x19 v9" },
+    { label: "Blade 98 (18x20)", value: "Blade 98 18x20 v9" },
+    { label: "Blade 100", value: "Blade 100 v9" },
+    { label: "Clash 100", value: "Clash 100 v3" },
+    { label: "Clash 100 Pro", value: "Clash 100 Pro v3" },
+    { label: "Clash 100L", value: "Clash 100L v3" },
+    { label: "Pro Staff 97", value: "Pro Staff 97 v14" },
+    { label: "RF 01", value: "RF 01" },
+    { label: "RF 01 Future", value: "RF 01 Future" },
+    { label: "RF 01 Pro", value: "RF 01 Pro" },
+    { label: "Ultra 100", value: "Ultra 100 v4" },
+  ]},
+  { brand: "Yonex", items: [
+    { label: "EZONE 98", value: "EZONE 98 2025" },
+    { label: "EZONE 100", value: "EZONE 100 2025" },
+    { label: "PERCEPT 97", value: "PERCEPT 97" },
+    { label: "PERCEPT 100", value: "PERCEPT 100" },
+    { label: "VCORE 98", value: "VCORE 98 8th Gen 2026" },
+    { label: "VCORE 100", value: "VCORE 100 2026" },
+  ]},
+];
+
+/* =============================================================
    AFFILIATE URL INFRASTRUCTURE
    -----------------------------------------------------------
    Maps each racquet model and string name to its Tennis Express
@@ -1986,6 +2058,9 @@ export default function PerfectRacket() {
   const [factIdx, setFactIdx] = useState(0);
   const [factFade, setFactFade] = useState(false);
   const [recs, setRecs] = useState(null);
+  // Tracks whether the user picked "Other" in the current-racket dropdown,
+  // which reveals a free-text field for frames not in our database.
+  const [racketIsOther, setRacketIsOther] = useState(false);
 
   const bodyRef = useRef(null);
   // History-management ref: true while we're applying a popstate event (i.e.
@@ -2266,7 +2341,7 @@ export default function PerfectRacket() {
            painLocations:[], painSeverity:"",
            pastInjuryElbow:"No", pastInjuryShoulder:"No", pastInjuryWrist:"No",
            pastInjuries:[], rehabStatus:"", stringType:"", tensionRange:"", goals:[] });
-    setStep(1); setErrors({}); setRecs(null); go("landing");
+    setStep(1); setErrors({}); setRecs(null); setRacketIsOther(false); go("landing");
   };
 
   const Err = ({ k }) => errors[k] ? <div className="ferr">! {errors[k]}</div> : null;
@@ -3253,8 +3328,32 @@ export default function PerfectRacket() {
                   <div className="field">
                     <div className="flbl">Current Racket <span className="fopt">(Optional)</span></div>
                     <div className="fhint">Helps us calibrate against what you already play comfortably and explain why a recommendation is different. Worth filling in.</div>
-                    <input className="ti" placeholder="e.g. Wilson Clash 100, Babolat Pure Drive, not sure"
-                      value={d.currentRacket} onChange={e=>upd("currentRacket",e.target.value)}/>
+                    <select className="ti" value={racketIsOther ? "__other__" : d.currentRacket}
+                      onChange={e => {
+                        const v = e.target.value;
+                        if (v === "__other__") {
+                          setRacketIsOther(true);
+                          upd("currentRacket", "");
+                        } else {
+                          setRacketIsOther(false);
+                          upd("currentRacket", v);
+                        }
+                      }}>
+                      <option value="">Select your current racket</option>
+                      {CURRENT_RACKET_OPTIONS.map(group => (
+                        <optgroup key={group.brand} label={group.brand}>
+                          {group.items.map(item => (
+                            <option key={item.value} value={item.value}>{group.brand} {item.label}</option>
+                          ))}
+                        </optgroup>
+                      ))}
+                      <option value="__other__">Other / not listed</option>
+                    </select>
+                    {racketIsOther && (
+                      <input className="ti" style={{marginTop:"var(--sp-3)"}}
+                        placeholder="Type your racket (e.g. Prince Tour 100)"
+                        value={d.currentRacket} onChange={e=>upd("currentRacket",e.target.value)}/>
+                    )}
                   </div>
                   <div className="field">
                     <div className="flbl">Play Style <span className="req">*</span></div>

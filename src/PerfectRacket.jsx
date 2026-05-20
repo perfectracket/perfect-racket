@@ -33,7 +33,7 @@ const RACQUET_DB = [
   // -- WILSON --
   { brand:"Wilson",     model:"RF 01 Pro",            headSize:98,  weight:320, balance:7,  swingWeight:325, mains:16, crosses:19, beamWidth:23, ra:65, length:27.0, price:349, armFriendly:false },
   { brand:"Wilson",     model:"RF 01",                headSize:98,  weight:300, balance:5,  swingWeight:315, mains:16, crosses:19, beamWidth:23, ra:64, length:27.0, price:329, armFriendly:false },
-  { brand:"Wilson",     model:"RF 01 Future",          headSize:98,  weight:265, balance:4,  swingWeight:292, mains:16, crosses:19, beamWidth:22, ra:62, length:27.0, price:309, armFriendly:true  },
+  { brand:"Wilson",     model:"RF 01 Future",          headSize:98,  weight:281, balance:4,  swingWeight:300, mains:16, crosses:19, beamWidth:22, ra:62, length:27.0, price:309, armFriendly:true  },
   { brand:"Wilson",     model:"Clash 100 v3",          headSize:100, weight:295, balance:6,  swingWeight:316, mains:16, crosses:19, beamWidth:24, ra:55, length:27.0, price:299, armFriendly:true  },
   { brand:"Wilson",     model:"Clash 100L v3",         headSize:100, weight:280, balance:6,  swingWeight:301, mains:16, crosses:19, beamWidth:25, ra:54, length:27.0, price:289, armFriendly:true  },
   { brand:"Wilson",     model:"Clash 100 Pro v3",      headSize:100, weight:303, balance:10, swingWeight:327, mains:16, crosses:20, beamWidth:25, ra:57, length:27.0, price:259, armFriendly:true  },
@@ -346,7 +346,10 @@ function computeSubscores(r, d, painNumeric, injuryFactor) {
   const swingMult = d.swingSpeed === "Fast & Aggressive" ? 0.85 :
                     d.swingSpeed === "Slow & Controlled" ? 1.20 : 1.0;
   const advancedBaselineMult = (d.playStyle === "Baseliner" && ntrp >= 4.0) ? 1.15 : 1.0;
-  const maneuverabilityScore = normInv(r.weight, 240, 340) * 0.50 * swingMult * advancedBaselineMult +
+  // Maneuverability weight-floor: cap weight input at 285g (see the parallel
+  // comment in performanceSubscores). Frames below 285g do not earn extra
+  // maneuverability credit for raw lightness.
+  const maneuverabilityScore = normInv(Math.max(r.weight, 285), 240, 340) * 0.50 * swingMult * advancedBaselineMult +
     normInv(sw, 280, 360) * 0.50;
 
   const frameRiskScore = clamp(
@@ -739,7 +742,16 @@ function performanceSubscores(r, d) {
   if (fastSwing) spinScore *= 1.15;
 
   const swingMult = fastSwing ? 0.70 : slowSwing ? 1.25 : 1.0;
-  const maneuverabilityScore = normInv(r.weight, 240, 340) * 0.50 * swingMult
+  // Maneuverability weight-floor: cap the weight input at 285g so frames
+  // lighter than that do not earn a runaway maneuverability advantage.
+  // A 265g frame is not meaningfully more maneuverable than a 285g frame
+  // for a capable adult player — it is simply underweight. Without this
+  // floor, ultra-light frames (Speed MP UL 265g, SX 300 Lite 270g) post
+  // maneuverability scores so high that Maneuverability-priority users at
+  // any NTRP and any swing speed surfaced them over appropriate frames.
+  // This is the structural fix; the per-tier weight penalties in
+  // ntrpTierAdjustment remain as a secondary safety net.
+  const maneuverabilityScore = normInv(Math.max(r.weight, 285), 240, 340) * 0.50 * swingMult
                              + normInv(sw, 280, 360) * 0.50;
 
   return {
@@ -1088,9 +1100,10 @@ function generateRecommendations(d) {
     const isArmSpecialist = r.armFriendly && raCurrent <= 58;
     const armSpecialistPenalty = isArmSpecialist ? 5.0 * Math.max(0, 1 - injuryFactor * 2) : 0;
 
-    // Weight appropriateness penalty:
+    // Weight appropriateness penalty (Arm Health pipeline):
     // - 4.0+: frames under 300g get hard -30 penalty
-    // - 3.0-3.9: frames under 275g get -20 penalty (RF 01 Future at 265g is too light)
+    // - 3.0-3.9: frames under 275g get -20 penalty (catches genuine
+    //   ultra-lights like Speed MP UL 265g and SX 300 Lite 270g)
     // - Injury factor reduces penalty for injured players who genuinely benefit from lighter frames
     const ntrpNum = parseFloat(d.ntrp) || 3.5;
     const frameWeight = r.weight ?? 300;

@@ -1732,6 +1732,7 @@ select.ti { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w
 .rcard:not(.top) .r-why { background: rgba(13,27,42,0.03); }
 
 .shop-btn  { width: 100%; background: var(--clay); border: 2px solid var(--clay); border-radius: 12px; padding: var(--sp-3) var(--sp-5); font-family: 'Outfit', sans-serif; font-size: var(--text-sm); font-weight: 700; color: var(--white); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: var(--sp-2); transition: all 0.18s; -webkit-tap-highlight-color: transparent; }
+.shop-discount { text-align: center; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.02em; color: var(--clay); margin-bottom: var(--sp-2); font-weight: 500; }
 .shop-btn:hover  { background: var(--clay-bright); border-color: var(--clay-bright); transform: translateY(-1px); }
 .shop-btn.secondary { background: transparent; color: var(--clay); }
 .shop-btn.secondary:hover { background: var(--clay-pale); border-color: var(--clay); transform: translateY(-1px); }
@@ -3093,7 +3094,8 @@ export default function PerfectRacket() {
                   <a href={getRacquetShopUrl(r)}
                      target="_blank" rel="noopener noreferrer" style={{textDecoration:"none"}}
                      onClick={() => { if (typeof window.plausible === "function") window.plausible("Shop Click", { props: { product: `${r.brand} ${r.model}`, type: "racquet" } }); }}>
-                    <button className={`shop-btn${r.top ? "" : " secondary"}`}>Shop on Tennis Express</button>
+                    <div className="shop-discount">5% off applied at checkout for Perfect Racket users</div>
+                    <button className={`shop-btn${r.top ? "" : " secondary"}`}>Shop the {r.model}</button>
                   </a>
                 </div>
               ))}
@@ -3144,6 +3146,7 @@ export default function PerfectRacket() {
                   <a href={getStringShopUrl(s)}
                      target="_blank" rel="noopener noreferrer" style={{textDecoration:"none"}}
                      onClick={() => { if (typeof window.plausible === "function") window.plausible("Shop Click", { props: { product: s.name, type: "string" } }); }}>
+                    <div className="shop-discount">5% off applied at checkout for Perfect Racket users</div>
                     <button className={`shop-btn${s.top ? "" : " secondary"}`}>Shop on Tennis Express</button>
                   </a>
                 </div>

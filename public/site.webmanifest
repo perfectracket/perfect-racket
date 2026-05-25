@@ -1,0 +1,19 @@
+{
+  "name": "Perfect Racket",
+  "short_name": "Perfect Racket",
+  "icons": [
+    {
+      "src": "/favicon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#C8522A",
+  "background_color": "#FAF7F2",
+  "display": "standalone"
+}

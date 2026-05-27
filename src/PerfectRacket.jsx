@@ -37,9 +37,9 @@ const RACQUET_DB = [
   { brand:"Wilson",     model:"Clash 100 v3",          headSize:100, weight:295, balance:6,  swingWeight:316, mains:16, crosses:19, beamWidth:24, ra:55, length:27.0, price:299, armFriendly:true  },
   { brand:"Wilson",     model:"Clash 100L v3",         headSize:100, weight:280, balance:6,  swingWeight:301, mains:16, crosses:19, beamWidth:25, ra:54, length:27.0, price:289, armFriendly:true  },
   { brand:"Wilson",     model:"Clash 100 Pro v3",      headSize:100, weight:303, balance:10, swingWeight:327, mains:16, crosses:20, beamWidth:25, ra:57, length:27.0, price:259, armFriendly:true  },
-  { brand:"Wilson",     model:"Blade 98 16x19 v9",     headSize:98,  weight:305, balance:5,  swingWeight:323, mains:16, crosses:19, beamWidth:21, ra:62, length:27.0, price:269, armFriendly:true  },
-  { brand:"Wilson",     model:"Blade 100 v9",          headSize:100, weight:300, balance:5,  swingWeight:318, mains:16, crosses:19, beamWidth:23, ra:65, length:27.0, price:269, armFriendly:false },
-  { brand:"Wilson",     model:"Blade 98 18x20 v9",     headSize:98,  weight:305, balance:4,  swingWeight:330, mains:18, crosses:20, beamWidth:21, ra:60, length:27.0, price:269, armFriendly:true  },
+  { brand:"Wilson",     model:"Blade 98 16x19 v10",    headSize:98,  weight:306, balance:4,  swingWeight:322, mains:16, crosses:19, beamWidth:21, ra:61, length:27.0, price:299, armFriendly:true  },
+  { brand:"Wilson",     model:"Blade 100 v10",         headSize:100, weight:300, balance:4,  swingWeight:319, mains:16, crosses:19, beamWidth:22, ra:61, length:27.0, price:299, armFriendly:true  },
+  { brand:"Wilson",     model:"Blade 98 18x20 v10",    headSize:98,  weight:306, balance:4,  swingWeight:325, mains:18, crosses:20, beamWidth:21, ra:61, length:27.0, price:299, armFriendly:true  },
   { brand:"Wilson",     model:"Pro Staff 97 v14",      headSize:97,  weight:315, balance:3,  swingWeight:325, mains:16, crosses:19, beamWidth:21, ra:66, length:27.0, price:289, armFriendly:false },
   { brand:"Wilson",     model:"Ultra 100 v4",          headSize:100, weight:300, balance:6,  swingWeight:318, mains:16, crosses:19, beamWidth:26, ra:68, length:27.0, price:249, armFriendly:false },
   // -- HEAD --
@@ -168,9 +168,9 @@ const CURRENT_RACKET_OPTIONS = [
     { label: "TFight 315", value: "TFight 315" },
   ]},
   { brand: "Wilson", items: [
-    { label: "Blade 98 (16x19)", value: "Blade 98 16x19 v9" },
-    { label: "Blade 98 (18x20)", value: "Blade 98 18x20 v9" },
-    { label: "Blade 100", value: "Blade 100 v9" },
+    { label: "Blade 98 (16x19)", value: "Blade 98 16x19 v10" },
+    { label: "Blade 98 (18x20)", value: "Blade 98 18x20 v10" },
+    { label: "Blade 100", value: "Blade 100 v10" },
     { label: "Clash 100", value: "Clash 100 v3" },
     { label: "Clash 100 Pro", value: "Clash 100 Pro v3" },
     { label: "Clash 100L", value: "Clash 100L v3" },
@@ -218,9 +218,9 @@ const RACQUET_AFFILIATE_URLS = {
   "Clash 100 v3":                 "clash-100-v3-tennis-racquet?variant=49630090199355",
   "Clash 100L v3":                "clash-100l-v3-tennis-racquet",
   "Clash 100 Pro v3":             "clash-100-pro-v3-tennis-racquet",
-  "Blade 98 16x19 v9":            "wilson-blade-98-16x19-v90-tennis-racquet-108333?variant=49252088742203",
-  "Blade 100 v9":                 "wilson-blade-100-v90-tennis-racquet-108336?variant=49252087529787",
-  "Blade 98 18x20 v9":            "wilson-blade-98-18x20-v90-tennis-racquet-108334?variant=49252089069883",
+  "Blade 98 16x19 v10":           "blade-98-16x19-v10-tennis-racquet",
+  "Blade 100 v10":                "blade-100-v10-tennis-racquet",
+  "Blade 98 18x20 v10":           "blade-98-18x20-v10-tennis-racquet",
   "Pro Staff 97 v14":             "wilson-pro-staff-97-v140-tennis-racquet-103535?variant=49252099391803",
   "Ultra 100 v4":                 "ultra-100-v5-tennis-racquet", // AUDIT: links to v5; database says v4
   // HEAD
@@ -783,7 +783,7 @@ const SPIN_SPECIALISTS = [
   "VCORE 98 8th Gen 2026", "SX 300 2025", "Extreme MP 2025"
 ];
 const CONTROL_SPECIALISTS = [
-  "Blade 98 16x19 v9", "Blade 98 18x20 v9", "Pro Staff 97 v14",
+  "Blade 98 16x19 v10", "Blade 98 18x20 v10", "Pro Staff 97 v14",
   "Pure Strike 100 16x20 Carbon Grey", "EZONE 98 2025", "VCORE 98 8th Gen 2026",
   "Speed Pro 2026", "Gravity Pro 2025", "Radical MP 2025",
   "TFight 305", "TFight 315"

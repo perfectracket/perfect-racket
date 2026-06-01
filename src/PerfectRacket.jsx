@@ -813,7 +813,13 @@ function performanceSubscores(r, d) {
   if (d.playStyle === "Baseliner" && ntrp >= 4.0) spinScore *= 1.30;
   if (fastSwing) spinScore *= 1.15;
 
-  const swingMult = fastSwing ? 0.70 : slowSwing ? 1.25 : 1.0;
+  // "Moderate" and "Not sure" previously both fell through to 1.0, which (a)
+  // made a confident "Moderate" answer do nothing, and (b) left maneuverability
+  // unscaled so neutral-input profiles defaulted to the lightest non-penalized
+  // frame on a sub-point tie. Both now map to 0.90 — slightly below neutral so
+  // an unknown/average swing does not hand the win to the lightest frame on
+  // maneuverability alone. Fast/Slow keep their stronger signals.
+  const swingMult = fastSwing ? 0.70 : slowSwing ? 1.25 : 0.90;
   // Maneuverability weight-floor: cap the weight input at 285g so frames
   // lighter than that do not earn a runaway maneuverability advantage.
   // A 265g frame is not meaningfully more maneuverable than a 285g frame
@@ -837,11 +843,17 @@ function performanceSubscores(r, d) {
 }
 
 function performanceWeights(d) {
+  // Maneuverability trimmed (All-Court .32->.24, Doubles .42->.30, S&V .36->.30)
+  // so it is no longer the single highest-weighted dimension on these styles.
+  // Previously it dominated, so on neutral-input profiles (no priority, no swing
+  // signal) "best frame" collapsed to "lightest non-penalized frame," defaulting
+  // to boutique sub-300g frames on sub-point ties. Still meaningful, but below
+  // control for the net-oriented styles where control should lead.
   const psw = {
     "Baseliner":      { power: 0.32, control: 0.20, comfort: 0, spin: 0.32, maneuverability: 0.16 },
-    "All-Court":      { power: 0.24, control: 0.22, comfort: 0, spin: 0.22, maneuverability: 0.32 },
-    "Doubles-First":  { power: 0.16, control: 0.28, comfort: 0, spin: 0.14, maneuverability: 0.42 },
-    "Serve & Volley": { power: 0.16, control: 0.34, comfort: 0, spin: 0.14, maneuverability: 0.36 },
+    "All-Court":      { power: 0.24, control: 0.22, comfort: 0, spin: 0.22, maneuverability: 0.24 },
+    "Doubles-First":  { power: 0.16, control: 0.28, comfort: 0, spin: 0.14, maneuverability: 0.30 },
+    "Serve & Volley": { power: 0.16, control: 0.34, comfort: 0, spin: 0.14, maneuverability: 0.30 },
   };
   let w = { ...(psw[d.playStyle] || psw["All-Court"]) };
 

@@ -2321,6 +2321,7 @@ export default function PerfectRacket() {
             formData.append("tension-range", snapshot.tensionRange || "");
             // Recommendations
             formData.append("top-racket", fmtRacket(r1));
+            formData.append("top-racket-url", r1 ? getRacquetShopUrl(r1) : "");
             formData.append("racket-2", fmtRacket(r2));
             formData.append("racket-3", fmtRacket(r3));
             formData.append("top-string", s1 ? s1.name : "");

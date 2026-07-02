@@ -1273,7 +1273,7 @@ function generateRecommendations(d) {
   const tension = calcTension(d, painNumeric);
   const topRacquet = topRacquets[0];
   const topString = strings[0];
-  const gripNote = (d.gripSize && d.gripSize !== "🤷" && d.gripSize !== "Not Sure")
+  const gripNote = (d.gripSize && d.gripSize !== "🤷" && d.gripSize !== "Not Sure" && d.gripSize !== "—")
     ? ` in grip size ${d.gripSize}` : "";
   const stringerScript = `I would like to string my ${topRacquet.model}${gripNote} with ${topString.name} at ${tension.low}-${tension.high} lbs, starting at ${tension.recommended} lbs.`;
 
@@ -1388,7 +1388,7 @@ function generateRecommendationsPerformance(d) {
 
   const topRacquet = topRacquets[0];
   const topString = strings[0];
-  const gripNote = (d.gripSize && d.gripSize !== "🤷" && d.gripSize !== "Not Sure")
+  const gripNote = (d.gripSize && d.gripSize !== "🤷" && d.gripSize !== "Not Sure" && d.gripSize !== "—")
     ? ` in grip size ${d.gripSize}` : "";
   const stringerScript = `I would like to string my ${topRacquet.model}${gripNote} with ${topString.name} at ${tension.low}-${tension.high} lbs, starting at ${tension.recommended} lbs.`;
 

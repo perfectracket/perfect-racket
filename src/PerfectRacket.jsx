@@ -1671,24 +1671,29 @@ select.ti { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w
 
 /* -- RESULTS SCREEN ------------------------------------------------ */
 .results { min-height: 100vh; background: var(--cream); }
-.r-hdr { background: var(--navy); padding: calc(var(--sp-5) + var(--safe-t)) var(--sp-5) var(--sp-7); text-align: center; }
-.r-check { width: 52px; height: 52px; background: var(--clay); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto var(--sp-4); font-size: var(--sp-6); animation: chkPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both 0.1s; }
-.r-title { font-family: 'Bebas Neue', sans-serif; font-size: var(--text-xl); letter-spacing: 0.04em; color: var(--white); margin-bottom: var(--sp-2); }
-.r-sub   { font-size: var(--text-sm); color: rgba(255,255,255,0.45); font-weight: 300; }
+.rid-wrap { background: var(--cream); padding: calc(var(--sp-4) + var(--safe-t)) var(--sp-4) 0; }
+.rid-card { position: relative; background: linear-gradient(168deg, var(--navy) 0%, #13233a 100%); border-radius: 18px; padding: var(--sp-7) var(--sp-5) var(--sp-6); text-align: center; overflow: hidden; box-shadow: 0 18px 46px rgba(13,27,42,0.26); animation: chkPop 0.55s cubic-bezier(0.34,1.2,0.64,1) both; }
+.rid-card::before { content: ""; position: absolute; inset: 7px; border: 1px solid rgba(196,154,60,0.5); border-radius: 13px; pointer-events: none; }
+.rid-seal { width: 48px; height: 48px; border-radius: 50%; background: var(--clay); color: var(--white); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 19px; margin: 0 auto var(--sp-3); box-shadow: 0 6px 18px rgba(200,82,42,0.4); position: relative; }
+.rid-eyebrow { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold, #C49A3C); margin-bottom: var(--sp-2); }
+.rid-name { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 42px; line-height: 1.02; color: var(--cream); margin: 0 0 var(--sp-3); letter-spacing: -0.015em; }
+.rid-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--sp-2); margin-bottom: var(--sp-3); }
+.rid-chip { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(250,247,242,0.7); border: 1px solid rgba(255,255,255,0.16); border-radius: 20px; padding: 6px 11px; }
+.rid-chip.rid-arm { color: #9FDCBE; border-color: rgba(143,211,182,0.5); background: rgba(78,155,119,0.14); }
+.rid-chip.rid-perf { color: #E06A3E; border-color: rgba(224,106,62,0.55); background: rgba(200,82,42,0.14); }
+.rid-sub { font-size: var(--text-sm); line-height: 1.65; color: rgba(250,247,242,0.62); max-width: 340px; margin: 0 auto; position: relative; }
 .r-body  { padding: var(--sp-5); }
 
-.setup-sum { background: var(--navy); border-radius: 16px; padding: var(--sp-5); margin-bottom: var(--sp-5); }
-.setup-lbl { font-family: 'DM Mono', monospace; font-size: var(--text-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--clay); margin-bottom: var(--sp-2); }
-.setup-txt { font-size: var(--text-sm); color: rgba(255,255,255,0.65); line-height: 1.7; font-weight: 300; }
 
 .t-card { background: var(--white); border-radius: 16px; padding: var(--sp-4) var(--sp-5); margin-bottom: var(--sp-4); box-shadow: var(--sh-sm); display: flex; align-items: center; gap: var(--sp-4); border-left: 3px solid var(--gold); }
 .t-lbl  { font-family: 'DM Mono', monospace; font-size: var(--text-micro); letter-spacing: 0.15em; text-transform: uppercase; color: var(--light); margin-bottom: var(--sp-1); }
 .t-val  { font-family: 'Bebas Neue', sans-serif; font-size: var(--text-xl); letter-spacing: 0.03em; color: var(--gold); line-height: 1; margin-bottom: 2px; }
 .t-hint { font-size: var(--text-xs); color: var(--mid); line-height: 1.5; }
 
-.r-sec-hdr { display: flex; align-items: center; gap: var(--sp-2); margin: var(--sp-6) 0 var(--sp-3); }
-.r-sec-e   { font-size: var(--text-lg); }
-.r-sec-t   { font-family: 'Bebas Neue', sans-serif; font-size: var(--text-lg); letter-spacing: 0.04em; color: var(--ink); }
+.rsec { margin: var(--sp-7) 0 var(--sp-4); }
+.rsec-eyebrow { font-family: 'DM Mono', monospace; font-size: var(--text-xs); letter-spacing: 0.24em; text-transform: uppercase; color: var(--clay); margin-bottom: 5px; }
+.rsec-title { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 27px; line-height: 1.1; color: var(--ink); margin: 0; }
+.rsec-rule { width: 48px; height: 3px; background: var(--gold, #C49A3C); margin-top: 9px; }
 
 .sec-divider { display: flex; align-items: center; gap: var(--sp-4); margin: var(--sp-8) 0 var(--sp-6); }
 
@@ -1745,17 +1750,18 @@ select.ti { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w
 .shop-btn.secondary { background: transparent; color: var(--clay); }
 .shop-btn.secondary:hover { background: var(--clay-pale); border-color: var(--clay); transform: translateY(-1px); }
 
-.str-block  { background: var(--navy); border-radius: 16px; padding: var(--sp-5); margin-bottom: var(--sp-5); }
-.report-block { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: var(--sp-5); margin-bottom: var(--sp-5); box-shadow: 0 4px 20px rgba(13,27,42,0.05); }
-.report-lbl { font-family: 'DM Mono', monospace; font-size: var(--text-xs); letter-spacing: 0.2em; text-transform: uppercase; color: var(--clay); margin-bottom: var(--sp-3); }
-.report-p { font-size: var(--text-sm); line-height: 1.7; color: var(--navy); margin: 0 0 var(--sp-3); }
-.report-p:last-of-type { font-family: 'DM Mono', monospace; font-size: var(--text-xs); letter-spacing: 0.05em; color: var(--mid); }
-.report-actions { display: flex; gap: var(--sp-2); margin-top: var(--sp-3); }
-.report-note { font-size: var(--text-xs); color: var(--light); margin-top: var(--sp-2); line-height: 1.5; }
-.report-pending .report-wait { font-size: var(--text-sm); color: var(--mid); font-style: italic; animation: reportPulse 1.6s ease-in-out infinite; }
+.fccard { position: relative; display: block; text-align: center; background: linear-gradient(168deg, var(--navy, #0D1B2A) 0%, #13233a 100%); border-radius: 18px; padding: var(--sp-6) var(--sp-5); margin-bottom: var(--sp-5); text-decoration: none; overflow: hidden; box-shadow: 0 18px 46px rgba(13,27,42,0.28); animation: fcIn 0.5s cubic-bezier(0.34,1.2,0.64,1) both; }
+.fccard::before { content: ""; position: absolute; inset: 7px; border: 1px solid rgba(196,154,60,0.5); border-radius: 13px; pointer-events: none; }
+.fccard-seal { width: 44px; height: 44px; border-radius: 50%; background: var(--clay); color: var(--white); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 17px; margin: 0 auto var(--sp-3); box-shadow: 0 6px 18px rgba(200,82,42,0.4); }
+.fccard-eyebrow { font-family: 'DM Mono', monospace; font-size: var(--text-xs); letter-spacing: 0.26em; text-transform: uppercase; color: var(--gold, #C49A3C); margin-bottom: var(--sp-2); }
+.fccard-title { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 30px; line-height: 1.1; color: var(--cream, #FAF7F2); margin-bottom: var(--sp-2); }
+.fccard-sub { font-size: var(--text-sm); line-height: 1.65; color: rgba(250,247,242,0.72); max-width: 320px; margin: 0 auto var(--sp-4); }
+.fccard-btn { display: inline-block; background: var(--clay); color: var(--white); font-family: 'Outfit', sans-serif; font-weight: 600; font-size: var(--text-base); padding: var(--sp-4) var(--sp-6); border-radius: 12px; box-shadow: 0 8px 24px rgba(200,82,42,0.45); transition: transform 0.15s; }
+.fccard:hover .fccard-btn { transform: translateY(-1px); }
+.fccard-pending { cursor: default; }
+.fccard-wait { font-size: var(--text-sm); font-style: italic; color: rgba(250,247,242,0.65); animation: reportPulse 1.6s ease-in-out infinite; }
 @keyframes reportPulse { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
-.str-lbl    { font-family: 'DM Mono', monospace; font-size: var(--text-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--clay); margin-bottom: var(--sp-2); }
-.str-script { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: var(--sp-4); font-size: var(--text-sm); color: rgba(255,255,255,0.65); line-height: 1.7; font-style: italic; }
+@keyframes fcIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
 
 .restart-btn { width: 100%; background: var(--white); border: 1.5px solid var(--border); border-radius: 12px; padding: var(--sp-4) var(--sp-5); font-family: 'Outfit', sans-serif; font-size: var(--text-sm); font-weight: 600; color: var(--mid); cursor: pointer; transition: all 0.18s; display: flex; align-items: center; justify-content: center; gap: var(--sp-2); margin-bottom: calc(var(--sp-8) + var(--safe-b)); -webkit-tap-highlight-color: transparent; }
 .restart-btn:hover { border-color: var(--clay); color: var(--ink); }
@@ -2272,6 +2278,7 @@ export default function PerfectRacket() {
       const spec = (rk) => rk ? {
         model: `${rk.brand} ${rk.model}`, headSize: rk.headSize, weight: rk.weight,
         swingWeight: rk.swingWeight, ra: rk.ra, pattern: `${rk.mains}x${rk.crosses}`, price: rk.price,
+        url: getRacquetShopUrl(rk),
       } : null;
       const injuries = [
         snapshot.pastInjuryElbow === "Yes" ? "elbow" : "",
@@ -2291,7 +2298,7 @@ export default function PerfectRacket() {
         stringType: snapshot.stringType || "", gripSize: snapshot.gripSize || "",
         budget: snapshot.budget || "",
         rank1: spec(r[0]), rank2: spec(r[1]), rank3: spec(r[2]),
-        string1: s[0] ? s[0].name : "", string2: s[1] ? s[1].name : "",
+        string1: s[0] ? s[0].name : "", string2: s[1] ? s[1].name : "", string3: s[2] ? s[2].name : "",
         tensionRange: result.tension ? `${result.tension.low}-${result.tension.high} lbs` : "",
         tensionStart: result.tension ? String(result.tension.recommended) : "",
       };
@@ -2990,10 +2997,18 @@ export default function PerfectRacket() {
         <style>{css}</style>
         <div className="pr-app">
           <div className="results screen">
-            <div className="r-hdr">
-              <div className="r-check">✓</div>
-              <h1 className="r-title">Your Setup</h1>
-              <p className="r-sub">{d.mode === "performance" ? "Personalized to your game, level, and priorities" : "Personalized to your game and arm health"}</p>
+            <div className="rid-wrap">
+              <div className="rid-card">
+                <div className="rid-seal">PR</div>
+                <div className="rid-eyebrow">Personal Fitting</div>
+                <h1 className="rid-name">{d.name && d.name.trim().split(/\s+/)[0].length > 1 ? `${d.name.trim().split(/\s+/)[0]}\u2019s Fitting` : "Your Fitting"}</h1>
+                <div className="rid-chips">
+                  {d.ntrp && <span className="rid-chip">NTRP {d.ntrp}</span>}
+                  {d.playStyle && <span className="rid-chip">{d.playStyle}</span>}
+                  <span className={`rid-chip ${d.mode === "performance" ? "rid-perf" : "rid-arm"}`}>{d.mode === "performance" ? "Performance Fit" : "Arm Health Fit"}</span>
+                </div>
+                {recs.setupText && <p className="rid-sub">{recs.setupText}</p>}
+              </div>
             </div>
             <div className="r-body">
               {/* Arm health impact callout */}
@@ -3054,11 +3069,6 @@ export default function PerfectRacket() {
 
                 return null;
               })()}
-              <div className="setup-sum">
-                <div className="setup-lbl">Your Profile</div>
-                <p className="setup-txt">{recs.setupText}</p>
-              </div>
-
               {recs.allOverBudget && (() => {
                 const bestInBudget = (recs.allRacquets || []).find(r => r.budgetFlag === "in-budget");
                 return (
@@ -3081,9 +3091,10 @@ export default function PerfectRacket() {
               })()}
 
               {/* Racquets */}
-              <div className="r-sec-hdr">
-                <span className="r-sec-e">🎾</span>
-                <span className="r-sec-t">Racquet Recommendations</span>
+              <div className="rsec">
+                <div className="rsec-eyebrow">The Frames</div>
+                <h2 className="rsec-title">Racquet Recommendations</h2>
+                <div className="rsec-rule"></div>
               </div>
 
               {/* Confidence indicator — editorial voice, not a number */}
@@ -3201,9 +3212,10 @@ export default function PerfectRacket() {
               </div>
 
               {/* Strings */}
-              <div className="r-sec-hdr">
-                <span className="r-sec-e">🧵</span>
-                <span className="r-sec-t">String Recommendations</span>
+              <div className="rsec">
+                <div className="rsec-eyebrow">The Strings</div>
+                <h2 className="rsec-title">String Recommendations</h2>
+                <div className="rsec-rule"></div>
               </div>
 
               {/* Tension — moved here between string title and first string card */}
@@ -3245,42 +3257,21 @@ export default function PerfectRacket() {
                 </div>
               ))}
 
-              {/* Stringer script */}
-              <div className="str-block" style={{marginBottom:"var(--sp-5)"}}>
-                <div className="str-lbl">Your Stringer Script</div>
-                <div className="str-script" style={{marginTop:0}}>{recs.stringerScript}</div>
-              </div>
-
-              {/* AI fitting report — additive: renders nothing on failure */}
+              {/* AI fitting card — the one doorway to the report page; renders nothing on failure */}
               {report.status === "pending" && (
-                <div className="report-block report-pending">
-                  <div className="report-lbl">Your Fitting Report</div>
-                  <div className="report-wait">Tucker is writing up your full fitting — a few seconds…</div>
+                <div className="fccard fccard-pending">
+                  <div className="fccard-eyebrow">Personal Fitting Card</div>
+                  <div className="fccard-wait">Tucker is writing up your full fitting — a few seconds…</div>
                 </div>
               )}
-              {report.status === "ready" && report.text && (
-                <div className="report-block">
-                  <div className="report-lbl">Your Fitting Report</div>
-                  {report.text.split(/\n{2,}|\n(?=—)/).map((p, i) => (
-                    <p className="report-p" key={i}>{p.trim()}</p>
-                  ))}
-                  {report.url && (
-                    <div className="report-actions">
-                      <button
-                        className="restart-btn"
-                        style={{flex:1,marginBottom:0}}
-                        id="copy-report-link-btn"
-                        onClick={() => {
-                          navigator.clipboard.writeText(report.url).then(() => {
-                            const btn = document.getElementById("copy-report-link-btn");
-                            if (btn) { btn.textContent = "✓ Link copied"; setTimeout(() => { btn.textContent = "Copy report link"; }, 2000); }
-                          }).catch(() => {});
-                        }}
-                      >Copy report link</button>
-                    </div>
-                  )}
-                  <div className="report-note">This report lives at its own link — it's also in your results email. Save it or send it to your coach.</div>
-                </div>
+              {report.status === "ready" && report.url && (
+                <a className="fccard" href={report.url} target="_blank" rel="noopener">
+                  <div className="fccard-seal">PR</div>
+                  <div className="fccard-eyebrow">Personal Fitting Card</div>
+                  <div className="fccard-title">Your Fitting Card is ready.</div>
+                  <div className="fccard-sub">Your full written fitting, all three frames and strings, and your stringer script — at one link that's yours to keep.</div>
+                  <span className="fccard-btn">View your fitting card</span>
+                </a>
               )}
 
               {/* Legal disclaimer */}

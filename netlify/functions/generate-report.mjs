@@ -14,6 +14,8 @@ export const config = { path: "/api/generate-report" };
 const REPORT_MODEL = "claude-haiku-4-5";
 const PROMPT_VERSION = "v1.1-2026-07-03";
 const SITE_URL = "https://perfectracket.com";
+const SHOP_URL_PREFIX = "https://www.tennisexpress.com"; // server-side allowlist: report page will only ever link here
+const SERIAL_SEED = 1050; // display serial starting point (~all-time fittings at launch); cosmetic, adjust freely
 
 // -- Security limits (see spec: SECURITY REQUIREMENTS) ---------------------
 const MAX_PER_IP_PER_HOUR = 6;
@@ -216,16 +218,55 @@ export default async (req, context) => {
   }
   if (!text) return json({ error: "generation failed" }, 502);
 
-  // Store and index
+  // Store and index — v3 record: full top-3 frames + strings for the card page
   id = id || makeId();
+  const cleanRank = (r) => {
+    if (!r || !r.model) return null;
+    let url = typeof r.url === "string" ? r.url.slice(0, 300) : "";
+    if (!url.startsWith(SHOP_URL_PREFIX)) url = ""; // per-rank allowlist: never render an untrusted link
+    return {
+      model: clip(r.model, LEN.model),
+      headSize: Number.isFinite(+r.headSize) ? +r.headSize : null,
+      weight: Number.isFinite(+r.weight) ? +r.weight : null,
+      swingWeight: Number.isFinite(+r.swingWeight) ? +r.swingWeight : null,
+      ra: Number.isFinite(+r.ra) ? +r.ra : null,
+      pattern: /^\d{2}x\d{2}$/.test(String(r.pattern)) ? r.pattern : null,
+      price: Number.isFinite(+r.price) ? +r.price : null,
+      shopUrl: url,
+    };
+  };
+  const ranks = [cleanRank(b.rank1), cleanRank(b.rank2), cleanRank(b.rank3)].filter(Boolean);
+  const stringsList = [b.string1, b.string2, b.string3].map((x) => clip(x, LEN.stringName)).filter(Boolean);
+  let serial = null;
+  try {
+    const meta = getStore("meta");
+    const cur = +(await meta.get("serial")) || SERIAL_SEED;
+    serial = cur + 1;
+    await meta.set("serial", String(serial));
+  } catch { /* serial is cosmetic; card renders without it */ }
+  const tLow = clip(String(b.tensionRange || ""), LEN.generic);
+  const tStart = clip(String(b.tensionStart), 10);
+  const stringName = clip(b.string1, LEN.stringName);
+  const topModel = clip(b.rank1.model, LEN.model);
   const record = {
     id,
     first: firstName,
     text,
-    topRacket: clip(b.rank1.model, LEN.model),
+    topRacket: topModel,
     createdAt: new Date().toISOString(),
     model: REPORT_MODEL,
     promptVersion: PROMPT_VERSION,
+    mode: clip(b.mode, LEN.generic),
+    ntrp: clip(b.ntrp, LEN.generic),
+    playStyle: clip(b.playStyle, LEN.generic),
+    string1: stringName,
+    tensionRange: tLow,
+    tensionStart: tStart,
+    shopUrl: ranks[0] ? ranks[0].shopUrl : "",
+    serial,
+    ranks,
+    strings: stringsList,
+    stringerScript: tStart && stringName ? `I would like to string my ${topModel} with ${stringName} at ${tLow.replace(" lbs","")} lbs, starting at ${tStart} lbs.` : "",
   };
   try {
     await reports.setJSON(id, record);

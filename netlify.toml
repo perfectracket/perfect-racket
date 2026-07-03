@@ -2,6 +2,20 @@
   command = "npm run build"
   publish = "dist"
 
+[functions]
+  directory = "netlify/functions"
+
+# Function routes MUST stay above the SPA catch-all (first match wins).
+[[redirects]]
+  from = "/api/generate-report"
+  to = "/.netlify/functions/generate-report"
+  status = 200
+
+[[redirects]]
+  from = "/report/*"
+  to = "/.netlify/functions/report-view"
+  status = 200
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

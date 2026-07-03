@@ -1750,6 +1750,14 @@ select.ti { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w
 .shop-btn.secondary:hover { background: var(--clay-pale); border-color: var(--clay); transform: translateY(-1px); }
 
 .str-block  { background: var(--navy); border-radius: 16px; padding: var(--sp-5); margin-bottom: var(--sp-5); }
+.report-block { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: var(--sp-5); margin-bottom: var(--sp-5); box-shadow: 0 4px 20px rgba(13,27,42,0.05); }
+.report-lbl { font-family: 'DM Mono', monospace; font-size: var(--text-xs); letter-spacing: 0.2em; text-transform: uppercase; color: var(--clay); margin-bottom: var(--sp-3); }
+.report-p { font-size: var(--text-sm); line-height: 1.7; color: var(--navy); margin: 0 0 var(--sp-3); }
+.report-p:last-of-type { font-family: 'DM Mono', monospace; font-size: var(--text-xs); letter-spacing: 0.05em; color: var(--mid); }
+.report-actions { display: flex; gap: var(--sp-2); margin-top: var(--sp-3); }
+.report-note { font-size: var(--text-xs); color: var(--light); margin-top: var(--sp-2); line-height: 1.5; }
+.report-pending .report-wait { font-size: var(--text-sm); color: var(--mid); font-style: italic; animation: reportPulse 1.6s ease-in-out infinite; }
+@keyframes reportPulse { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
 .str-lbl    { font-family: 'DM Mono', monospace; font-size: var(--text-micro); letter-spacing: 0.18em; text-transform: uppercase; color: var(--clay); margin-bottom: var(--sp-2); }
 .str-script { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: var(--sp-4); font-size: var(--text-sm); color: rgba(255,255,255,0.65); line-height: 1.7; font-style: italic; }
 
@@ -2071,6 +2079,7 @@ export default function PerfectRacket() {
   const [factIdx, setFactIdx] = useState(0);
   const [factFade, setFactFade] = useState(false);
   const [recs, setRecs] = useState(null);
+  const [report, setReport] = useState({ status: "idle", url: "", text: "" });
   // Tracks whether the user picked "Other" in the current-racket dropdown,
   // which reveals a free-text field for frames not in our database.
   const [racketIsOther, setRacketIsOther] = useState(false);
@@ -2256,6 +2265,57 @@ export default function PerfectRacket() {
     }
   };
 
+  // AI fitting report — POSTs the profile + fixed recommendations to the
+  // generation function. Additive by design: any failure resolves to null and
+  // the caller proceeds exactly as before this feature existed. 12s timeout
+  // so lead capture (which waits on this) is never held hostage.
+  const requestFittingReport = async (snapshot, result) => {
+    try {
+      const r = result.racquets || [];
+      const s = result.strings || [];
+      const spec = (rk) => rk ? {
+        model: `${rk.brand} ${rk.model}`, headSize: rk.headSize, weight: rk.weight,
+        ra: rk.ra, pattern: `${rk.mains}x${rk.crosses}`, price: rk.price,
+      } : null;
+      const injuries = [
+        snapshot.pastInjuryElbow === "Yes" ? "elbow" : "",
+        snapshot.pastInjuryShoulder === "Yes" ? "shoulder" : "",
+        snapshot.pastInjuryWrist === "Yes" ? "wrist" : "",
+      ].filter(Boolean).join(", ");
+      const joinList = (a) => Array.isArray(a) ? a.join("; ") : "";
+      const payload = {
+        website: "", // honeypot — must stay empty
+        name: snapshot.name || "", email: snapshot.email || "",
+        ntrp: snapshot.ntrp || "", ageRange: snapshot.ageRange || "",
+        playFrequency: snapshot.playFrequency || "", playStyle: snapshot.playStyle || "",
+        swingSpeed: snapshot.swingSpeed || "", mode: snapshot.mode || "armhealth",
+        priorityFocus: snapshot.priorityFocus || "", comfortVsPerf: snapshot.comfortVsPerf || "",
+        painLocations: joinList(snapshot.painLocations), painSeverity: snapshot.painSeverity || "",
+        pastInjuries: injuries, currentRacket: snapshot.currentRacket || "",
+        stringType: snapshot.stringType || "", gripSize: snapshot.gripSize || "",
+        budget: snapshot.budget || "",
+        rank1: spec(r[0]), rank2: spec(r[1]), rank3: spec(r[2]),
+        string1: s[0] ? s[0].name : "", string2: s[1] ? s[1].name : "",
+        tensionRange: result.tension ? `${result.tension.low}-${result.tension.high} lbs` : "",
+        tensionStart: result.tension ? String(result.tension.recommended) : "",
+      };
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 12000);
+      const res = await fetch("/api/generate-report", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: ctrl.signal,
+      });
+      clearTimeout(timer);
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data && data.url ? data : null;
+    } catch (e) {
+      return null;
+    }
+  };
+
   const startLoad = () => {
     go("loading");
     setProg(0); setPhase(0);
@@ -2278,8 +2338,11 @@ export default function PerfectRacket() {
           go("results");
 
           // Netlify Forms — full capture of every form answer + top 3 recs + tension data
-          // 25 fields total. Existing field names preserved for backwards compatibility.
+          // + report-url. Existing field names preserved for backwards compatibility.
           // Multi-selects joined with "; " so CSV exports survive cleanly.
+          // Wrapped as a closure so the fitting-report flow below can attach the
+          // report URL; called EXACTLY ONCE per completion, with "" on any report failure.
+          const submitForm = (reportUrl) => {
           try {
             const r1 = result.racquets?.[0];
             const r2 = result.racquets?.[1];
@@ -2330,8 +2393,29 @@ export default function PerfectRacket() {
             formData.append("tension", result.tension ? `${result.tension.low}-${result.tension.high} lbs` : "");
             formData.append("tension-recommended", result.tension ? String(result.tension.recommended) : "");
             formData.append("injury-factor", result.injuryFactor != null ? result.injuryFactor.toFixed(3) : "");
+            formData.append("report-url", reportUrl || "");
             fetch("/", { method: "POST", body: formData });
           } catch (e) { /* silent fail — never block results */ }
+          };
+
+          // AI fitting report — additive. Lead capture ALWAYS happens: the form
+          // submits with the report URL on success, or without it on any failure
+          // or timeout. The report itself renders on the results screen when ready.
+          setReport({ status: "pending", url: "", text: "" });
+          requestFittingReport(snapshot, result)
+            .then((rep) => {
+              if (rep && rep.url) {
+                setReport({ status: "ready", url: rep.url, text: rep.text || "" });
+                submitForm(rep.url);
+              } else {
+                setReport({ status: "failed", url: "", text: "" });
+                submitForm("");
+              }
+            })
+            .catch(() => {
+              setReport({ status: "failed", url: "", text: "" });
+              submitForm("");
+            });
 
           // Plausible — completion event
           if (typeof window.plausible === "function") {
@@ -3171,6 +3255,38 @@ export default function PerfectRacket() {
                 <div className="str-script" style={{marginTop:0}}>{recs.stringerScript}</div>
               </div>
 
+              {/* AI fitting report — additive: renders nothing on failure */}
+              {report.status === "pending" && (
+                <div className="report-block report-pending">
+                  <div className="report-lbl">Your Fitting Report</div>
+                  <div className="report-wait">Tucker is writing up your full fitting — a few seconds…</div>
+                </div>
+              )}
+              {report.status === "ready" && report.text && (
+                <div className="report-block">
+                  <div className="report-lbl">Your Fitting Report</div>
+                  {report.text.split(/\n{2,}|\n(?=—)/).map((p, i) => (
+                    <p className="report-p" key={i}>{p.trim()}</p>
+                  ))}
+                  {report.url && (
+                    <div className="report-actions">
+                      <button
+                        className="restart-btn"
+                        style={{flex:1,marginBottom:0}}
+                        id="copy-report-link-btn"
+                        onClick={() => {
+                          navigator.clipboard.writeText(report.url).then(() => {
+                            const btn = document.getElementById("copy-report-link-btn");
+                            if (btn) { btn.textContent = "✓ Link copied"; setTimeout(() => { btn.textContent = "Copy report link"; }, 2000); }
+                          }).catch(() => {});
+                        }}
+                      >Copy report link</button>
+                    </div>
+                  )}
+                  <div className="report-note">This report lives at its own link — it's also in your results email. Save it or send it to your coach.</div>
+                </div>
+              )}
+
               {/* Legal disclaimer */}
               <div style={{background:"rgba(13,27,42,0.04)",border:"1px solid var(--border)",borderRadius:10,padding:"var(--sp-3) var(--sp-4)",marginBottom:"var(--sp-4)"}}>
                 <p style={{fontSize:"var(--text-xs)",color:"var(--light)",lineHeight:1.6,margin:0}}>
@@ -3278,7 +3394,7 @@ export default function PerfectRacket() {
                   </div>
                   <div className="field">
                     <div className="flbl">Email <span className="req">*</span></div>
-                    <div className="fhint">We will send your recommendations here. We do not sell your data. <a href="/privacy.html" target="_blank" rel="noopener" style={{color:"var(--clay)",textDecoration:"underline"}}>Privacy policy</a>.</div>
+                    <div className="fhint">You'll get your results by email, plus occasional updates — unsubscribe anytime. We do not sell your data. <a href="/privacy.html" target="_blank" rel="noopener" style={{color:"var(--clay)",textDecoration:"underline"}}>Privacy policy</a>.</div>
                     <input className={`ti${errors.email?" inp-err":""}`} type="email"
                       placeholder="your@email.com" value={d.email}
                       onChange={e=>upd("email",e.target.value)}

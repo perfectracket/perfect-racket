@@ -1273,9 +1273,7 @@ function generateRecommendations(d) {
   const tension = calcTension(d, painNumeric);
   const topRacquet = topRacquets[0];
   const topString = strings[0];
-  const gripNote = (d.gripSize && d.gripSize !== "🤷" && d.gripSize !== "Not Sure" && d.gripSize !== "—")
-    ? ` in grip size ${d.gripSize}` : "";
-  const stringerScript = `I would like to string my ${topRacquet.model}${gripNote} with ${topString.name} at ${tension.low}-${tension.high} lbs, starting at ${tension.recommended} lbs.`;
+  const stringerScript = `I would like to string my ${topRacquet.model} with ${topString.name} at ${tension.low}-${tension.high} lbs, starting at ${tension.recommended} lbs.`;
 
   const setupParts = [];
   if (d.currentRacket && d.currentRacket.trim()) {
@@ -1388,9 +1386,7 @@ function generateRecommendationsPerformance(d) {
 
   const topRacquet = topRacquets[0];
   const topString = strings[0];
-  const gripNote = (d.gripSize && d.gripSize !== "🤷" && d.gripSize !== "Not Sure" && d.gripSize !== "—")
-    ? ` in grip size ${d.gripSize}` : "";
-  const stringerScript = `I would like to string my ${topRacquet.model}${gripNote} with ${topString.name} at ${tension.low}-${tension.high} lbs, starting at ${tension.recommended} lbs.`;
+  const stringerScript = `I would like to string my ${topRacquet.model} with ${topString.name} at ${tension.low}-${tension.high} lbs, starting at ${tension.recommended} lbs.`;
 
   // Performance-mode setupText: no pain language, focuses on style/level fit
   const setupParts = [];
@@ -2275,7 +2271,7 @@ export default function PerfectRacket() {
       const s = result.strings || [];
       const spec = (rk) => rk ? {
         model: `${rk.brand} ${rk.model}`, headSize: rk.headSize, weight: rk.weight,
-        ra: rk.ra, pattern: `${rk.mains}x${rk.crosses}`, price: rk.price,
+        swingWeight: rk.swingWeight, ra: rk.ra, pattern: `${rk.mains}x${rk.crosses}`, price: rk.price,
       } : null;
       const injuries = [
         snapshot.pastInjuryElbow === "Yes" ? "elbow" : "",

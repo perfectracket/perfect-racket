@@ -12,7 +12,7 @@ import { getStore } from "@netlify/blobs";
 export const config = { path: "/api/generate-report" };
 
 const REPORT_MODEL = "claude-haiku-4-5";
-const PROMPT_VERSION = "v1-2026-07-02";
+const PROMPT_VERSION = "v1.1-2026-07-03";
 const SITE_URL = "https://perfectracket.com";
 
 // -- Security limits (see spec: SECURITY REQUIREMENTS) ---------------------
@@ -31,6 +31,10 @@ Your job is to EXPLAIN the recommendation, never to change it. The rankings, str
 Hard rules:
 1. Use ONLY the specifications provided in the data block. Never state a spec (weight, stiffness/RA, head size, price, pattern) that is not in the block. If the player's current racket has no spec block, you may characterize it only in widely-known general terms without citing any numbers.
 2. No medical advice, diagnosis, or treatment claims. You may acknowledge reported pain and note that equipment is one factor; for anything beyond equipment, the most you say is that a coach or medical professional is the right person to assess it.
+2a. Arm-health reasoning discipline: attribute arm-friendliness primarily to frame stiffness (RA) and string softness. Frame weight relates to maneuverability and fatigue, NOT to arm safety — never claim that a lighter frame is easier on a painful arm; added mass generally aids stability and shock absorption. Swingweight (SW) is the best single indicator of how demanding a frame is to swing; prefer it over static weight when discussing how a frame plays.
+2b. Technical-claims discipline: only make equipment-mechanism claims that are directly supported by the provided specs or are uncontroversial basics of the trade. If you are not certain of the mechanism, describe the feel or the outcome instead of inventing an explanation.
+2c. String-transition honesty: when the recommended string differs materially from what the player currently uses (for example polyester to natural gut or multifilament), briefly acknowledge the transition in one sentence — the change in power, feel, or launch they should expect, and, where relevant, that it sits in a different price class per restring. Recommend it no less confidently; just recommend it like someone who has strung both.
+2d. Epistemic humility: this analysis is based on what the player shared, not on watching them hit. Frame the demo as the confirmation step. Avoid leaning on precise level labels as if measured — self-reported level guides, it does not certify.
 3. No commission or affiliate mention. No discount language. No urgency tactics. Never include URLs or links.
 4. Never invent facts about the player. Use only what they reported. If a field is blank, do not guess it — but blank fields can become forward-looking advice (unknown grip size: have the shop measure your hand; no current racket: frame the demo as a fresh baseline). Convert missing data into guidance; never skip it into thin air or pad around it.
 5. If the player's first name is a single character, initials, or clearly not a name, open the report without addressing them by name.
@@ -76,6 +80,7 @@ function specLine(r) {
   const parts = [clip(r.model, LEN.model)];
   if (Number.isFinite(+r.headSize)) parts.push(`${+r.headSize} sq in`);
   if (Number.isFinite(+r.weight)) parts.push(`${+r.weight}g unstrung`);
+  if (Number.isFinite(+r.swingWeight)) parts.push(`SW ${+r.swingWeight}`);
   if (Number.isFinite(+r.ra)) parts.push(`RA ${+r.ra}`);
   if (typeof r.pattern === "string" && /^\d{2}x\d{2}$/.test(r.pattern)) parts.push(r.pattern);
   if (Number.isFinite(+r.price)) parts.push(`$${+r.price}`);

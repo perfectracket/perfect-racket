@@ -18,8 +18,8 @@ const SHOP_URL_PREFIX = "https://www.tennisexpress.com"; // server-side allowlis
 const SERIAL_SEED = 1050; // display serial starting point (~all-time fittings at launch); cosmetic, adjust freely
 
 // -- Security limits (see spec: SECURITY REQUIREMENTS) ---------------------
-const MAX_PER_IP_PER_HOUR = 6;
-const MAX_GLOBAL_PER_DAY = 400;      // circuit breaker; raise deliberately if volume earns it
+const MAX_PER_IP_PER_HOUR = 20;    // raised July 4: serves shared IPs (clubs, coaches, families)
+const MAX_GLOBAL_PER_DAY = 1000;   // circuit breaker; real cost backstop is the prepaid credit cap
 const REFRESH_GUARD_MINUTES = 10;    // same email within this window returns stored report
 const LEN = { name: 60, email: 120, currentRacket: 80, generic: 60, model: 60, stringName: 60 };
 const WORDS_MIN = 160;
@@ -158,8 +158,14 @@ export default async (req, context) => {
     }
   } catch { /* index miss is normal */ }
 
-  // Rate limits (per-IP hourly + global daily circuit breaker)
+  // Rate limits (per-IP hourly + global daily circuit breaker).
+  // ADMIN_MINT_KEY (Netlify env var) + matching x-admin-mint-key header bypasses
+  // ONLY the rate limits — used for the one-time backlog mint. All validation,
+  // honeypot, dedupe, and allowlisting still apply to admin requests.
+  const adminKey = process.env.ADMIN_MINT_KEY || "";
+  const isAdmin = !!adminKey && req.headers.get("x-admin-mint-key") === adminKey;
   const ip = context?.ip || req.headers.get("x-nf-client-connection-ip") || req.headers.get("x-forwarded-for") || "unknown";
+  if (!isAdmin) {
   const hourKey = `ip:${await sha256hex(ip)}:${new Date().toISOString().slice(0, 13)}`;
   const dayKey = `day:${new Date().toISOString().slice(0, 10)}`;
   try {
@@ -171,6 +177,7 @@ export default async (req, context) => {
       rates.set(dayKey, String((+dayCount || 0) + 1)),
     ]);
   } catch { /* rate store hiccup: fail open, generation still capped by prepaid credits */ }
+  }
 
   // Build the data block (free-text fields wrapped as untrusted)
   const firstName = clip(b.name, LEN.name).split(/\s+/)[0] || "";

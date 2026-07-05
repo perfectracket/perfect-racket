@@ -3257,20 +3257,20 @@ export default function PerfectRacket() {
                 </div>
               ))}
 
-              {/* AI fitting card — the one doorway to the report page; renders nothing on failure */}
+              {/* AI fitting report — the one doorway to the report page; renders nothing on failure */}
               {report.status === "pending" && (
                 <div className="fccard fccard-pending">
-                  <div className="fccard-eyebrow">Personal Fitting Card</div>
+                  <div className="fccard-eyebrow">Personal Fitting Report</div>
                   <div className="fccard-wait">Tucker is writing up your full fitting — a few seconds…</div>
                 </div>
               )}
               {report.status === "ready" && report.url && (
                 <a className="fccard" href={report.url} target="_blank" rel="noopener">
                   <div className="fccard-seal">PR</div>
-                  <div className="fccard-eyebrow">Personal Fitting Card</div>
-                  <div className="fccard-title">Your Fitting Card is ready.</div>
+                  <div className="fccard-eyebrow">Personal Fitting Report</div>
+                  <div className="fccard-title">Your Fitting Report is ready.</div>
                   <div className="fccard-sub">Your full written fitting, all three frames and strings, and your stringer script — at one link that's yours to keep.</div>
-                  <span className="fccard-btn">View your fitting card</span>
+                  <span className="fccard-btn">View your fitting report</span>
                 </a>
               )}
 

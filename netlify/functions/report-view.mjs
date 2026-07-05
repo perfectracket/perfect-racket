@@ -1,5 +1,5 @@
 // netlify/functions/report-view.mjs — v3 "reference document" layout
-// Perfect Racket fitting card at /report/{id}: identity card header, setup at
+// Perfect Racket fitting report at /report/{id}: identity card header, setup at
 // a glance, full top-3 frames (each with its own allowlisted shop link),
 // top-3 strings, readable fitting notes, stringer script, primary CTA.
 // Typography sized for a 36-55 core audience. Alternating navy/cream rhythm.
@@ -225,10 +225,10 @@ ${heading("The Analysis", "The Fitting Notes")}
 <div class="notes">${paragraphs}</div>
 ${heading("At the Shop", "Getting It Strung")}
 ${scriptBlock}
-<div class="actions"><button class="btn" id="copy">Copy card link</button><a class="btn" href="/">Retake the fitting</a></div>
-<div class="cta"><div class="t">Know someone hunting for their racket?</div><p>Send them this card — or send them to the fitting.</p><a href="/">Get your own fitting</a></div>
+<div class="actions"><button class="btn" id="copy">Copy report link</button><a class="btn" href="/">Retake the fitting</a></div>
+<div class="cta"><div class="t">Know someone hunting for their racket?</div><p>Send them this report — or send them to the fitting.</p><a href="/">Get your own fitting</a></div>
 <script>
-document.getElementById("copy").addEventListener("click",function(){navigator.clipboard.writeText(window.location.href).then(function(){var b=document.getElementById("copy");b.textContent="Copied";setTimeout(function(){b.textContent="Copy card link"},2000)})});
+document.getElementById("copy").addEventListener("click",function(){navigator.clipboard.writeText(window.location.href).then(function(){var b=document.getElementById("copy");b.textContent="Copied";setTimeout(function(){b.textContent="Copy report link"},2000)})});
 var sc=document.getElementById("scopy");
 if(sc){sc.addEventListener("click",function(){navigator.clipboard.writeText(document.getElementById("stxt").textContent).then(function(){sc.textContent="Copied — read it at the counter";setTimeout(function(){sc.textContent="Copy script"},2200)})});}
 </script>`);

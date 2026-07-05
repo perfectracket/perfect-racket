@@ -2275,11 +2275,19 @@ export default function PerfectRacket() {
     try {
       const r = result.racquets || [];
       const s = result.strings || [];
-      const spec = (rk) => rk ? {
-        model: `${rk.brand} ${rk.model}`, headSize: rk.headSize, weight: rk.weight,
-        swingWeight: rk.swingWeight, ra: rk.ra, pattern: `${rk.mains}x${rk.crosses}`, price: rk.price,
-        url: getRacquetShopUrl(rk),
-      } : null;
+      // Engine result objects carry display strings, not raw spec numbers —
+      // look each frame up in RACQUET_DB by model for the true specs.
+      const spec = (rk) => {
+        if (!rk) return null;
+        const db = RACQUET_DB.find((x) => x.model === rk.model) || {};
+        return {
+          model: `${rk.brand} ${rk.model}`, headSize: db.headSize, weight: db.weight,
+          swingWeight: db.swingWeight, ra: db.ra,
+          pattern: db.mains ? `${db.mains}x${db.crosses}` : undefined,
+          price: rk.price ?? db.price,
+          url: getRacquetShopUrl(rk),
+        };
+      };
       const injuries = [
         snapshot.pastInjuryElbow === "Yes" ? "elbow" : "",
         snapshot.pastInjuryShoulder === "Yes" ? "shoulder" : "",

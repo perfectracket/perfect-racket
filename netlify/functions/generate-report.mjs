@@ -63,6 +63,16 @@ const wordCount = (t) => (t.trim().match(/\S+/g) || []).length;
 const stripUrls = (t) =>
   t.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1").replace(/https?:\/\/\S+/gi, "").replace(/[ \t]{2,}/g, " ");
 
+// Strip markdown artifacts the model occasionally emits despite plain-text
+// instructions: heading lines (# ...), bold/italic markers, stray backticks.
+const stripMarkdown = (t) => t
+  .split("\n").filter((ln) => !/^\s*#{1,6}\s/.test(ln)).join("\n")
+  .replace(/\*\*([^*]+)\*\*/g, "$1")
+  .replace(/(^|\s)\*([^*\n]+)\*(?=\s|[.,;:!?]|$)/g, "$1$2")
+  .replace(/`/g, "")
+  .replace(/\n{3,}/g, "\n\n")
+  .trim();
+
 function makeId() {
   const alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_-";
   const bytes = new Uint8Array(21);
@@ -215,7 +225,7 @@ export default async (req, context) => {
   let text = "";
   try {
     for (let attempt = 0; attempt < 2; attempt++) {
-      text = stripUrls(await callAnthropic(apiKey, dataBlock)).trim();
+      text = stripMarkdown(stripUrls(await callAnthropic(apiKey, dataBlock))).trim();
       const wc = wordCount(text);
       if (text !== "REPORT_UNAVAILABLE" && wc >= WORDS_MIN && wc <= WORDS_MAX) break;
       text = "";

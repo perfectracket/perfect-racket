@@ -204,6 +204,8 @@ const checks = [
   [/(guarantee|cure|heal|diagnos|treatment for)/i, "medical/absolute language"],
   [/https?:\/\//i, "URL leaked into report"],
   [/grip size/i, "grip size mentioned oddly"],
+  [/^\s*#{1,6}\s/m, "markdown heading leaked"],
+  [/\*\*/, "markdown bold leaked"],
 ];
 for (const [email, m] of Object.entries(minted)) {
   if (!m.text) continue;

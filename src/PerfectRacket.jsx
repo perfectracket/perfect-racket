@@ -37,44 +37,44 @@ const RACQUET_DB = [
   { brand:"Wilson",     model:"Clash 100 v3",          headSize:100, weight:295, balance:6,  swingWeight:316, mains:16, crosses:19, beamWidth:24, ra:55, length:27.0, price:299, armFriendly:true  },
   { brand:"Wilson",     model:"Clash 100L v3",         headSize:100, weight:280, balance:6,  swingWeight:301, mains:16, crosses:19, beamWidth:25, ra:54, length:27.0, price:289, armFriendly:true  },
   { brand:"Wilson",     model:"Clash 100 Pro v3",      headSize:100, weight:303, balance:10, swingWeight:327, mains:16, crosses:20, beamWidth:25, ra:57, length:27.0, price:259, armFriendly:true  },
-  { brand:"Wilson",     model:"Blade 98 16x19 v10",    headSize:98,  weight:306, balance:4,  swingWeight:322, mains:16, crosses:19, beamWidth:21, ra:61, length:27.0, price:299, armFriendly:true  },
+  { brand:"Wilson",     model:"Blade 98 16x19 v10", specControl:true,    headSize:98,  weight:306, balance:4,  swingWeight:322, mains:16, crosses:19, beamWidth:21, ra:61, length:27.0, price:299, armFriendly:true  },
   { brand:"Wilson",     model:"Blade 100 v10",         headSize:100, weight:300, balance:4,  swingWeight:319, mains:16, crosses:19, beamWidth:22, ra:61, length:27.0, price:299, armFriendly:true  },
-  { brand:"Wilson",     model:"Blade 98 18x20 v10",    headSize:98,  weight:306, balance:4,  swingWeight:325, mains:18, crosses:20, beamWidth:21, ra:61, length:27.0, price:299, armFriendly:true  },
-  { brand:"Wilson",     model:"Pro Staff 97 v14",      headSize:97,  weight:315, balance:3,  swingWeight:325, mains:16, crosses:19, beamWidth:21, ra:66, length:27.0, price:289, armFriendly:false },
-  { brand:"Wilson",     model:"Ultra 100 v4",          headSize:100, weight:300, balance:6,  swingWeight:318, mains:16, crosses:19, beamWidth:26, ra:68, length:27.0, price:249, armFriendly:false },
+  { brand:"Wilson",     model:"Blade 98 18x20 v10", specControl:true,    headSize:98,  weight:306, balance:4,  swingWeight:325, mains:18, crosses:20, beamWidth:21, ra:61, length:27.0, price:299, armFriendly:true  },
+  { brand:"Wilson",     model:"Pro Staff 97 v14", specControl:true,      headSize:97,  weight:315, balance:3,  swingWeight:325, mains:16, crosses:19, beamWidth:21, ra:66, length:27.0, price:289, armFriendly:false },
+  { brand:"Wilson",     model:"Ultra 100 v4", specPower:true,          headSize:100, weight:300, balance:6,  swingWeight:318, mains:16, crosses:19, beamWidth:26, ra:68, length:27.0, price:249, armFriendly:false },
   // -- HEAD --
-  { brand:"HEAD",       model:"Speed Pro 2026",        headSize:100, weight:310, balance:3,  swingWeight:330, mains:18, crosses:20, beamWidth:23, ra:61, length:27.0, price:269, armFriendly:true  },
+  { brand:"HEAD",       model:"Speed Pro 2026", specControl:true,        headSize:100, weight:310, balance:3,  swingWeight:330, mains:18, crosses:20, beamWidth:23, ra:61, length:27.0, price:269, armFriendly:true  },
   { brand:"HEAD",       model:"Speed Tour 97 2026",    headSize:97,  weight:305, balance:4,  swingWeight:325, mains:16, crosses:19, beamWidth:23, ra:61, length:27.0, price:269, armFriendly:true  },
   { brand:"HEAD",       model:"Speed MP 2026",         headSize:100, weight:300, balance:4,  swingWeight:326, mains:16, crosses:19, beamWidth:23, ra:60, length:27.0, price:259, armFriendly:true  },
   { brand:"HEAD",       model:"Speed MP L 2026",       headSize:100, weight:280, balance:6,  swingWeight:298, mains:16, crosses:19, beamWidth:23, ra:60, length:27.0, price:249, armFriendly:true  },
   { brand:"HEAD",       model:"Speed MP UL 2026",       headSize:100, weight:265, balance:1,  swingWeight:293, mains:16, crosses:19, beamWidth:23, ra:63, length:27.0, price:249, armFriendly:false },
   { brand:"HEAD",       model:"Gravity MP 2025",       headSize:100, weight:295, balance:5,  swingWeight:318, mains:16, crosses:20, beamWidth:22, ra:58, length:27.0, price:289, armFriendly:true  },
   { brand:"HEAD",       model:"Gravity Tour 2025",     headSize:98,  weight:310, balance:4,  swingWeight:328, mains:16, crosses:20, beamWidth:22, ra:59, length:27.0, price:299, armFriendly:true  },
-  { brand:"HEAD",       model:"Gravity Pro 2025",       headSize:100, weight:315, balance:7,  swingWeight:329, mains:18, crosses:20, beamWidth:20, ra:59, length:27.0, price:269, armFriendly:true  },
+  { brand:"HEAD",       model:"Gravity Pro 2025", specControl:true,       headSize:100, weight:315, balance:7,  swingWeight:329, mains:18, crosses:20, beamWidth:20, ra:59, length:27.0, price:269, armFriendly:true  },
   { brand:"HEAD",       model:"Boom MP 2026",          headSize:100, weight:300, balance:5,  swingWeight:308, mains:16, crosses:19, beamWidth:25, ra:63, length:27.0, price:259, armFriendly:true  }, // editorial: plays softer than RA 63 suggests,
-  { brand:"HEAD",       model:"Radical MP 2025",       headSize:98,  weight:305, balance:4,  swingWeight:323, mains:16, crosses:19, beamWidth:22, ra:66, length:27.0, price:289, armFriendly:false },
-  { brand:"HEAD",       model:"Extreme MP 2025",       headSize:100, weight:300, balance:4,  swingWeight:323, mains:16, crosses:19, beamWidth:26, ra:66, length:27.0, price:289, armFriendly:false },
+  { brand:"HEAD",       model:"Radical MP 2025", specControl:true,       headSize:98,  weight:305, balance:4,  swingWeight:323, mains:16, crosses:19, beamWidth:22, ra:66, length:27.0, price:289, armFriendly:false },
+  { brand:"HEAD",       model:"Extreme MP 2025", specSpin:true,       headSize:100, weight:300, balance:4,  swingWeight:323, mains:16, crosses:19, beamWidth:26, ra:66, length:27.0, price:289, armFriendly:false },
   // -- BABOLAT --
-  { brand:"Babolat",    model:"Pure Aero 2026",        headSize:100, weight:300, balance:4,  swingWeight:320, mains:16, crosses:19, beamWidth:26, ra:68, length:27.0, price:299, armFriendly:false },
-  { brand:"Babolat",    model:"Pure Aero 98 2026",     headSize:98,  weight:305, balance:3,  swingWeight:318, mains:16, crosses:20, beamWidth:23, ra:68, length:27.0, price:309, armFriendly:false },
-  { brand:"Babolat",    model:"Pure Drive 2025",       headSize:100, weight:300, balance:3,  swingWeight:323, mains:16, crosses:19, beamWidth:26, ra:71, length:27.0, price:299, armFriendly:false },
+  { brand:"Babolat",    model:"Pure Aero 2026", specSpin:true,        headSize:100, weight:300, balance:4,  swingWeight:320, mains:16, crosses:19, beamWidth:26, ra:68, length:27.0, price:299, armFriendly:false },
+  { brand:"Babolat",    model:"Pure Aero 98 2026", specSpin:true,     headSize:98,  weight:305, balance:3,  swingWeight:318, mains:16, crosses:20, beamWidth:23, ra:68, length:27.0, price:309, armFriendly:false },
+  { brand:"Babolat",    model:"Pure Drive 2025", specPower:true,       headSize:100, weight:300, balance:3,  swingWeight:323, mains:16, crosses:19, beamWidth:26, ra:71, length:27.0, price:299, armFriendly:false },
   { brand:"Babolat",    model:"Pure Strike 100",       headSize:100, weight:300, balance:5,  swingWeight:318, mains:16, crosses:19, beamWidth:21, ra:64, length:27.0, price:289, armFriendly:false },
   { brand:"Babolat",    model:"Pure Strike Team",      headSize:100, weight:285, balance:5,  swingWeight:302, mains:16, crosses:19, beamWidth:21, ra:62, length:27.0, price:269, armFriendly:true  },
-  { brand:"Babolat",    model:"Pure Strike 100 16x20 Carbon Grey", headSize:100, weight:305, balance:7,  swingWeight:320, mains:16, crosses:20, beamWidth:22, ra:60, length:27.0, price:289, armFriendly:true  },
+  { brand:"Babolat",    model:"Pure Strike 100 16x20 Carbon Grey", specControl:true, headSize:100, weight:305, balance:7,  swingWeight:320, mains:16, crosses:20, beamWidth:22, ra:60, length:27.0, price:289, armFriendly:true  },
   // -- YONEX --
-  { brand:"Yonex",      model:"EZONE 100 2025",        headSize:100, weight:300, balance:4,  swingWeight:315, mains:16, crosses:19, beamWidth:25, ra:68, length:27.0, price:305, armFriendly:false },
-  { brand:"Yonex",      model:"EZONE 98 2025",         headSize:98,  weight:305, balance:4,  swingWeight:320, mains:16, crosses:19, beamWidth:24, ra:63, length:27.0, price:305, armFriendly:true  }, // editorial: plays softer than RA 63 suggests,
-  { brand:"Yonex",      model:"VCORE 98 8th Gen 2026", headSize:98,  weight:305, balance:4,  swingWeight:321, mains:16, crosses:19, beamWidth:23, ra:65, length:27.0, price:305, armFriendly:false },
-  { brand:"Yonex",      model:"VCORE 100 2026",        headSize:100, weight:300, balance:4,  swingWeight:318, mains:16, crosses:19, beamWidth:24, ra:65, length:27.0, price:305, armFriendly:false },
+  { brand:"Yonex",      model:"EZONE 100 2025", specPower:true,        headSize:100, weight:300, balance:4,  swingWeight:315, mains:16, crosses:19, beamWidth:25, ra:68, length:27.0, price:305, armFriendly:false },
+  { brand:"Yonex",      model:"EZONE 98 2025", specControl:true,         headSize:98,  weight:305, balance:4,  swingWeight:320, mains:16, crosses:19, beamWidth:24, ra:63, length:27.0, price:305, armFriendly:true  }, // editorial: plays softer than RA 63 suggests,
+  { brand:"Yonex",      model:"VCORE 98 8th Gen 2026", specSpin:true, specControl:true, headSize:98,  weight:305, balance:4,  swingWeight:321, mains:16, crosses:19, beamWidth:23, ra:65, length:27.0, price:305, armFriendly:false },
+  { brand:"Yonex",      model:"VCORE 100 2026", specPower:true, specSpin:true,        headSize:100, weight:300, balance:4,  swingWeight:318, mains:16, crosses:19, beamWidth:24, ra:65, length:27.0, price:305, armFriendly:false },
   { brand:"Yonex",      model:"PERCEPT 100",           headSize:100, weight:305, balance:5,  swingWeight:318, mains:16, crosses:19, beamWidth:23, ra:60, length:27.0, price:305, armFriendly:true  },
   { brand:"Yonex",      model:"PERCEPT 97",            headSize:97,  weight:310, balance:4,  swingWeight:328, mains:16, crosses:19, beamWidth:22, ra:60, length:27.0, price:305, armFriendly:true  },
   // -- DUNLOP --
   { brand:"Dunlop",     model:"CX 200 16x19",          headSize:98,  weight:305, balance:4,  swingWeight:320, mains:16, crosses:19, beamWidth:21, ra:62, length:27.0, price:250, armFriendly:true  },
-  { brand:"Dunlop",     model:"SX 300 2025",           headSize:100, weight:300, balance:4,  swingWeight:318, mains:16, crosses:19, beamWidth:25, ra:65, length:27.0, price:250, armFriendly:false },
+  { brand:"Dunlop",     model:"SX 300 2025", specPower:true, specSpin:true,           headSize:100, weight:300, balance:4,  swingWeight:318, mains:16, crosses:19, beamWidth:25, ra:65, length:27.0, price:250, armFriendly:false },
   { brand:"Dunlop",     model:"SX 300 Lite 2025",       headSize:100, weight:270, balance:4,  swingWeight:295, mains:16, crosses:19, beamWidth:25, ra:68, length:27.0, price:250, armFriendly:false },
   // -- TECNIFIBRE --
-  { brand:"Tecnifibre", model:"TFight 305",            headSize:98,  weight:305, balance:4,  swingWeight:325, mains:16, crosses:19, beamWidth:22, ra:65, length:27.0, price:279, armFriendly:false },
-  { brand:"Tecnifibre", model:"TFight 315",            headSize:98,  weight:315, balance:3,  swingWeight:335, mains:16, crosses:19, beamWidth:22, ra:67, length:27.0, price:259, armFriendly:false },
+  { brand:"Tecnifibre", model:"TFight 305", specControl:true,            headSize:98,  weight:305, balance:4,  swingWeight:325, mains:16, crosses:19, beamWidth:22, ra:65, length:27.0, price:279, armFriendly:false },
+  { brand:"Tecnifibre", model:"TFight 315", specControl:true,            headSize:98,  weight:315, balance:3,  swingWeight:335, mains:16, crosses:19, beamWidth:22, ra:67, length:27.0, price:259, armFriendly:false },
   // -- SOLINCO --
   { brand:"Solinco",    model:"Blackout V2 300",       headSize:100, weight:300, balance:4,  swingWeight:318, mains:16, crosses:19, beamWidth:26, ra:66, length:27.0, price:240, armFriendly:false },
   // -- PROKENNEX --
@@ -208,6 +208,7 @@ const CURRENT_RACKET_OPTIONS = [
    ============================================================= */
 
 const AFFILIATE_CODE = "tucktraining";
+const SCORING_VERSION = "v6.0-2026-07"; // bump on ANY scoring change; see SCORING-RUNBOOK.md
 const TE_BASE        = "https://www.tennisexpress.com";
 
 const RACQUET_AFFILIATE_URLS = {
@@ -363,11 +364,11 @@ function clamp(v, lo=0, hi=100) { return Math.min(hi, Math.max(lo, v)); }
 // weights set comfort: 0 so the value is informational there.
 function computeFrameComfort(r, armRisk) {
   const ra = r.ra ?? SETTINGS.BlankRA_Default;
-  const raComfortContrib = normInv(ra, 50, 75) * (0.15 + 0.85 * armRisk);
+  const raComfortContrib = normInv(ra, 51, 74) * (0.15 + 0.85 * armRisk);
   const balanceVal = Math.min(8, Math.max(3, r.balance > 0 ? r.balance : 5));
   return clamp(
     raComfortContrib * 0.50 +
-    normInv(r.weight, 240, 340) * 0.30 +
+    normInv(r.weight, 257, 328) * 0.30 +
     norm(balanceVal, 3, 8) * 0.20
   );
 }
@@ -379,18 +380,23 @@ function computeSubscores(r, d, painNumeric, injuryFactor) {
   const ntrp = parseFloat(d.ntrp) || 3.5;
   const perfFirst = d.comfortVsPerf === "Performance first";
 
-  let powerScore = norm(r.headSize, 95, 115) * 0.40 +
-    norm(r.beamWidth, 18, 30) * 0.35 +
-    norm(sw, 280, 360) * 0.25;
+  let powerScore = norm(r.headSize, 96, 101) * 0.40 +
+    norm(r.beamWidth, 19, 27) * 0.35 +
+    norm(sw, 287, 341) * 0.25;
   if (ntrp <= 3.0) powerScore *= 1.10;
   if (ntrp >= 4.0) powerScore *= 0.92;
 
   // (power frame bonus removed — caused regressions)
 
-  let controlScore = normInv(density, 280, 380) * 0.35 +
-    normInv(r.headSize, 95, 115) * 0.30 +
-    normInv(r.beamWidth, 18, 30) * 0.20 +
-    normInv(ra, 50, 75) * 0.15;
+  // P2-W2c: density scores POSITIVELY for control (18x20 > 16x19). The old
+  // normInv had the physics inverted — dense control frames were scored as
+  // anti-control in both engines, which is the deep root of the audit's F5
+  // (the entire heavy 18x20 class never surfacing). Spin keeps normInv: open
+  // pattern genuinely favors spin.
+  let controlScore = norm(density, 296, 368) * 0.15 +
+    normInv(r.headSize, 96, 101) * 0.42 +
+    normInv(r.beamWidth, 19, 27) * 0.25 +
+    normInv(ra, 51, 74) * 0.18;
   if (ntrp >= 4.5) controlScore *= 1.20;
   else if (ntrp >= 4.0) controlScore *= 1.12;
   else if (ntrp <= 3.0) controlScore *= 0.88;
@@ -411,7 +417,7 @@ function computeSubscores(r, d, painNumeric, injuryFactor) {
 
   const comfortScore = computeFrameComfort(r, injuryFactor ?? 0);
 
-  let spinScore = normInv(density, 280, 380) * 0.60 + norm(r.headSize, 95, 115) * 0.40;
+  let spinScore = normInv(density, 296, 368) * 0.60 + norm(r.headSize, 96, 101) * 0.40;
   if (d.playStyle === "Baseliner" && ntrp >= 4.0) spinScore *= 1.15;
   if (d.swingSpeed === "Fast & Aggressive" && perfFirst) spinScore *= 1.10;
 
@@ -421,13 +427,13 @@ function computeSubscores(r, d, painNumeric, injuryFactor) {
   // Maneuverability weight-floor: cap weight input at 285g (see the parallel
   // comment in performanceSubscores). Frames below 285g do not earn extra
   // maneuverability credit for raw lightness.
-  const maneuverabilityScore = normInv(Math.max(r.weight, 285), 240, 340) * 0.50 * swingMult * advancedBaselineMult +
-    normInv(sw, 280, 360) * 0.50;
+  const maneuverabilityScore = normInv(Math.max(r.weight, 285), 257, 328) * 0.50 * swingMult * advancedBaselineMult +
+    normInv(sw, 287, 341) * 0.50;
 
   const frameRiskScore = clamp(
-    norm(ra, 50, 75) * 0.60 +
-    normInv(r.weight, 240, 340) * 0.20 +
-    norm(r.beamWidth, 18, 30) * 0.20
+    norm(ra, 51, 74) * 0.60 +
+    normInv(r.weight, 257, 328) * 0.20 +
+    norm(r.beamWidth, 19, 27) * 0.20
   );
 
   return {
@@ -457,6 +463,11 @@ function computeWeights(d, injuryFactor) {
   };
   const pm = priorityMult[d.comfortVsPerf] || priorityMult["Balanced"];
   Object.keys(w).forEach(k => { w[k] *= pm[k]; });
+
+  // F7 patch (July 2026 audit): "Comfort first" is stated intent — floor the
+  // comfort weight so a prevention-minded user with zero current pain doesn't
+  // end up power-weighted. Pain still raises comfort ABOVE the floor as before.
+  if (d.comfortVsPerf === "Comfort first") w.comfort = Math.max(w.comfort, 0.24);
 
   let total = Object.values(w).reduce((a, b) => a + b, 0);
   Object.keys(w).forEach(k => { w[k] /= total; });
@@ -796,20 +807,26 @@ function performanceSubscores(r, d) {
   const fastSwing = d.swingSpeed === "Fast & Aggressive";
   const slowSwing = d.swingSpeed === "Slow & Controlled";
 
-  let powerScore = norm(r.headSize, 95, 115) * 0.30
-                 + norm(r.beamWidth, 18, 30) * 0.40
-                 + norm(sw, 280, 360) * 0.15
-                 + norm(ra, 50, 75) * 0.15;
+  let powerScore = norm(r.headSize, 96, 101) * 0.30
+                 + norm(r.beamWidth, 19, 27) * 0.40
+                 + norm(sw, 287, 341) * 0.15
+                 + norm(ra, 51, 74) * 0.15;
 
-  let controlScore = normInv(density, 280, 380) * 0.45
-                   + normInv(r.headSize, 95, 115) * 0.35
-                   + normInv(r.beamWidth, 18, 30) * 0.20;
+  // P2-W2c: density → norm (dense = control); see the parallel comment in
+  // computeSubscores. This is the substantive fix for dead 18x20 frames.
+  // Density positive but MODEST (0.20): both 16x19 and 18x20 versions of a
+  // control frame are control frames; the dense pattern adds control vs its
+  // own sibling without defining the category. Head size is the dominant
+  // control signal (0.50), thin beam supports (0.30).
+  let controlScore = norm(density, 296, 368) * 0.20
+                   + normInv(r.headSize, 96, 101) * 0.50
+                   + normInv(r.beamWidth, 19, 27) * 0.30;
   if (ntrp >= 4.5) controlScore *= 1.25;
   else if (ntrp >= 4.0) controlScore *= 1.15;
   else if (ntrp <= 3.0) controlScore *= 0.85;
   if (r.mains === 18 && r.crosses === 20) controlScore = Math.min(100, controlScore * 1.18);
 
-  let spinScore = normInv(density, 280, 380) * 0.55 + norm(r.headSize, 95, 115) * 0.45;
+  let spinScore = normInv(density, 296, 368) * 0.55 + norm(r.headSize, 96, 101) * 0.45;
   if (d.playStyle === "Baseliner" && ntrp >= 4.0) spinScore *= 1.30;
   if (fastSwing) spinScore *= 1.15;
 
@@ -829,8 +846,8 @@ function performanceSubscores(r, d) {
   // any NTRP and any swing speed surfaced them over appropriate frames.
   // This is the structural fix; the per-tier weight penalties in
   // ntrpTierAdjustment remain as a secondary safety net.
-  const maneuverabilityScore = normInv(Math.max(r.weight, 285), 240, 340) * 0.50 * swingMult
-                             + normInv(sw, 280, 360) * 0.50;
+  const maneuverabilityScore = normInv(Math.max(r.weight, 285), 257, 328) * 0.50 * swingMult
+                             + normInv(sw, 287, 341) * 0.50;
 
   return {
     powerScore: clamp(powerScore),
@@ -866,6 +883,13 @@ function performanceWeights(d) {
   };
   const pm = priorityMult[d.priorityFocus] || priorityMult["Balanced"];
   Object.keys(w).forEach(k => { w[k] *= pm[k]; });
+
+  // P2-W2b: 4.5+ players generate their own racket-head speed — maneuverability
+  // matters less to them than to developing players, and its full weight was
+  // burying every 315g+ control frame (Gravity/Percept class) for exactly the
+  // players those frames are built for. Trim, don't zero: quickness still counts.
+  const ntrpNum = parseFloat(d.ntrp) || 3.5;
+  if (ntrpNum >= 4.5) w.maneuverability *= 0.70;
 
   let total = Object.values(w).reduce((a, b) => a + b, 0);
   Object.keys(w).forEach(k => { w[k] /= total; });
@@ -913,13 +937,17 @@ function currentRacketWeightLookup(currentRacketText) {
   return bestMatch ? bestMatch.weight : null;
 }
 
-function ntrpTierAdjustment(r, ntrp, currentWeight) {
+function ntrpTierAdjustment(r, ntrp, currentWeight, swingSpeed) {
   let adj = 0;
   const density = r.mains * r.crosses;
   const ra = r.ra ?? SETTINGS.BlankRA_Default;
   if (ntrp >= 4.5) {
-    if (r.weight >= 305 && density >= 320) adj += 5;
-    if (r.weight >= 305) adj += 2;
+    // P2-W2a: the old (weight>=305 && density>=320) AND-gate meant a 16x19
+    // heavy control frame (Gravity Tour/Pro, Percept 97) could NEVER earn the
+    // elite bonus — density 16x19 = 304. Split: heavy earns alone, dense
+    // pattern stacks. Point economy scaled with the P2 variance (~1.5x).
+    if (r.weight >= 305) adj += 5;
+    if (r.weight >= 305 && density >= 320) adj += 3;
     if (ra <= 65) adj += 2;
 
     // Light-frame penalties soften when the user's current racket
@@ -1001,10 +1029,39 @@ function ntrpTierAdjustment(r, ntrp, currentWeight) {
       if (r.weight >= 310) adj -= 2;
       if (r.weight <= 280) adj -= 3;
     } else {
-      // Default 3.0 protective behavior (no current-racket signal or
-      // user plays a light frame).
-      if (r.weight <= 295) adj += 4;
-      if (r.weight >= 310) adj -= 5;
+      // Default 3.0 behavior, now conditioned on swing speed as the best
+      // available physicality proxy (P1 patch, July 2026 audit F1/F2):
+      // NTRP measures skill, not strength — a fast-swinging 2.5/3.0 is
+      // typically an athletic adult who should NOT be steered ultra-light
+      // (light+stiff = instability + shock, and they outgrow it in a season).
+      const swing = swingSpeed || "";
+      // P2 forgiveness gate: weight-appropriate is not spec-appropriate. A
+      // developing player (≤3.0) should not see dense-pattern or sub-99in²
+      // frames regardless of weight class — small sweet spots punish exactly
+      // the contact inconsistency that defines this level.
+      if (density >= 340) adj -= 8;
+      if (r.headSize <= 98) adj -= 5;
+      // Point values scaled ×1.5 with the P2 bounds recalibration: the padded
+      // norms raised subscore variance ~1.5x, so the tier safety-net scales
+      // with it to keep the same authority (P2-W1 companion).
+      if (swing === "Fast & Aggressive") {
+        // Athletic developing player: mid-weight is right. No light bonus,
+        // active ultra-light suppression, reward the 295-305g sweet spot.
+        if (r.weight >= 295 && r.weight <= 305) adj += 5;
+        if (r.weight <= 290) adj -= 3;
+        if (r.weight <= 280) adj -= 9;
+        if (r.weight >= 315) adj -= 5;
+      } else if (swing === "Slow & Controlled") {
+        // Original protective behavior: light frames genuinely help here.
+        if (r.weight <= 295) adj += 6;
+        if (r.weight >= 310) adj -= 7;
+      } else {
+        // Moderate / unknown: halfway. Mild light preference, mild
+        // ultra-light suppression, original heavy penalty.
+        if (r.weight <= 295) adj += 3;
+        if (r.weight <= 280) adj -= 5;
+        if (r.weight >= 310) adj -= 7;
+      }
     }
 
     if (r.beamWidth >= 24) adj += 2;
@@ -1020,10 +1077,14 @@ function ntrpTierAdjustment(r, ntrp, currentWeight) {
 }
 
 function categorySpecialistBonus(r, priorityFocus, ntrp) {
+  // R2 patch (July 2026 audit): specialist status lives ON the DB row now
+  // (specPower/specSpin/specControl flags) so DB refreshes and model renames
+  // can't silently orphan the bonus system. The name lists above are retained
+  // only as documentation of the original curation.
   let isSpecialist = false;
-  if (priorityFocus === "Power"   && POWER_SPECIALISTS.includes(r.model))   isSpecialist = true;
-  if (priorityFocus === "Spin"    && SPIN_SPECIALISTS.includes(r.model))    isSpecialist = true;
-  if (priorityFocus === "Control" && CONTROL_SPECIALISTS.includes(r.model)) isSpecialist = true;
+  if (priorityFocus === "Power"   && r.specPower)   isSpecialist = true;
+  if (priorityFocus === "Spin"    && r.specSpin)    isSpecialist = true;
+  if (priorityFocus === "Control" && r.specControl) isSpecialist = true;
   if (!isSpecialist) return 0;
   // Scale by NTRP. Specialists are category-defining frames meant for elite
   // play. At 4.0+ they earn the full reward. At 3.5 they are aspirational
@@ -1315,7 +1376,7 @@ function generateRecommendationsPerformance(d) {
       sub.spinScore * weights.spin +
       sub.maneuverabilityScore * weights.maneuverability;
 
-    const tierAdj = ntrpTierAdjustment(r, ntrpNum, currentWeight);
+    const tierAdj = ntrpTierAdjustment(r, ntrpNum, currentWeight, d.swingSpeed);
     const specialistBonus = categorySpecialistBonus(r, d.priorityFocus, ntrpNum);
     const armPenalty = antiComfortPenalty(r, d.priorityFocus);
     const ctrlEliteBonus = controlEliteBonus(r, d.priorityFocus);
@@ -2405,6 +2466,7 @@ export default function PerfectRacket() {
             formData.append("tension-recommended", result.tension ? String(result.tension.recommended) : "");
             formData.append("injury-factor", result.injuryFactor != null ? result.injuryFactor.toFixed(3) : "");
             formData.append("report-url", reportUrl || "");
+            formData.append("scoring-version", SCORING_VERSION);
             fetch("/", { method: "POST", body: formData });
           } catch (e) { /* silent fail — never block results */ }
           };

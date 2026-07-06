@@ -2403,7 +2403,7 @@ export default function PerfectRacket() {
     // or failure the results reveal anyway and the report pops in when/if it
     // arrives — the pre-existing fallback, fully preserved.
     const MIN_MS = 2800;
-    const MAX_MS = 9000;
+    const MAX_MS = 6000;
     const reportDone = { current: false };
 
     // Compute recommendations and FIRE REPORT GENERATION IMMEDIATELY — the
@@ -2506,9 +2506,9 @@ export default function PerfectRacket() {
     const tick = setInterval(() => {
       const elapsed = Date.now() - start;
       // Progress: glide toward 94% across the full window; the reveal snaps it home.
-      const p = Math.min(94, (elapsed / 7000) * 100 + (reportDone.current ? 18 : 0));
+      const p = Math.min(94, (elapsed / 5000) * 100 + (reportDone.current ? 18 : 0));
       setProg(Math.min(100, p));
-      const ph = Math.min(PHASES.length - 1, Math.floor((elapsed / 5600) * PHASES.length));
+      const ph = Math.min(PHASES.length - 1, Math.floor((elapsed / 4200) * PHASES.length));
       setPhase(ph);
       const reveal = (elapsed >= MIN_MS && reportDone.current) || elapsed >= MAX_MS;
       if (reveal) {

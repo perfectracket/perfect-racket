@@ -1743,6 +1743,8 @@ select.ti { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w
 .rid-chip.rid-arm { color: #9FDCBE; border-color: rgba(143,211,182,0.5); background: rgba(78,155,119,0.14); }
 .rid-chip.rid-perf { color: #E06A3E; border-color: rgba(224,106,62,0.55); background: rgba(200,82,42,0.14); }
 .rid-sub { font-size: var(--text-sm); line-height: 1.65; color: rgba(250,247,242,0.62); max-width: 340px; margin: 0 auto; position: relative; }
+.rid-cta-wrap { display: block; text-decoration: none; margin-top: var(--sp-4); position: relative; }
+.rid-cta { animation: chkPop 0.4s cubic-bezier(0.34,1.2,0.64,1) both; }
 .r-body  { padding: var(--sp-5); }
 
 
@@ -2395,110 +2397,124 @@ export default function PerfectRacket() {
     // can never pick up a partially-modified form state
     const snapshot = { ...d };
     const start = Date.now();
-    const dur = 2800;
+    // Loading holds until the fitting report is ready (so the header CTA is
+    // present at first paint) with hard bounds: never less than MIN_MS of
+    // reveal pacing, never more than MAX_MS regardless of the report. On cap
+    // or failure the results reveal anyway and the report pops in when/if it
+    // arrives — the pre-existing fallback, fully preserved.
+    const MIN_MS = 2800;
+    const MAX_MS = 9000;
+    const reportDone = { current: false };
+
+    // Compute recommendations and FIRE REPORT GENERATION IMMEDIATELY — the
+    // loading screen is the report's head start (it previously started only
+    // after the results appeared, guaranteeing the pop-in).
+    let result = null;
+    try {
+      result = generateRecommendations(snapshot);
+      setRecs(result);
+    } catch (err) {
+      console.error("generateRecommendations failed:", err);
+      setRecs({ error: true });
+      reportDone.current = true; // nothing to wait for
+    }
+
+    if (result) {
+      const submitForm = (reportUrl) => {
+      try {
+        const r1 = result.racquets?.[0];
+        const r2 = result.racquets?.[1];
+        const r3 = result.racquets?.[2];
+        const s1 = result.strings?.[0];
+        const s2 = result.strings?.[1];
+        const s3 = result.strings?.[2];
+        const fmtRacket = (r) => r ? `${r.brand} ${r.model}` : "";
+        const fmtList = (a) => Array.isArray(a) ? a.join("; ") : "";
+        const formData = new FormData();
+        formData.append("form-name", "perfect-racket-submission");
+        // Mode (which path the user chose)
+        formData.append("mode", snapshot.mode || "armhealth");
+        // Identity
+        formData.append("name", snapshot.name || "");
+        formData.append("email", snapshot.email || "");
+        // Profile
+        formData.append("age-range", snapshot.ageRange || "");
+        formData.append("ntrp", snapshot.ntrp || "");
+        formData.append("grip-size", snapshot.gripSize || "");
+        formData.append("current-racket", snapshot.currentRacket || "");
+        formData.append("budget", snapshot.budget || "");
+        // Game
+        formData.append("play-style", snapshot.playStyle || "");
+        formData.append("play-frequency", snapshot.playFrequency || "");
+        formData.append("swing-speed", snapshot.swingSpeed || "");
+        formData.append("priority-focus", snapshot.priorityFocus || "");
+        formData.append("comfort-vs-perf", snapshot.comfortVsPerf || "");
+        formData.append("goals", fmtList(snapshot.goals));
+        // Health
+        formData.append("pain-locations", fmtList(snapshot.painLocations));
+        formData.append("pain-severity", snapshot.painSeverity || "");
+        formData.append("past-injury-elbow", snapshot.pastInjuryElbow || "No");
+        formData.append("past-injury-shoulder", snapshot.pastInjuryShoulder || "No");
+        formData.append("past-injury-wrist", snapshot.pastInjuryWrist || "No");
+        formData.append("rehab-status", snapshot.rehabStatus || "");
+        // Current setup
+        formData.append("string-type", snapshot.stringType || "");
+        formData.append("tension-range", snapshot.tensionRange || "");
+        // Recommendations
+        formData.append("top-racket", fmtRacket(r1));
+        formData.append("top-racket-url", r1 ? getRacquetShopUrl(r1) : "");
+        formData.append("racket-2", fmtRacket(r2));
+        formData.append("racket-3", fmtRacket(r3));
+        formData.append("top-string", s1 ? s1.name : "");
+        formData.append("string-2", s2 ? s2.name : "");
+        formData.append("string-3", s3 ? s3.name : "");
+        formData.append("tension", result.tension ? `${result.tension.low}-${result.tension.high} lbs` : "");
+        formData.append("tension-recommended", result.tension ? String(result.tension.recommended) : "");
+        formData.append("injury-factor", result.injuryFactor != null ? result.injuryFactor.toFixed(3) : "");
+        formData.append("report-url", reportUrl || "");
+        formData.append("scoring-version", SCORING_VERSION);
+        fetch("/", { method: "POST", body: formData });
+      } catch (e) { /* silent fail — never block results */ }
+      };
+
+      // AI fitting report — additive. Lead capture ALWAYS happens: the form
+      // submits with the report URL on success, or without it on any failure
+      // or timeout. Fired here (loading start) so it races the reveal.
+      setReport({ status: "pending", url: "", text: "" });
+      requestFittingReport(snapshot, result)
+        .then((rep) => {
+          if (rep && rep.url) {
+            setReport({ status: "ready", url: rep.url, text: rep.text || "" });
+            submitForm(rep.url);
+          } else {
+            setReport({ status: "failed", url: "", text: "" });
+            submitForm("");
+          }
+        })
+        .catch(() => {
+          setReport({ status: "failed", url: "", text: "" });
+          submitForm("");
+        })
+        .finally(() => { reportDone.current = true; });
+
+      // Plausible — completion event
+      if (typeof window.plausible === "function") {
+        window.plausible("Form Completed", { props: { ntrp: snapshot.ntrp, painSeverity: snapshot.painSeverity } });
+      }
+    }
+
     const tick = setInterval(() => {
       const elapsed = Date.now() - start;
-      const p = Math.min(100, (elapsed / dur) * 100);
-      setProg(p);
-      const ph = Math.min(PHASES.length - 1, Math.floor((elapsed / dur) * PHASES.length));
+      // Progress: glide toward 94% across the full window; the reveal snaps it home.
+      const p = Math.min(94, (elapsed / 7000) * 100 + (reportDone.current ? 18 : 0));
+      setProg(Math.min(100, p));
+      const ph = Math.min(PHASES.length - 1, Math.floor((elapsed / 5600) * PHASES.length));
       setPhase(ph);
-      if (elapsed >= dur) {
+      const reveal = (elapsed >= MIN_MS && reportDone.current) || elapsed >= MAX_MS;
+      if (reveal) {
         clearInterval(tick);
-        try {
-          const result = generateRecommendations(snapshot);
-          setRecs(result);
-          go("results");
-
-          // Netlify Forms — full capture of every form answer + top 3 recs + tension data
-          // + report-url. Existing field names preserved for backwards compatibility.
-          // Multi-selects joined with "; " so CSV exports survive cleanly.
-          // Wrapped as a closure so the fitting-report flow below can attach the
-          // report URL; called EXACTLY ONCE per completion, with "" on any report failure.
-          const submitForm = (reportUrl) => {
-          try {
-            const r1 = result.racquets?.[0];
-            const r2 = result.racquets?.[1];
-            const r3 = result.racquets?.[2];
-            const s1 = result.strings?.[0];
-            const s2 = result.strings?.[1];
-            const s3 = result.strings?.[2];
-            const fmtRacket = (r) => r ? `${r.brand} ${r.model}` : "";
-            const fmtList = (a) => Array.isArray(a) ? a.join("; ") : "";
-            const formData = new FormData();
-            formData.append("form-name", "perfect-racket-submission");
-            // Mode (which path the user chose)
-            formData.append("mode", snapshot.mode || "armhealth");
-            // Identity
-            formData.append("name", snapshot.name || "");
-            formData.append("email", snapshot.email || "");
-            // Profile
-            formData.append("age-range", snapshot.ageRange || "");
-            formData.append("ntrp", snapshot.ntrp || "");
-            formData.append("grip-size", snapshot.gripSize || "");
-            formData.append("current-racket", snapshot.currentRacket || "");
-            formData.append("budget", snapshot.budget || "");
-            // Game
-            formData.append("play-style", snapshot.playStyle || "");
-            formData.append("play-frequency", snapshot.playFrequency || "");
-            formData.append("swing-speed", snapshot.swingSpeed || "");
-            formData.append("priority-focus", snapshot.priorityFocus || "");
-            formData.append("comfort-vs-perf", snapshot.comfortVsPerf || "");
-            formData.append("goals", fmtList(snapshot.goals));
-            // Health
-            formData.append("pain-locations", fmtList(snapshot.painLocations));
-            formData.append("pain-severity", snapshot.painSeverity || "");
-            formData.append("past-injury-elbow", snapshot.pastInjuryElbow || "No");
-            formData.append("past-injury-shoulder", snapshot.pastInjuryShoulder || "No");
-            formData.append("past-injury-wrist", snapshot.pastInjuryWrist || "No");
-            formData.append("rehab-status", snapshot.rehabStatus || "");
-            // Current setup
-            formData.append("string-type", snapshot.stringType || "");
-            formData.append("tension-range", snapshot.tensionRange || "");
-            // Recommendations
-            formData.append("top-racket", fmtRacket(r1));
-            formData.append("top-racket-url", r1 ? getRacquetShopUrl(r1) : "");
-            formData.append("racket-2", fmtRacket(r2));
-            formData.append("racket-3", fmtRacket(r3));
-            formData.append("top-string", s1 ? s1.name : "");
-            formData.append("string-2", s2 ? s2.name : "");
-            formData.append("string-3", s3 ? s3.name : "");
-            formData.append("tension", result.tension ? `${result.tension.low}-${result.tension.high} lbs` : "");
-            formData.append("tension-recommended", result.tension ? String(result.tension.recommended) : "");
-            formData.append("injury-factor", result.injuryFactor != null ? result.injuryFactor.toFixed(3) : "");
-            formData.append("report-url", reportUrl || "");
-            formData.append("scoring-version", SCORING_VERSION);
-            fetch("/", { method: "POST", body: formData });
-          } catch (e) { /* silent fail — never block results */ }
-          };
-
-          // AI fitting report — additive. Lead capture ALWAYS happens: the form
-          // submits with the report URL on success, or without it on any failure
-          // or timeout. The report itself renders on the results screen when ready.
-          setReport({ status: "pending", url: "", text: "" });
-          requestFittingReport(snapshot, result)
-            .then((rep) => {
-              if (rep && rep.url) {
-                setReport({ status: "ready", url: rep.url, text: rep.text || "" });
-                submitForm(rep.url);
-              } else {
-                setReport({ status: "failed", url: "", text: "" });
-                submitForm("");
-              }
-            })
-            .catch(() => {
-              setReport({ status: "failed", url: "", text: "" });
-              submitForm("");
-            });
-
-          // Plausible — completion event
-          if (typeof window.plausible === "function") {
-            window.plausible("Form Completed", { props: { ntrp: snapshot.ntrp, painSeverity: snapshot.painSeverity } });
-          }
-        } catch (err) {
-          console.error("generateRecommendations failed:", err);
-          setRecs({ error: true });
-          go("results");
-        }
+        setProg(100);
+        go("results");
       }
     }, 80);
   };
@@ -3078,6 +3094,11 @@ export default function PerfectRacket() {
                   <span className={`rid-chip ${d.mode === "performance" ? "rid-perf" : "rid-arm"}`}>{d.mode === "performance" ? "Performance Fit" : "Arm Health Fit"}</span>
                 </div>
                 {recs.setupText && <p className="rid-sub">{recs.setupText}</p>}
+                {report.status === "ready" && report.url && (
+                  <a href={report.url} target="_blank" rel="noopener noreferrer" className="rid-cta-wrap">
+                    <button className="shop-btn rid-cta">View Your Fitting Report</button>
+                  </a>
+                )}
               </div>
             </div>
             <div className="r-body">

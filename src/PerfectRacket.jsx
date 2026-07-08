@@ -3187,20 +3187,38 @@ export default function PerfectRacket() {
 
                 return null;
               })()}
-              {recs.allOverBudget && (() => {
+              {/* Budget pointer — fires whenever the #1 exceeds a stated cap
+                  (previously only when ALL THREE were over). Display-only:
+                  ranking untouched, budget never affects score. */}
+              {(() => {
+                const top1Over = recs.racquets[0] && recs.racquets[0].budgetFlag === "over-budget";
+                if (!top1Over) return null;
                 const bestInBudget = (recs.allRacquets || []).find(r => r.budgetFlag === "in-budget");
+                // allRacquets is score-sorted, so if the best in-budget frame is
+                // already on screen it can only be the #2 or #3 pick.
+                const inTop3Idx = bestInBudget
+                  ? [1, 2].find(i => recs.racquets[i] && recs.racquets[i].model === bestInBudget.model)
+                  : undefined;
                 return (
                   <div>
-                    <div className="callout amber" style={{marginBottom:"var(--sp-2)"}}>
-                      <span className="c-ico">!</span>
-                      <span className="c-txt">All top matches are over your budget. Showing best overall fits - consider these as targets or look for previous-generation versions.</span>
-                    </div>
+                    {recs.allOverBudget && (
+                      <div className="callout amber" style={{marginBottom:"var(--sp-2)"}}>
+                        <span className="c-ico">!</span>
+                        <span className="c-txt">All top matches are over your budget. Showing best overall fits - consider these as targets or look for previous-generation versions.</span>
+                      </div>
+                    )}
                     {bestInBudget && (
                       <div className="callout blue" style={{marginBottom:"var(--sp-4)"}}>
                         <span className="c-ico">💰</span>
                         <span className="c-txt">
-                          <strong>Best in-budget option:</strong> {bestInBudget.brand} {bestInBudget.model} (${bestInBudget.price}) - scored {Math.round(bestInBudget.finalScore)}/100.
-                          {" "}Not in your top 3 overall, but the best fit within your range.
+                          {inTop3Idx != null ? (
+                            <><strong>Inside your budget:</strong> your #{inTop3Idx + 1} pick, the {bestInBudget.brand} {bestInBudget.model} (${bestInBudget.price}), sits within your stated range — the strongest fit at your price.</>
+                          ) : (
+                            <><strong>Best in-budget option:</strong> {bestInBudget.brand} {bestInBudget.model} (${bestInBudget.price}) - scored {Math.round(bestInBudget.finalScore)}/100.
+                            {" "}{recs.allOverBudget
+                              ? "Not in your top 3 overall, but the best fit within your range."
+                              : "Your best match runs over your range; this is the strongest fit inside it."}</>
+                          )}
                         </span>
                       </div>
                     )}

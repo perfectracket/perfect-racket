@@ -2388,6 +2388,11 @@ export default function PerfectRacket() {
         goals: joinList(snapshot.goals),
         rank1: spec(r[0]), rank2: spec(r[1]), rank3: spec(r[2]),
         string1: s[0] ? s[0].name : "", string2: s[1] ? s[1].name : "", string3: s[2] ? s[2].name : "",
+        // v4: per-string shop URLs so the report page can sell the restring —
+        // same lookup the results-page string buttons use.
+        string1Url: s[0] ? getStringShopUrl(s[0]) : "",
+        string2Url: s[1] ? getStringShopUrl(s[1]) : "",
+        string3Url: s[2] ? getStringShopUrl(s[2]) : "",
         tensionRange: result.tension ? `${result.tension.low}-${result.tension.high} lbs` : "",
         tensionStart: result.tension ? String(result.tension.recommended) : "",
       };

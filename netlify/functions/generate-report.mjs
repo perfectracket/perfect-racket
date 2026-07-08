@@ -283,7 +283,18 @@ export default async (req, context) => {
     };
   };
   const ranks = [cleanRank(b.rank1), cleanRank(b.rank2), cleanRank(b.rank3)].filter(Boolean);
-  const stringsList = [b.string1, b.string2, b.string3].map((x) => clip(x, LEN.stringName)).filter(Boolean);
+  // v4 record: strings become { name, url } objects. Each URL passes the same
+  // hard allowlist as rank shopUrls; a bad URL drops to "" (its own button
+  // disappears), never the string entry. report-view renders pre-v4 records
+  // (plain name strings) text-only, unchanged.
+  const cleanStringUrl = (u) => {
+    const url = typeof u === "string" ? u.slice(0, 300) : "";
+    return url.startsWith(SHOP_URL_PREFIX) ? url : "";
+  };
+  const stringsList = [
+    [b.string1, b.string1Url], [b.string2, b.string2Url], [b.string3, b.string3Url],
+  ].map(([n, u]) => ({ name: clip(n, LEN.stringName), url: cleanStringUrl(u) }))
+   .filter((s) => s.name);
   let serial = null;
   try {
     const meta = getStore("meta");
@@ -303,6 +314,7 @@ export default async (req, context) => {
     createdAt: new Date().toISOString(),
     model: REPORT_MODEL,
     promptVersion: PROMPT_VERSION,
+    recordVersion: 4, // v4 = strings[] holds { name, url } objects (was name strings)
     mode: clip(b.mode, LEN.generic),
     ntrp: clip(b.ntrp, LEN.generic),
     playStyle: clip(b.playStyle, LEN.generic),

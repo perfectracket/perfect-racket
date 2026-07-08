@@ -85,8 +85,10 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;opacity:.05;ba
 .s-row{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--wline)}
 .s-row:last-child{border-bottom:none}
 .s-rank{flex-shrink:0;font-family:'DM Mono',monospace;font-size:11px;color:var(--gold)}
-.s-name{font-weight:500;font-size:16px}
+.s-name{font-weight:500;font-size:16px;flex:1}
 .s-note{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;color:rgba(255,255,255,.45);margin-left:auto;text-transform:uppercase}
+.s-shop{flex-shrink:0;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(196,154,60,.5);border-radius:8px;padding:5px 11px;text-decoration:none;white-space:nowrap;transition:background .15s,color .15s}
+.s-shop:hover{background:var(--gold);color:var(--navy)}
 .tension-line{margin-top:16px;padding:14px;border:1px dashed rgba(196,154,60,.5);border-radius:10px;font-size:15px;color:rgba(255,255,255,.85)}
 .tension-line b{color:var(--gold);font-weight:600}
 /* --- notes --- */
@@ -157,7 +159,7 @@ export default async (req) => {
       `${heading("Personal Fitting Report", esc(rec.topRacket || "Your Setup"))}
 <div class="notes"><p style="font-family:'DM Mono',monospace;font-size:12px;color:var(--mid)">${first ? "Prepared for " + esc(first) + " · " : "Prepared "}${esc(dateStr)}</p>${paragraphs}</div>
 <div class="actions"><button class="btn" id="copy">Copy link</button><a class="btn" href="/">Retake the fitting</a></div>
-<div class="cta"><div class="t">Know someone hunting for their racket?</div><p>Send them here.</p><a href="/">Get your own fitting</a></div>
+<div class="cta"><div class="t">Know someone hunting for their racket?</div><p>Send them here.</p><a href="/?utm_source=report&utm_medium=share">Get your own fitting</a></div>
 <script>document.getElementById("copy").addEventListener("click",function(){navigator.clipboard.writeText(window.location.href).then(function(){var b=document.getElementById("copy");b.textContent="Copied";setTimeout(function(){b.textContent="Copy link"},2000)})});</script>`);
   }
 
@@ -205,8 +207,14 @@ ${shopOk ? `<a class="f-shop" href="${esc(r.shopUrl)}" rel="noopener">${i === 0 
   // strings navy band (v3 records)
   let stringsHtml = "";
   if (Array.isArray(rec.strings) && rec.strings.length) {
-    const rows = rec.strings.map((name, i) =>
-      `<div class="s-row"><span class="s-rank">Nº${i + 1}</span><span class="s-name">${esc(name)}</span>${i === 0 ? '<span class="s-note">The Pick</span>' : ""}</div>`).join("\n");
+    // v4 records carry { name, url } objects; v3 and earlier carry plain name
+    // strings and render text-only exactly as before. URL re-checked against
+    // the allowlist at render time — same defense-in-depth as frame shopUrls.
+    const rows = rec.strings.map((entry, i) => {
+      const s = typeof entry === "string" ? { name: entry, url: "" } : (entry || {});
+      const shopOk = typeof s.url === "string" && s.url.startsWith(SHOP_URL_PREFIX);
+      return `<div class="s-row"><span class="s-rank">Nº${i + 1}</span><span class="s-name">${esc(s.name)}</span>${i === 0 ? '<span class="s-note">The Pick</span>' : ""}${shopOk ? `<a class="s-shop" href="${esc(s.url)}" rel="noopener">Shop</a>` : ""}</div>`;
+    }).join("\n");
     const tension = rec.tensionRange ? `<div class="tension-line">String at <b>${esc(rec.tensionRange)}</b>${rec.tensionStart ? ` — start at <b>${esc(rec.tensionStart)} lbs</b> and adjust from there.` : "."}</div>` : "";
     stringsHtml = `<div class="navyband">${heading("The Strings", "Your Top " + rec.strings.length)}\n${rows}\n${tension}</div>`;
   }
@@ -226,7 +234,7 @@ ${heading("The Analysis", "The Fitting Notes")}
 ${heading("At the Shop", "Getting It Strung")}
 ${scriptBlock}
 <div class="actions"><button class="btn" id="copy">Copy report link</button><a class="btn" href="/">Retake the fitting</a></div>
-<div class="cta"><div class="t">Know someone hunting for their racket?</div><p>Send them this report — or send them to the fitting.</p><a href="/">Get your own fitting</a></div>
+<div class="cta"><div class="t">Know someone hunting for their racket?</div><p>Send them this report — or send them to the fitting.</p><a href="/?utm_source=report&utm_medium=share">Get your own fitting</a></div>
 <script>
 document.getElementById("copy").addEventListener("click",function(){navigator.clipboard.writeText(window.location.href).then(function(){var b=document.getElementById("copy");b.textContent="Copied";setTimeout(function(){b.textContent="Copy report link"},2000)})});
 var sc=document.getElementById("scopy");

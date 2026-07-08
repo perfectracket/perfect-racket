@@ -1343,7 +1343,12 @@ function generateRecommendations(d) {
 
   const setupParts = [];
   if (d.currentRacket && d.currentRacket.trim()) {
-    setupParts.push(`Based on your current ${d.currentRacket.trim()} and your profile, here is what we recommend instead.`);
+    // When the DB-matched current racket IS the #1 pick, "recommend instead"
+    // would contradict the results page's you-already-own-it card.
+    const ownedTop = currentRacketLookup(d.currentRacket);
+    setupParts.push(ownedTop && ownedTop.model === topRacquet.model
+      ? `Your current ${d.currentRacket.trim()} holds up under your profile — here is the setup we recommend around it.`
+      : `Based on your current ${d.currentRacket.trim()} and your profile, here is what we recommend instead.`);
   }
   if (painNumeric >= 6) {
     setupParts.push(`Your pain level drove this recommendation -- we prioritised frames below RA ${SETTINGS.RA_HardGate_Cutoff} and arm-friendly strings.`);
@@ -3232,6 +3237,24 @@ export default function PerfectRacket() {
                 <h2 className="rsec-title">Racquet Recommendations</h2>
                 <div className="rsec-rule"></div>
               </div>
+
+              {/* "You already own it" — fires only when the DB-matched current
+                  racket IS the #1 recommendation. Reframes the moment as
+                  validation and pivots to the string + tension upgrade. Sits
+                  alongside the honest ranking, never instead of it. */}
+              {(() => {
+                const owned = currentRacketLookup(d.currentRacket);
+                if (!owned || !recs.racquets[0] || owned.model !== recs.racquets[0].model) return null;
+                return (
+                  <div style={{background:"var(--white)",border:"1px solid rgba(196,154,60,0.45)",borderLeft:"4px solid var(--gold)",borderRadius:12,padding:"var(--sp-4)",marginBottom:"var(--sp-4)",boxShadow:"0 6px 22px rgba(13,27,42,0.06)"}}>
+                    <div style={{fontFamily:"'DM Mono',monospace",fontSize:"var(--text-micro)",letterSpacing:"0.18em",textTransform:"uppercase",color:"var(--gold)",marginBottom:"var(--sp-2)"}}>Your instincts were right</div>
+                    <p style={{fontSize:"var(--text-sm)",color:"var(--mid)",lineHeight:1.65,margin:0}}>
+                      <strong style={{color:"var(--ink)"}}>The frame you already play — the {recs.racquets[0].brand} {recs.racquets[0].model} — is the strongest fit for your profile.</strong>{" "}
+                      No new racket needed. The upgrade worth making is below: the string and tension matched to your game. A restring costs a fraction of a new frame, and it is where this setup has the easiest gains left.
+                    </p>
+                  </div>
+                );
+              })()}
 
               {/* Confidence indicator — editorial voice, not a number */}
               {(() => {

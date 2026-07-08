@@ -12,7 +12,7 @@ import { getStore } from "@netlify/blobs";
 export const config = { path: "/api/generate-report" };
 
 const REPORT_MODEL = "claude-haiku-4-5";
-const PROMPT_VERSION = "v1.1-2026-07-03";
+const PROMPT_VERSION = "v2.0-2026-07-06";
 const SITE_URL = "https://perfectracket.com";
 const SHOP_URL_PREFIX = "https://www.tennisexpress.com"; // server-side allowlist: report page will only ever link here
 const SERIAL_SEED = 1050; // display serial starting point (~all-time fittings at launch); cosmetic, adjust freely
@@ -36,6 +36,8 @@ Hard rules:
 2a. Arm-health reasoning discipline: attribute arm-friendliness primarily to frame stiffness (RA) and string softness. Frame weight relates to maneuverability and fatigue, NOT to arm safety — never claim that a lighter frame is easier on a painful arm; added mass generally aids stability and shock absorption. Swingweight (SW) is the best single indicator of how demanding a frame is to swing; prefer it over static weight when discussing how a frame plays.
 2b. Technical-claims discipline: only make equipment-mechanism claims that are directly supported by the provided specs or are uncontroversial basics of the trade. If you are not certain of the mechanism, describe the feel or the outcome instead of inventing an explanation.
 2c. String-transition honesty: when the recommended string differs materially from what the player currently uses (for example polyester to natural gut or multifilament), briefly acknowledge the transition in one sentence — the change in power, feel, or launch they should expect, and, where relevant, that it sits in a different price class per restring. Recommend it no less confidently; just recommend it like someone who has strung both.
+2d. Current-racket comparison: when current_racket_specs ARE provided, include a short comparison between their current frame and the number-one recommendation, grounded ONLY in the provided numbers — lead with the one or two deltas that matter most to THIS player's stated situation (arm concerns: stiffness and swingweight; power/control goals: head size, pattern, weight). One tight passage, not a spec dump. When current_racket_specs says no verified specs, rule 1 applies in full: no numbers about their current racket, ever.
+2e. Engine-strengths grounding: each frame's engine_strengths are the fitting engine's own reasons for ranking it. Lead each frame's why with those strengths, elaborated through the provided specs and the player's answers. Never contradict the engine_strengths; if one seems surprising for this player, explain the fit rather than substituting your own theory.
 2d. Epistemic humility: this analysis is based on what the player shared, not on watching them hit. Frame the demo as the confirmation step. Avoid leaning on precise level labels as if measured — self-reported level guides, it does not certify.
 3. No commission or affiliate mention. No discount language. No urgency tactics. Never include URLs or links.
 4. Never invent facts about the player. Use only what they reported. If a field is blank, do not guess it — but blank fields can become forward-looking advice (unknown grip size: have the shop measure your hand; no current racket: frame the demo as a fresh baseline). Convert missing data into guidance; never skip it into thin air or pad around it.
@@ -87,9 +89,25 @@ async function sha256hex(s) {
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+// Engine-provided strengths ride in the payload and are therefore untrusted:
+// hard-sanitize to a tight character set, cap length and count.
+function strengthsLine(r) {
+  if (!r || !Array.isArray(r.strengths)) return "";
+  const clean = r.strengths
+    .filter((x) => typeof x === "string")
+    .map((x) => x.replace(/[^A-Za-z0-9 &\-]/g, "").trim().slice(0, 40))
+    .filter(Boolean)
+    .slice(0, 3);
+  return clean.join(", ");
+}
+
 function specLine(r) {
   if (!r || !r.model) return "not provided";
-  const parts = [clip(r.model, LEN.model)];
+  // Model names are payload-supplied: length-clip AND character-sanitize
+  // (covers rank models and current-racket specs uniformly).
+  const safeModel = clip(String(r.model), LEN.model).replace(/[^A-Za-z0-9 .&x+\-]/g, "").trim();
+  if (!safeModel) return "not provided";
+  const parts = [safeModel];
   if (Number.isFinite(+r.headSize)) parts.push(`${+r.headSize} sq in`);
   if (Number.isFinite(+r.weight)) parts.push(`${+r.weight}g unstrung`);
   if (Number.isFinite(+r.swingWeight)) parts.push(`SW ${+r.swingWeight}`);
@@ -213,8 +231,11 @@ export default async (req, context) => {
     "",
     "RECOMMENDATION (fixed — explain, do not alter)",
     `rank1: ${specLine(b.rank1)}`,
+    `rank1_engine_strengths: ${strengthsLine(b.rank1) || "not provided"}`,
     `rank2: ${specLine(b.rank2)}`,
+    `rank2_engine_strengths: ${strengthsLine(b.rank2) || "not provided"}`,
     `rank3: ${specLine(b.rank3)}`,
+    `rank3_engine_strengths: ${strengthsLine(b.rank3) || "not provided"}`,
     `string1: ${clip(b.string1, LEN.stringName)}`,
     `string2: ${clip(b.string2, LEN.stringName) || "none"}`,
     `tension_range: ${clip(b.tensionRange, LEN.generic)}`,

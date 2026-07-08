@@ -900,7 +900,7 @@ function performanceWeights(d) {
 // user's current-racket free text, or null if no confident match. Used to
 // soften the NTRP 3.0 light-frame bias when a user demonstrates they already
 // play a heavier frame comfortably. See ntrpTierAdjustment for application.
-function currentRacketWeightLookup(currentRacketText) {
+function currentRacketLookup(currentRacketText) {
   if (!currentRacketText || !currentRacketText.trim()) return null;
   const normalize = s => s.toLowerCase().replace(/[^a-z0-9]+/g, ' ').replace(/\s+/g, ' ').trim();
   const input = normalize(currentRacketText);
@@ -916,7 +916,7 @@ function currentRacketWeightLookup(currentRacketText) {
     // Strict path: full model name appears as substring of user input.
     // Example: input "babolat pure drive 2024" matches DB "Pure Drive 2025".
     if (input.includes(dbModel)) {
-      return r.weight;
+      return r;
     }
 
     // Token path: at least 2 model words (length >= 3) appear in input.
@@ -934,7 +934,12 @@ function currentRacketWeightLookup(currentRacketText) {
     }
   }
 
-  return bestMatch ? bestMatch.weight : null;
+  return bestMatch || null;
+}
+
+function currentRacketWeightLookup(currentRacketText) {
+  const r = currentRacketLookup(currentRacketText);
+  return r ? r.weight : null;
 }
 
 function ntrpTierAdjustment(r, ntrp, currentWeight, swingSpeed) {
@@ -2349,6 +2354,8 @@ export default function PerfectRacket() {
           pattern: db.mains ? `${db.mains}x${db.crosses}` : undefined,
           price: rk.price ?? db.price,
           url: getRacquetShopUrl(rk),
+          strengths: Array.isArray(rk.topStrengths) ? rk.topStrengths.slice(0, 3)
+            : (typeof rk.topStrengths === "string" && rk.topStrengths.trim() ? [rk.topStrengths.trim()] : undefined),
         };
       };
       const injuries = [
@@ -2366,6 +2373,14 @@ export default function PerfectRacket() {
         priorityFocus: snapshot.priorityFocus || "", comfortVsPerf: snapshot.comfortVsPerf || "",
         painLocations: joinList(snapshot.painLocations), painSeverity: snapshot.painSeverity || "",
         pastInjuries: injuries, currentRacket: snapshot.currentRacket || "",
+        // v2: full specs of their current racket WHEN it matches the DB —
+        // enables a numbers-grounded comparison in the report. No match = no
+        // field = the prompt forbids any numeric claim about it.
+        currentSpecs: (() => {
+          const f = currentRacketLookup(snapshot.currentRacket);
+          return f ? { model: `${f.brand} ${f.model}`, headSize: f.headSize, weight: f.weight,
+            swingWeight: f.swingWeight, ra: f.ra, pattern: `${f.mains}x${f.crosses}` } : undefined;
+        })(),
         stringType: snapshot.stringType || "", gripSize: snapshot.gripSize || "",
         budget: snapshot.budget || "",
         rank1: spec(r[0]), rank2: spec(r[1]), rank3: spec(r[2]),

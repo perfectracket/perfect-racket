@@ -2385,6 +2385,7 @@ export default function PerfectRacket() {
         })(),
         stringType: snapshot.stringType || "", gripSize: snapshot.gripSize || "",
         budget: snapshot.budget || "",
+        goals: joinList(snapshot.goals),
         rank1: spec(r[0]), rank2: spec(r[1]), rank3: spec(r[2]),
         string1: s[0] ? s[0].name : "", string2: s[1] ? s[1].name : "", string3: s[2] ? s[2].name : "",
         tensionRange: result.tension ? `${result.tension.low}-${result.tension.high} lbs` : "",

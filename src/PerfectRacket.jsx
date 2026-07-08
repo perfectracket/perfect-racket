@@ -1750,6 +1750,8 @@ select.ti { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w
 .rid-sub { font-size: var(--text-sm); line-height: 1.65; color: rgba(250,247,242,0.62); max-width: 340px; margin: 0 auto; position: relative; }
 .rid-cta-wrap { display: block; text-decoration: none; margin-top: var(--sp-4); position: relative; }
 .rid-cta { animation: chkPop 0.4s cubic-bezier(0.34,1.2,0.64,1) both; }
+.rid-cta-pending { opacity: 0.55; cursor: default; animation: chkPop 0.4s cubic-bezier(0.34,1.2,0.64,1) both, ridPulse 1.6s ease-in-out 0.4s infinite; }
+@keyframes ridPulse { 0%,100% { opacity: 0.55; } 50% { opacity: 0.75; } }
 .r-body  { padding: var(--sp-5); }
 
 
@@ -3109,11 +3111,15 @@ export default function PerfectRacket() {
                   <span className={`rid-chip ${d.mode === "performance" ? "rid-perf" : "rid-arm"}`}>{d.mode === "performance" ? "Performance Fit" : "Arm Health Fit"}</span>
                 </div>
                 {recs.setupText && <p className="rid-sub">{recs.setupText}</p>}
-                {report.status === "ready" && report.url && (
+                {report.status === "ready" && report.url ? (
                   <a href={report.url} target="_blank" rel="noopener noreferrer" className="rid-cta-wrap">
                     <button className="shop-btn rid-cta">View Your Fitting Report</button>
                   </a>
-                )}
+                ) : report.status === "pending" ? (
+                  <div className="rid-cta-wrap" aria-hidden="true">
+                    <button className="shop-btn rid-cta rid-cta-pending" disabled>Preparing Your Report…</button>
+                  </div>
+                ) : null}
               </div>
             </div>
             <div className="r-body">

@@ -12,7 +12,7 @@ import { getStore } from "@netlify/blobs";
 export const config = { path: "/api/generate-report" };
 
 const REPORT_MODEL = "claude-haiku-4-5";
-const PROMPT_VERSION = "v2.0-2026-07-06";
+const PROMPT_VERSION = "v2.1-2026-07-07";
 const SITE_URL = "https://perfectracket.com";
 const SHOP_URL_PREFIX = "https://www.tennisexpress.com"; // server-side allowlist: report page will only ever link here
 const SERIAL_SEED = 1050; // display serial starting point (~all-time fittings at launch); cosmetic, adjust freely
@@ -36,7 +36,7 @@ Hard rules:
 2a. Arm-health reasoning discipline: attribute arm-friendliness primarily to frame stiffness (RA) and string softness. Frame weight relates to maneuverability and fatigue, NOT to arm safety — never claim that a lighter frame is easier on a painful arm; added mass generally aids stability and shock absorption. Swingweight (SW) is the best single indicator of how demanding a frame is to swing; prefer it over static weight when discussing how a frame plays.
 2b. Technical-claims discipline: only make equipment-mechanism claims that are directly supported by the provided specs or are uncontroversial basics of the trade. If you are not certain of the mechanism, describe the feel or the outcome instead of inventing an explanation.
 2c. String-transition honesty: when the recommended string differs materially from what the player currently uses (for example polyester to natural gut or multifilament), briefly acknowledge the transition in one sentence — the change in power, feel, or launch they should expect, and, where relevant, that it sits in a different price class per restring. Recommend it no less confidently; just recommend it like someone who has strung both.
-2d. Current-racket comparison: when current_racket_specs ARE provided, include a short comparison between their current frame and the number-one recommendation, grounded ONLY in the provided numbers — lead with the one or two deltas that matter most to THIS player's stated situation (arm concerns: stiffness and swingweight; power/control goals: head size, pattern, weight). One tight passage, not a spec dump. When current_racket_specs says no verified specs, rule 1 applies in full: no numbers about their current racket, ever.
+2d. Current-racket comparison: when current_racket_specs ARE provided, include a short comparison between their current frame and the number-one recommendation, grounded ONLY in the provided numbers — lead with the one or two deltas that matter most to THIS player's stated situation (arm concerns: stiffness and swingweight; power/control goals: head size, pattern, weight). One tight passage, not a spec dump. When current_racket_specs says no verified specs, rule 1 applies in full: no numbers about their current racket, ever. Name discipline is absolute: always call the current frame and each recommended frame by their exact model names from the data block, and never merge, swap, or substitute one for another — check current_racket_is_the_rank1_recommendation and honor it literally. When the current frame and a recommendation have similar specs, say so plainly and locate the one or two differences that actually matter (stiffness, swingweight) — near-twin frames are a real finding to explain, never an excuse to blur the two into one.
 2e. Engine-strengths grounding: each frame's engine_strengths are the fitting engine's own reasons for ranking it. Lead each frame's why with those strengths, elaborated through the provided specs and the player's answers. Never contradict the engine_strengths; if one seems surprising for this player, explain the fit rather than substituting your own theory.
 2d. Epistemic humility: this analysis is based on what the player shared, not on watching them hit. Frame the demo as the confirmation step. Avoid leaning on precise level labels as if measured — self-reported level guides, it does not certify.
 3. No commission or affiliate mention. No discount language. No urgency tactics. Never include URLs or links.
@@ -225,6 +225,11 @@ export default async (req, context) => {
     `past_injuries: ${clip(b.pastInjuries, 120) || "none reported"}`,
     `current_racket_reported: <untrusted_player_input>${clip(b.currentRacket, LEN.currentRacket) || "none reported"}</untrusted_player_input>`,
     `current_racket_specs: ${b.currentSpecs ? specLine(b.currentSpecs) : "no verified specs — general terms only"}`,
+    `current_racket_is_the_rank1_recommendation: ${
+      b.currentSpecs && b.rank1 && String(b.currentSpecs.model || "").trim().toLowerCase() === String(b.rank1.model || "").trim().toLowerCase()
+        ? "YES — the player already plays the recommended frame"
+        : "NO — the current racket and the recommendations are DIFFERENT frames"
+    }`,
     `current_string_type: ${clip(b.stringType, LEN.generic) || "not reported"}`,
     `grip_size: ${clip(b.gripSize, LEN.generic) || "not reported"}`,
     `budget: ${clip(b.budget, LEN.generic) || "not reported"}`,

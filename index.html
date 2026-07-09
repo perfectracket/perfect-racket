@@ -54,6 +54,11 @@
     =============================================================== -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Same families the app CSS @imports — loading them here starts the
+         fetch at HTML parse time instead of after the JS bundle executes,
+         killing the unstyled-serif flash on first paint. Keep in sync with
+         the @import line in src/PerfectRacket.jsx. -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
     <!-- ===== STRUCTURED DATA: WebApplication ====================== -->
     <script type="application/ld+json">

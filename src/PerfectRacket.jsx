@@ -1896,7 +1896,7 @@ select.ti { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w
 
 const landingCss = `
   .landing-page { background: var(--cream); font-family: 'Outfit', sans-serif; max-width: 100%; overflow-x: hidden; }
-  .landing-page::before { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 900; opacity: 0.4; }
+  .landing-page::before { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 900; opacity: 0.05; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E"); }
   .lp-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 18px 40px; display: flex; align-items: center; justify-content: space-between; background: rgba(13,27,42,0.93); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.06); }
   .lp-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 700; color: var(--white); letter-spacing: 0.02em; }
   .lp-logo span { color: var(--clay-bright); font-style: italic; }
@@ -1964,13 +1964,20 @@ const landingCss = `
   .lp-mc-tension-val { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--gold); line-height: 1; }
   .lp-eyebrow { display: inline-flex; align-items: center; gap: 10px; background: rgba(200,82,42,0.15); border: 1px solid rgba(200,82,42,0.3); border-radius: 100px; padding: 6px 16px 6px 8px; margin-bottom: 28px; animation: lp-fadeUp 0.6s ease both; }
   .lp-edot { width: 8px; height: 8px; background: var(--clay-bright); border-radius: 50%; }
-  .lp-eyebrow span { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--clay-bright); }
+  .lp-eyebrow span { font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--clay-bright); white-space: nowrap; }
+  @media (max-width: 600px) { .lp-eyebrow span { font-size: 10px; } .lp-eyebrow { margin-bottom: 22px; } }
   @keyframes lp-fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   .lp-h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(48px, 8vw, 84px); font-weight: 700; line-height: 1.0; color: var(--white); margin-bottom: 24px; animation: lp-fadeUp 0.6s 0.1s ease both; }
   .lp-h1 em { font-style: italic; color: var(--clay-bright); }
-  .lp-hero-sub { font-size: 20px; font-weight: 300; color: rgba(255,255,255,0.65); line-height: 1.65; max-width: 520px; margin-bottom: 36px; animation: lp-fadeUp 0.6s 0.2s ease both; }
+  .lp-hero-sub { font-size: clamp(16px, 2.2vw, 19px); font-weight: 300; color: rgba(255,255,255,0.65); line-height: 1.65; max-width: 480px; margin-bottom: 34px; animation: lp-fadeUp 0.6s 0.2s ease both; }
   .lp-btn-primary { display: inline-flex; align-items: center; background: var(--clay); color: var(--white); border: none; border-radius: 8px; padding: 16px 28px; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s, transform 0.15s; letter-spacing: 0.02em; margin-bottom: 16px; animation: lp-fadeUp 0.6s 0.3s ease both; }
   .lp-btn-primary:hover { background: var(--clay-bright); transform: translateY(-2px); }
+  .lp-btn-arrow { display: inline-block; margin-left: 10px; transition: transform 0.25s cubic-bezier(0.4,0,0.2,1); }
+  .lp-btn-primary:hover .lp-btn-arrow, .lp-btn-white:hover .lp-btn-arrow { transform: translateX(4px); }
+  .lp-proof-row { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-top: 10px; }
+  @media (max-width: 600px) { .lp-proof-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 12px; } .lp-proof-row .lp-proof-div { display: none; } }
+  .lp-rule { width: 52px; height: 3px; background: var(--gold); margin: 2px 0 22px; }
+  .lp-rule-center { margin-left: auto; margin-right: auto; }
   .lp-proof-strip { position: absolute; bottom: 36px; left: 48px; right: 48px; display: flex; align-items: center; gap: 28px; flex-wrap: wrap; z-index: 2; }
   @media (max-width: 600px) { .lp-proof-strip { left: 24px; right: 24px; bottom: 24px; gap: 16px; } }
   .lp-proof-item { display: flex; align-items: center; gap: 10px; }
@@ -1988,8 +1995,8 @@ const landingCss = `
   .lp-section-title em { font-style: italic; color: var(--clay); }
   .lp-title-white { color: var(--white); }
   .lp-title-white em { color: var(--clay-bright); }
-  .lp-problem { background: var(--cream); padding: 100px 48px 24px; }
-  @media (max-width: 600px) { .lp-problem { padding: 72px 24px 20px; } }
+  .lp-problem { background: var(--cream); padding: 84px 48px 84px; }
+  @media (max-width: 600px) { .lp-problem { padding: 60px 24px 60px; } }
   .lp-problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 72px; max-width: 1100px; margin: 0 auto; align-items: start; }
   @media (max-width: 800px) { .lp-problem-grid { grid-template-columns: 1fr; gap: 40px; } }
   .lp-problem-text p { font-size: 16px; font-weight: 300; color: var(--mid); line-height: 1.8; margin-bottom: 14px; }
@@ -2000,16 +2007,14 @@ const landingCss = `
   .lp-pain-red { background: var(--clay); } .lp-pain-amber { background: var(--gold); } .lp-pain-blue { background: var(--navy-light); }
   .lp-pain-card h4 { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 6px; line-height: 1.3; }
   .lp-pain-card p { font-size: 15px; color: var(--mid); line-height: 1.6; margin: 0; }
-  .lp-cta-strip { display: flex; justify-content: center; padding: 0 48px 40px; }
-  .lp-cta-strip.on-navy { background: var(--navy); padding-top: 40px; }
+  .lp-cta-strip { display: flex; justify-content: center; padding: 0 48px 56px; }
   .lp-cta-strip.on-navy-mid { background: var(--navy-mid); }
-  .lp-cta-strip.on-cream { background: var(--cream); padding-top: 0; padding-bottom: 40px; }
   .lp-cta-strip .lp-btn-primary { min-width: 280px; justify-content: center; animation: none; }
   @media (max-width: 600px) { .lp-cta-strip { padding: 0 24px 44px; } .lp-cta-strip .lp-btn-primary { width: 100%; min-width: unset; } }
-  .lp-guide { background: var(--navy); padding: 100px 48px; position: relative; overflow: hidden; }
-  @media (max-width: 600px) { .lp-guide { padding: 72px 24px; } }
+  .lp-guide { background: var(--navy); padding: 84px 48px; position: relative; overflow: hidden; }
+  @media (max-width: 600px) { .lp-guide { padding: 60px 24px; } }
   .lp-guide::before { content: ''; position: absolute; top: -200px; right: -200px; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(200,82,42,0.12) 0%, transparent 70%); pointer-events: none; }
-  .lp-guide-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: start; position: relative; z-index: 1; }
+  .lp-guide-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: center; position: relative; z-index: 1; }
   @media (max-width: 800px) { .lp-guide-inner { grid-template-columns: 1fr; gap: 48px; } }
   .lp-guide-body { font-size: 18px; font-weight: 300; color: rgba(255,255,255,0.62); line-height: 1.7; margin-bottom: 28px; }
   .lp-credentials { display: flex; flex-direction: column; gap: 14px; }
@@ -2017,37 +2022,37 @@ const landingCss = `
   .lp-cred-bullet { width: 8px; height: 8px; border-radius: 50%; background: var(--clay); flex-shrink: 0; align-self: center; }
   .lp-credential h4 { font-size: 16px; font-weight: 600; color: var(--white); margin-bottom: 4px; line-height: 1.3; }
   .lp-credential p { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.5; margin: 0; }
-  .lp-score-mockup { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 28px; }
-  .lp-mockup-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .lp-mockup-ttl { font-size: 13px; color: rgba(255,255,255,0.5); font-family: 'DM Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase; }
-  .lp-score-badge { background: var(--clay); color: var(--white); font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
-  .lp-racket-row { background: rgba(255,255,255,0.06); border-radius: 10px; padding: 14px 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255,255,255,0.06); }
-  .lp-racket-top { background: rgba(200,82,42,0.12); border-color: rgba(200,82,42,0.25); }
-  .lp-racket-rank { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 700; color: rgba(255,255,255,0.2); width: 28px; flex-shrink: 0; }
-  .lp-rank-top { color: var(--clay-bright); }
-  .lp-racket-info h4 { font-size: 13px; font-weight: 600; color: var(--white); margin-bottom: 2px; }
-  .lp-racket-info p { font-size: 11px; color: rgba(255,255,255,0.4); margin: 0; }
-  .lp-racket-score { margin-left: auto; font-family: 'DM Mono', monospace; font-size: 12px; color: rgba(255,255,255,0.45); }
-  .lp-score-top { color: var(--clay-bright); }
-  .lp-tension-row { background: rgba(196,154,60,0.1); border: 1px solid rgba(196,154,60,0.2); border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
-  .lp-tension-row span { font-size: 13px; color: rgba(255,255,255,0.5); }
-  .lp-tension-row strong { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: #E0B84A; }
-  .lp-tension-row strong span { font-size: 14px; opacity: 0.6; }
-  .lp-plan { background: var(--cream); padding: 100px 48px; }
-  @media (max-width: 600px) { .lp-plan { padding: 72px 24px; } }
+  /* Guide-section fitting-report card — the real product artifact, miniature.
+     Mirrors the report page's identity card (navy gradient, gold inner
+     border, serif name, mono chips) so the landing shows what players keep. */
+  .lp-rcard { position: relative; background: linear-gradient(168deg, var(--navy) 0%, #13233A 100%); border-radius: 20px; padding: 30px 26px; overflow: hidden; box-shadow: 0 22px 55px rgba(0,0,0,0.4); }
+  .lp-rcard::before { content: ''; position: absolute; inset: 8px; border: 1px solid rgba(196,154,60,0.4); border-radius: 14px; pointer-events: none; }
+  .lp-rcard::after { content: 'PR'; position: absolute; right: -18px; bottom: -48px; font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 160px; color: rgba(255,255,255,0.035); line-height: 1; pointer-events: none; }
+  .lp-rcard-eyebrow { display: flex; justify-content: space-between; font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 12px; }
+  .lp-rcard-eyebrow b { color: #E0B84A; font-weight: 500; }
+  .lp-rcard-name { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 32px; color: var(--cream); line-height: 1.05; margin-bottom: 14px; }
+  .lp-rcard-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 18px; }
+  .lp-rcard-chip { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.14); border-radius: 20px; padding: 5px 10px; }
+  .lp-rcard-row { display: flex; align-items: baseline; gap: 12px; padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,0.09); }
+  .lp-rcard-row:last-of-type { border-bottom: none; }
+  .lp-rcard-rank { font-family: 'DM Mono', monospace; font-size: 10px; color: #E0B84A; flex-shrink: 0; }
+  .lp-rcard-frame { font-size: 14px; font-weight: 500; color: var(--white); flex: 1; }
+  .lp-rcard-spec { font-family: 'DM Mono', monospace; font-size: 9.5px; color: rgba(255,255,255,0.4); white-space: nowrap; }
+  .lp-rcard-tension { margin-top: 16px; padding: 12px 14px; border: 1px dashed rgba(196,154,60,0.5); border-radius: 10px; font-size: 13px; line-height: 1.6; color: rgba(255,255,255,0.85); }
+  .lp-rcard-tension b { color: #E0B84A; font-weight: 600; }
+  .lp-plan { background: var(--cream); padding: 84px 48px; }
+  @media (max-width: 600px) { .lp-plan { padding: 60px 24px; } }
   .lp-plan-inner { max-width: 1100px; margin: 0 auto; }
   .lp-plan-hdr { text-align: center; max-width: 580px; margin: 0 auto 60px; }
   .lp-plan-hdr p { font-size: 16px; color: var(--mid); font-weight: 300; line-height: 1.7; margin-top: 16px; }
   .lp-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; background: var(--border); border-radius: 16px; overflow: hidden; }
   @media (max-width: 900px) { .lp-steps { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 600px) { .lp-steps { grid-template-columns: 1fr; } }
-  .lp-step { background: var(--white); padding: 44px 32px; position: relative; transition: background 0.2s; }
+  .lp-step { background: var(--white); padding: 36px 28px; position: relative; transition: background 0.2s; }
   .lp-step:hover { background: #F0EBE3; }
-  .lp-step-num { font-family: 'Cormorant Garamond', serif; font-size: 68px; font-weight: 700; color: var(--clay); opacity: 0.12; line-height: 1; margin-bottom: 18px; }
-  .lp-step h3 { font-size: 20px; font-weight: 600; color: var(--ink); margin-bottom: 10px; line-height: 1.3; }
-  .lp-step p { font-size: 16px; color: var(--mid); line-height: 1.65; margin: 0; }
-  .lp-step-arrow { position: absolute; right: -18px; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; background: var(--clay); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 15px; z-index: 2; box-shadow: 0 0 0 4px var(--cream); }
-  @media (max-width: 900px) { .lp-step-arrow { display: none; } }
+  .lp-step-num { font-family: 'Cormorant Garamond', serif; font-size: 64px; font-weight: 700; color: var(--clay); opacity: 0.18; line-height: 1; margin-bottom: 16px; }
+  .lp-step h3 { font-size: 19px; font-weight: 600; color: var(--ink); margin-bottom: 8px; line-height: 1.3; }
+  .lp-step p { font-size: 15px; color: var(--mid); line-height: 1.6; margin: 0; }
   .lp-social-proof { background: var(--navy-mid); padding: 88px 48px; }
   @media (max-width: 600px) { .lp-social-proof { padding: 64px 24px; } }
   .lp-sp-inner { max-width: 1100px; margin: 0 auto; }
@@ -2062,21 +2067,21 @@ const landingCss = `
   .lp-testi-avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--white); flex-shrink: 0; }
   .lp-testi-name { font-size: 13px; font-weight: 600; color: var(--white); }
   .lp-testi-detail { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 2px; }
-  .lp-benefits { background: #F0EBE3; padding: 100px 48px; }
-  @media (max-width: 600px) { .lp-benefits { padding: 72px 24px; } }
+  .lp-benefits { background: #F0EBE3; padding: 84px 48px; }
+  @media (max-width: 600px) { .lp-benefits { padding: 60px 24px; } }
   .lp-benefits-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: center; }
   @media (max-width: 800px) { .lp-benefits-inner { grid-template-columns: 1fr; gap: 48px; } }
   .lp-benefits-intro { font-size: 16px; color: var(--mid); line-height: 1.7; margin-bottom: 32px; font-weight: 300; }
   .lp-benefit-list { display: flex; flex-direction: column; gap: 14px; }
   .lp-benefit-item { display: flex; align-items: flex-start; gap: 12px; }
   .lp-benefit-check { width: 22px; height: 22px; background: rgba(200,82,42,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
-  .lp-benefit-check::after { content: 'v'; font-size: 11px; color: var(--clay); font-weight: 700; }
+  .lp-benefit-check::after { content: '✓'; font-size: 11px; color: var(--clay); font-weight: 700; }
   .lp-benefit-item p { font-size: 14px; color: var(--mid); line-height: 1.6; margin: 0; }
   .lp-benefit-item p strong { color: var(--ink); }
   .lp-output-mockup { background: var(--white); border-radius: 20px; overflow: hidden; box-shadow: 0 24px 80px rgba(13,27,42,0.12); }
-  .lp-mockup-dots { background: var(--navy); padding: 14px 18px; display: flex; gap: 7px; }
-  .lp-dot { width: 10px; height: 10px; border-radius: 50%; }
-  .lp-dot-red { background: #FF5F57; } .lp-dot-yellow { background: #FEBC2E; } .lp-dot-green { background: #28C840; }
+  .lp-mockup-band { background: linear-gradient(168deg, var(--navy) 0%, #13233A 100%); padding: 13px 20px; display: flex; justify-content: space-between; align-items: center; }
+  .lp-mockup-band span { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.55); }
+  .lp-mockup-band b { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: #9FDCBE; font-weight: 500; }
   .lp-mockup-body { padding: 24px; }
   .lp-result-tension { background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%); border-radius: 12px; padding: 18px 22px; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; }
   .lp-tension-label { font-size: 10px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
@@ -2085,11 +2090,10 @@ const landingCss = `
   .lp-tension-hint { font-size: 10px; color: rgba(255,255,255,0.35); margin-top: 3px; }
   .lp-tension-badge { background: var(--clay); color: var(--white); font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 600; flex-shrink: 0; }
   .lp-mockup-sub-label { font-size: 10px; color: var(--light); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; font-family: 'DM Mono', monospace; }
-  .lp-result-racket { background: var(--cream); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--border); font-size: 18px; }
-  .lp-result-racket-top { background: rgba(200,82,42,0.06); border-color: rgba(200,82,42,0.2); }
+  .lp-result-racket { background: var(--cream); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--border); }
+  .lp-result-racket-top { background: rgba(200,82,42,0.06); border-color: rgba(200,82,42,0.2); border-left: 3px solid var(--clay); }
   .lp-result-racket h4 { font-size: 12px; font-weight: 600; color: var(--ink); margin: 0 0 2px; }
   .lp-result-racket p { font-size: 10px; color: var(--light); margin: 0; }
-  .lp-result-star { margin-left: auto; font-size: 13px; }
   .lp-result-why { background: var(--clay-pale); border-radius: 10px; padding: 14px 16px; margin-top: 14px; border-left: 3px solid var(--clay); }
   .lp-result-why-label { font-size: var(--text-micro); text-transform: uppercase; letter-spacing: 0.12em; color: var(--clay); font-weight: 600; margin-bottom: 5px; }
   .lp-result-why p { font-size: 11px; color: var(--mid); line-height: 1.6; margin: 0; }
@@ -2575,7 +2579,7 @@ export default function PerfectRacket() {
               <li><a href="#lp-how">How it works</a></li>
               <li><a href="#lp-results">What you get</a></li>
               <li><a href="#lp-faq">FAQ</a></li>
-              <li><button className="lp-nav-cta" onClick={()=>go("modeselect")}>Get My Setup</button></li>
+              <li><button className="lp-nav-cta" onClick={()=>go("modeselect")}>Get My Fitting</button></li>
             </ul>
           </nav>
 
@@ -2598,23 +2602,19 @@ export default function PerfectRacket() {
               <div className="lp-hero-content">
                 <div className="lp-eyebrow">
                   <div className="lp-edot"/>
-                  <span>Free personalized equipment analysis</span>
+                  <span>Free Personalized Fitting</span>
                 </div>
                 <h1 className="lp-h1">Stop guessing.<br/>Find your <em>perfect</em><br/>racket setup.</h1>
-                <p className="lp-hero-sub">Answer a few questions about how you play and what matters most. Get back your top 3 rackets, strings, and an exact tension range. Whether you are protecting your arm, chasing your game, or both.</p>
-                <button className="lp-btn-primary" onClick={()=>{ if(typeof window.plausible==="function") window.plausible("CTA Clicked",{props:{location:"hero"}}); go("modeselect"); }}>Get My Free Setup -></button>
-                <div style={{display:"flex",alignItems:"center",gap:20,flexWrap:"wrap",marginTop:8}}>
-                  <div style={{display:"flex",alignItems:"center",gap:10}}>
-                    <div style={{background:"rgba(200,82,42,0.15)",border:"1px solid rgba(200,82,42,0.35)",borderRadius:8,padding:"6px 10px",display:"flex",alignItems:"baseline",gap:4}}>
-                      <span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:26,fontWeight:700,color:"var(--clay-bright)",lineHeight:1}}>40%</span>
-                      <span style={{fontFamily:"'DM Mono',monospace",fontSize:9,letterSpacing:"0.1em",textTransform:"uppercase",color:"rgba(200,82,42,0.7)"}}>arm health weight</span>
-                    </div>
-                    <span style={{fontSize:11,color:"rgba(255,255,255,0.4)",fontStyle:"italic",maxWidth:140,lineHeight:1.4}}>On the arm-health path. Heaviest weighting in the category.</span>
-                  </div>
+                <p className="lp-hero-sub">Answer a few questions about how you play. Get your top 3 frames, top 3 strings, and an exact tension — fitted to your game, your level, and your arm.</p>
+                <button className="lp-btn-primary" onClick={()=>{ if(typeof window.plausible==="function") window.plausible("CTA Clicked",{props:{location:"hero"}}); go("modeselect"); }}>Get My Free Fitting<span className="lp-btn-arrow">→</span></button>
+                <div className="lp-proof-row">
+                  <div className="lp-proof-stat"><strong>1,000+</strong><span>fittings delivered</span></div>
                   <div className="lp-proof-div"/>
                   <div className="lp-proof-stat"><strong>42</strong><span>frames scored</span></div>
                   <div className="lp-proof-div"/>
-                  <div className="lp-proof-stat"><strong>~3 min</strong><span>to your results</span></div>
+                  <div className="lp-proof-stat"><strong>40%</strong><span>arm-health weight</span></div>
+                  <div className="lp-proof-div"/>
+                  <div className="lp-proof-stat"><strong>~3 min</strong><span>to your fitting</span></div>
                 </div>
               </div>
 
@@ -2627,7 +2627,7 @@ export default function PerfectRacket() {
                     {/* Status bar */}
                     <div className="lp-phone-status">
                       <div>
-                        <div className="lp-phone-status-title">Your Setup</div>
+                        <div className="lp-phone-status-title">Your Fitting</div>
                         <div className="lp-phone-status-sub">Personalized to how you play</div>
                       </div>
                       <div className="lp-phone-check">✓</div>
@@ -2640,12 +2640,12 @@ export default function PerfectRacket() {
                         <div className="lp-mc-hdr">
                           <div>
                             <div className="lp-mc-badge">Best Match</div>
-                            <div className="lp-mc-name">HEAD Speed MP 2026</div>
+                            <div className="lp-mc-name">Wilson Clash 100 v3</div>
                           </div>
                           <div className="lp-mc-rank">#1</div>
                         </div>
                         <div className="lp-mc-specs">
-                          {[["Head Size","100 sq in"],["Weight","300g"],["Stiffness","RA 60"],["Pattern","16x19"]].map(([l,v]) => (
+                          {[["Head Size","100 sq in"],["Weight","295g"],["Stiffness","RA 55"],["Pattern","16x19"]].map(([l,v]) => (
                             <div key={l}>
                               <div className="lp-mc-spec-lbl">{l}</div>
                               <div className="lp-mc-spec-val">{v}</div>
@@ -2664,13 +2664,13 @@ export default function PerfectRacket() {
                         </div>
                         <div className="lp-mc-why">
                           <div className="lp-mc-why-lbl">Why this racket</div>
-                          <div className="lp-mc-why-txt">Its RA 60 stiffness sits below the arm-stress threshold -- a safer choice given your elbow history and moderate swing speed.</div>
+                          <div className="lp-mc-why-txt">Its RA 55 stiffness sits well below the arm-stress threshold -- a safer platform for your elbow history without giving up depth.</div>
                         </div>
                         <div className="lp-mc-btn">Shop on Tennis Express</div>
                       </div>
 
                       {/* Secondary cards */}
-                      {[["Wilson Clash 100 v3","#2"],["Yonex PERCEPT 100","#3"]].map(([name,rank]) => (
+                      {[["HEAD Boom MP","#2"],["Wilson Clash 100L","#3"]].map(([name,rank]) => (
                         <div key={name} className="lp-mc-secondary">
                           <div>
                             <div className="lp-mc-secondary-name">{name}</div>
@@ -2722,6 +2722,7 @@ export default function PerfectRacket() {
               <div className="lp-problem-text">
                 <div className="lp-section-label">The problem</div>
                 <h2 className="lp-section-title">Wrong racket.<br/><em>Real pain.</em></h2>
+                <div className="lp-rule"/>
                 <p>Most players pick their racket from YouTube reviews, a pro shop recommendation, or what their hitting partner uses. None of those sources know your game.</p>
                 <p>A racket that is too stiff, too heavy, or strung too tight can turn a minor ache into months off the court. And most of us do not find out until it is too late.</p>
                 <p>You deserve a recommendation built around you - your swing, your level, and especially your arm.</p>
@@ -2742,17 +2743,13 @@ export default function PerfectRacket() {
             </div>
           </section>
 
-          {/* CTA after Problem */}
-          <div className="lp-cta-strip on-cream">
-            <button className="lp-btn-primary" onClick={()=>go("modeselect")}>Get My Free Setup -></button>
-          </div>
-
           {/* THE GUIDE */}
           <section className="lp-guide">
             <div className="lp-guide-inner">
               <div>
                 <div className="lp-section-label lp-label-gold">Your guide</div>
                 <h2 className="lp-section-title lp-title-white">Built by players who have been through it.</h2>
+                <div className="lp-rule"/>
                 <p className="lp-guide-body">Perfect Racket exists because too many players spend years with the wrong gear, paying for it in frustration, arm pain, or both. The wrong racket can hurt you. The right one fits how you play. We help you find it, whether you are protecting your arm, chasing your game, or both.</p>
                 <div className="lp-credentials">
                   {[
@@ -2767,34 +2764,23 @@ export default function PerfectRacket() {
                   ))}
                 </div>
               </div>
-              <div className="lp-score-mockup">
-                <div className="lp-mockup-header">
-                  <span className="lp-mockup-ttl">Your Results</span>
-                  <span className="lp-score-badge">Top Match</span>
+              <div className="lp-rcard">
+                <div className="lp-rcard-eyebrow"><span>Personal Fitting</span><b>Nº 1051</b></div>
+                <div className="lp-rcard-name">Jordan&#8217;s Fitting</div>
+                <div className="lp-rcard-chips">
+                  {["NTRP 4.0","Baseliner","Performance Fit"].map(c => <span key={c} className="lp-rcard-chip">{c}</span>)}
                 </div>
                 {[
-                  {top:true,  n:"1", name:"Wilson Clash 100 Pro",    sub:"100 sq in · 310g · RA 55 · Arm-friendly", score:"94/100"},
-                  {top:false, n:"2", name:"Head Gravity MP",          sub:"100 sq in · 295g · RA 58 · Control",      score:"81/100"},
-                  {top:false, n:"3", name:"Babolat Pure Strike 100",  sub:"100 sq in · 300g · RA 62 · Control",      score:"74/100"},
-                ].map((r,i) => (
-                  <div key={i} className={`lp-racket-row${r.top?" lp-racket-top":""}`}>
-                    <div className={`lp-racket-rank${r.top?" lp-rank-top":""}`}>{r.n}</div>
-                    <div className="lp-racket-info"><h4>{r.name}</h4><p>{r.sub}</p></div>
-                    <div className={`lp-racket-score${r.top?" lp-score-top":""}`}>{r.score}</div>
-                  </div>
+                  {n:"Nº1", f:"Yonex VCORE 98",        s:"98 in² · 305g · RA 65"},
+                  {n:"Nº2", f:"Wilson Blade 98 16x19", s:"98 in² · 306g · RA 61"},
+                  {n:"Nº3", f:"HEAD Boom MP",          s:"100 in² · 300g · RA 63"},
+                ].map(r => (
+                  <div key={r.n} className="lp-rcard-row"><span className="lp-rcard-rank">{r.n}</span><span className="lp-rcard-frame">{r.f}</span><span className="lp-rcard-spec">{r.s}</span></div>
                 ))}
-                <div className="lp-tension-row">
-                  <span>Recommended tension</span>
-                  <strong>46-50 <span>lbs</span></strong>
-                </div>
+                <div className="lp-rcard-tension">Strung with <b>Solinco Hyper-G 17</b> at <b>50–54 lbs</b> — start at <b>52</b>.</div>
               </div>
             </div>
           </section>
-
-          {/* CTA after Guide */}
-          <div className="lp-cta-strip on-navy">
-            <button className="lp-btn-primary" onClick={()=>go("modeselect")}>Get My Free Setup -></button>
-          </div>
 
           {/* THE PLAN */}
           <section className="lp-plan" id="lp-how">
@@ -2802,6 +2788,7 @@ export default function PerfectRacket() {
               <div className="lp-plan-hdr">
                 <div className="lp-section-label">How it works</div>
                 <h2 className="lp-section-title">Four steps to your <em>ideal setup</em></h2>
+                <div className="lp-rule lp-rule-center"/>
                 <p>No equipment expertise required. Just answer honestly - we do the analysis.</p>
               </div>
               <div className="lp-steps">
@@ -2815,7 +2802,6 @@ export default function PerfectRacket() {
                     <div className="lp-step-num">{s.n}</div>
                     <h3>{s.t}</h3>
                     <p>{s.d}</p>
-                    {i<3 && <div className="lp-step-arrow">-></div>}
                   </div>
                 ))}
               </div>
@@ -2850,7 +2836,7 @@ export default function PerfectRacket() {
 
           {/* CTA after Testimonials */}
           <div className="lp-cta-strip on-navy-mid">
-            <button className="lp-btn-primary" onClick={()=>go("modeselect")}>Get My Free Setup -></button>
+            <button className="lp-btn-primary" onClick={()=>{ if(typeof window.plausible==="function") window.plausible("CTA Clicked",{props:{location:"mid"}}); go("modeselect"); }}>Get My Free Fitting<span className="lp-btn-arrow">→</span></button>
           </div>
 
           {/* WHAT YOU GET */}
@@ -2859,6 +2845,7 @@ export default function PerfectRacket() {
               <div>
                 <div className="lp-section-label">What you get</div>
                 <h2 className="lp-section-title">Everything you need to<br/><em>walk into a pro shop</em><br/>with confidence.</h2>
+                <div className="lp-rule"/>
                 <p className="lp-benefits-intro">Your results are not a vague suggestion. They are a complete, personalized equipment prescription.</p>
                 <div className="lp-benefit-list">
                   {[
@@ -2876,8 +2863,8 @@ export default function PerfectRacket() {
                 </div>
               </div>
               <div className="lp-output-mockup">
-                <div className="lp-mockup-dots">
-                  <div className="lp-dot lp-dot-red"/><div className="lp-dot lp-dot-yellow"/><div className="lp-dot lp-dot-green"/>
+                <div className="lp-mockup-band">
+                  <span>Fitting Summary</span><b>Arm Health Fit</b>
                 </div>
                 <div className="lp-mockup-body">
                   <div className="lp-result-tension">
@@ -2890,19 +2877,17 @@ export default function PerfectRacket() {
                   </div>
                   <div className="lp-mockup-sub-label">Top Racket Matches</div>
                   {[
-                    {top:true, name:"Wilson Clash 100 Pro",   sub:"RA 55 · 310g · 16x19 · Arm-friendly", star:true},
-                    {top:false,name:"Head Gravity MP",         sub:"RA 58 · 295g · 16x20 · Control",     star:false},
-                    {top:false,name:"Babolat Pure Strike 100", sub:"RA 62 · 300g · 16x19 · Precision",   star:false},
+                    {top:true, name:"Wilson Clash 100 Pro v3", sub:"RA 57 · 303g · 16x20 · Arm-friendly"},
+                    {top:false,name:"Wilson Blade 100 v10",    sub:"RA 61 · 300g · 16x19 · Control"},
+                    {top:false,name:"HEAD Boom MP",            sub:"RA 63 · 300g · 16x19 · Forgiving"},
                   ].map((r,i) => (
                     <div key={i} className={`lp-result-racket${r.top?" lp-result-racket-top":""}`}>
-                      <span>🎾</span>
                       <div><h4>{r.name}</h4><p>{r.sub}</p></div>
-                      {r.star && <span className="lp-result-star">★</span>}
                     </div>
                   ))}
                   <div className="lp-result-why">
                     <div className="lp-result-why-label">Why this setup?</div>
-                    <p>Given your mild elbow pain and moderate swing speed, we prioritized frames with RA below 60 and paired them with a multifilament string at lower tension.</p>
+                    <p>Given your mild elbow pain and moderate swing speed, we prioritized arm-friendly frames and paired them with a multifilament string at the lower end of your tension range.</p>
                   </div>
                 </div>
               </div>
@@ -2913,9 +2898,9 @@ export default function PerfectRacket() {
           <section className="lp-cta">
             <div className="lp-cta-inner">
               <div className="lp-section-label" style={{color:"rgba(255,255,255,0.6)"}}>Ready?</div>
-              <h2 className="lp-cta-h2">Your arm will<br/>thank you <em>later.</em></h2>
-              <p className="lp-cta-sub">It takes 3 minutes. It is completely free. And it might be the best equipment decision you have ever made.</p>
-              <button className="lp-btn-white" onClick={()=>go("modeselect")}>Start My Analysis -></button>
+              <h2 className="lp-cta-h2">Your game will thank you.<br/><em>So will your arm.</em></h2>
+              <p className="lp-cta-sub">Three minutes, completely free — and it might be the best equipment decision you ever make.</p>
+              <button className="lp-btn-white" onClick={()=>{ if(typeof window.plausible==="function") window.plausible("CTA Clicked",{props:{location:"closing"}}); go("modeselect"); }}>Start My Fitting<span className="lp-btn-arrow">→</span></button>
             </div>
           </section>
 
@@ -2945,9 +2930,9 @@ export default function PerfectRacket() {
                   <p className="lp-footer-tagline">The tennis equipment recommendation engine built around your arm health, your game, and your goals.</p>
                 </div>
                 {[
-                  {h:"Product",   links:[["How it works","#lp-how"],["What you get","#lp-results"],["Get started free","#"]]},
+                  {h:"Product",   links:[["How it works","#lp-how"],["What you get","#lp-results"],["FAQ","#lp-faq"]]},
                   {h:"Resources", links:[["Tennis Elbow Guide","/tennis-elbow-racket-guide"],["String Guide","/string-guide.html"],["Racket Spec Glossary","/racket-spec-glossary.html"]]},
-                  {h:"Company",   links:[["About","#"],["Privacy Policy","/privacy.html"],["Contact","mailto:hello@perfectracket.com"]]},
+                  {h:"Company",   links:[["Privacy Policy","/privacy.html"],["Contact","mailto:hello@perfectracket.com"]]},
                 ].map((col,i) => (
                   <div key={i} className="lp-footer-col">
                     <h4>{col.h}</h4>

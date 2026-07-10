@@ -16,6 +16,12 @@
   to = "/.netlify/functions/report-view"
   status = 200
 
+# Clean URL for the Racket Report (static page in public/) — must stay above the SPA catch-all.
+[[redirects]]
+  from = "/state-of-the-racket-report"
+  to = "/state-of-the-racket-report.html"
+  status = 200
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

@@ -2928,6 +2928,7 @@ export default function PerfectRacket() {
                 <div>
                   <div className="lp-logo lp-footer-logo">Perfect<span>Racket</span></div>
                   <p className="lp-footer-tagline">The tennis equipment recommendation engine built around your arm health, your game, and your goals.</p>
+                  <p className="lp-footer-tagline" style={{marginTop:10}}>Read our research: <a href="/state-of-the-racket-report" style={{color:"rgba(255,255,255,0.6)"}}>The State of the Racket Report</a></p>
                 </div>
                 {[
                   {h:"Product",   links:[["How it works","#lp-how"],["What you get","#lp-results"],["FAQ","#lp-faq"]]},

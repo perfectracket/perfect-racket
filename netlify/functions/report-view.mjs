@@ -109,6 +109,8 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;opacity:.05;ba
 .cta p{font-size:15px;color:rgba(255,255,255,.85);margin:8px 0 16px}
 .cta a{display:inline-block;background:#fff;color:var(--clay);font-weight:600;font-size:15px;padding:13px 26px;border-radius:11px;text-decoration:none}
 .foot{margin-top:42px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(13,27,42,.4);text-align:center}
+.research{margin-top:18px;font-family:'DM Mono',monospace;font-size:10.5px;letter-spacing:.06em;text-align:center;color:rgba(13,27,42,.5);line-height:1.7}
+.research a{color:var(--clay);text-decoration:none;border-bottom:1px solid rgba(200,82,42,.4)}
 </style>
 </head>
 <body>
@@ -160,6 +162,7 @@ export default async (req) => {
 <div class="notes"><p style="font-family:'DM Mono',monospace;font-size:12px;color:var(--mid)">${first ? "Prepared for " + esc(first) + " · " : "Prepared "}${esc(dateStr)}</p>${paragraphs}</div>
 <div class="actions"><button class="btn" id="copy">Copy link</button><a class="btn" href="/">Retake the fitting</a></div>
 <div class="cta"><div class="t">Know someone hunting for their racket?</div><p>Send them here.</p><a href="/?utm_source=report&utm_medium=share">Get your own fitting</a></div>
+<div class="research">Your fitting contributes to <a href="/state-of-the-racket-report">The State of the Racket Report</a> — read the Q2 findings.</div>
 <script>document.getElementById("copy").addEventListener("click",function(){navigator.clipboard.writeText(window.location.href).then(function(){var b=document.getElementById("copy");b.textContent="Copied";setTimeout(function(){b.textContent="Copy link"},2000)})});</script>`);
   }
 
@@ -235,6 +238,7 @@ ${heading("At the Shop", "Getting It Strung")}
 ${scriptBlock}
 <div class="actions"><button class="btn" id="copy">Copy report link</button><a class="btn" href="/">Retake the fitting</a></div>
 <div class="cta"><div class="t">Know someone hunting for their racket?</div><p>Send them this report — or send them to the fitting.</p><a href="/?utm_source=report&utm_medium=share">Get your own fitting</a></div>
+<div class="research">Your fitting contributes to <a href="/state-of-the-racket-report">The State of the Racket Report</a> — read the Q2 findings.</div>
 <script>
 document.getElementById("copy").addEventListener("click",function(){navigator.clipboard.writeText(window.location.href).then(function(){var b=document.getElementById("copy");b.textContent="Copied";setTimeout(function(){b.textContent="Copy report link"},2000)})});
 var sc=document.getElementById("scopy");

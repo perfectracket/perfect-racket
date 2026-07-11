@@ -3,3 +3,6 @@ dist
 .env
 .env.local
 .DS_Store
+
+# Local-only business/strategy docs — never committed (contains negotiation and acquisition material)
+docs-local/

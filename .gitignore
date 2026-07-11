@@ -6,3 +6,9 @@ dist
 
 # Local-only business/strategy docs — never committed (contains negotiation and acquisition material)
 docs-local/
+
+# Backlog-mint operational artifacts — contain lead email addresses (PII).
+# Untracked July 11, 2026; files stay on disk for Tucker. NOTE: old commits
+# still contain them — history purge (git filter-repo) required before any
+# outside party gets repo access.
+mint-output/

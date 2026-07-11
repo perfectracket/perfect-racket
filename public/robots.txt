@@ -1,8 +1,11 @@
 # Perfect Racket — robots.txt
-# Allow all well-behaved crawlers full access.
+# Allow all well-behaved crawlers full access, EXCEPT personal fitting
+# reports: /report/* pages are player-private (also meta-noindexed —
+# this Disallow is belt-and-suspenders).
 
 User-agent: *
 Allow: /
+Disallow: /report/
 
 # Sitemap location
 Sitemap: https://perfectracket.com/sitemap.xml

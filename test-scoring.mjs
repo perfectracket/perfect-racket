@@ -33,7 +33,13 @@ const STYLE = ["Baseliner", "All-Court", "Doubles-First", "Serve & Volley"];
 const SWING = ["Slow & Controlled", "Moderate", "Fast & Aggressive"];
 const PRIO = ["Power", "Control", "Spin", "Maneuverability", "Balanced"];
 const CVP = ["Comfort first", "Balanced", "Performance first"];
-const PAIN = [["", "none"], ["Mild discomfort after playing", "mild"], ["Sharp pain during play", "severe"]];
+// Pain strings MUST be real app values — keys of PAIN_NUMERIC in the engine —
+// or the severity silently scores as zero pain. "" is the no-pain sentinel
+// (performance mode / unanswered); the other two are real arm-health tiles.
+// PRE-v6.1 BUG: the severe tier used "Sharp pain during play", which is NOT a
+// PAIN_NUMERIC key, so it scored as zero pain and the suite never exercised
+// severe-pain scoring at all. Fixed to the real max-severity value.
+const PAIN = [["", "none"], ["Mild discomfort after playing", "mild"], ["Severe pain that limits play", "severe"]];
 const base = { name: "Sim", email: "s@x.com", ageRange: "26-35", playFrequency: "3-4x/wk",
   gripSize: "4⅜", currentRacket: "", budget: "No preference", goals: [], painLocations: [],
   painSeverity: "", pastInjuries: [], pastInjuryElbow: "No", pastInjuryShoulder: "No",
@@ -46,7 +52,10 @@ for (const ntrp of NTRP) for (const playStyle of STYLE) for (const swingSpeed of
   grid.push({ ...base, mode: "armhealth", ntrp, playStyle, swingSpeed, comfortVsPerf, painSeverity,
     painLocations: painSeverity ? ["Elbow"] : [], priorityFocus: "" });
 
-const key = (d) => [d.mode, d.ntrp, d.playStyle, d.swingSpeed, d.priorityFocus || d.comfortVsPerf, d.painSeverity ? (d.painSeverity.startsWith("Sharp") ? "sev" : "mild") : "none"].join("|");
+// Severe detection keys off "Severe" to match the PAIN string above — must stay
+// in sync with it, else severe rows collide into the "mild" bucket and coverage
+// silently drops from three pain tiers to two.
+const key = (d) => [d.mode, d.ntrp, d.playStyle, d.swingSpeed, d.priorityFocus || d.comfortVsPerf, d.painSeverity ? (d.painSeverity.startsWith("Severe") ? "sev" : "mild") : "none"].join("|");
 const snapshot = {};
 const count1 = {}, count3 = {};
 let lowN = 0, lowSub285 = 0;

@@ -41,7 +41,11 @@ const RACQUET_DB = [
   { brand:"Wilson",     model:"Blade 100 v10",         headSize:100, weight:300, balance:4,  swingWeight:319, mains:16, crosses:19, beamWidth:22, ra:61, length:27.0, price:299, armFriendly:true  },
   { brand:"Wilson",     model:"Blade 98 18x20 v10", specControl:true,    headSize:98,  weight:306, balance:4,  swingWeight:325, mains:18, crosses:20, beamWidth:21, ra:61, length:27.0, price:299, armFriendly:true  },
   { brand:"Wilson",     model:"Pro Staff 97 v14", specControl:true,      headSize:97,  weight:315, balance:3,  swingWeight:325, mains:16, crosses:19, beamWidth:21, ra:66, length:27.0, price:289, armFriendly:false },
-  { brand:"Wilson",     model:"Ultra 100 v4", specPower:true,          headSize:100, weight:300, balance:6,  swingWeight:318, mains:16, crosses:19, beamWidth:26, ra:68, length:27.0, price:249, armFriendly:false },
+  // v6.1 (July 13, 2026): v4→v5 per TE spec sheet (Tucker-pasted) — SW 318→326,
+  // balance 6→4 pts HL, beam 26→26.5 (max, per DB convention), price 249→299
+  // (TW/Wilson-verified; crosses budget brackets). RA 68 UNCHANGED per TE
+  // (TW measures 67 — TE is the DB convention). Weight/head/pattern unchanged.
+  { brand:"Wilson",     model:"Ultra 100 v5", specPower:true,          headSize:100, weight:300, balance:4,  swingWeight:326, mains:16, crosses:19, beamWidth:26.5, ra:68, length:27.0, price:299, armFriendly:false },
   // -- HEAD --
   { brand:"HEAD",       model:"Speed Pro 2026", specControl:true,        headSize:100, weight:310, balance:3,  swingWeight:330, mains:18, crosses:20, beamWidth:23, ra:61, length:27.0, price:269, armFriendly:true  },
   { brand:"HEAD",       model:"Speed Tour 97 2026",    headSize:97,  weight:305, balance:4,  swingWeight:325, mains:16, crosses:19, beamWidth:23, ra:61, length:27.0, price:269, armFriendly:true  },
@@ -178,7 +182,7 @@ const CURRENT_RACKET_OPTIONS = [
     { label: "RF 01", value: "RF 01" },
     { label: "RF 01 Future", value: "RF 01 Future" },
     { label: "RF 01 Pro", value: "RF 01 Pro" },
-    { label: "Ultra 100", value: "Ultra 100 v4" },
+    { label: "Ultra 100", value: "Ultra 100 v5" },
   ]},
   { brand: "Yonex", items: [
     { label: "EZONE 98", value: "EZONE 98 2025" },
@@ -208,7 +212,7 @@ const CURRENT_RACKET_OPTIONS = [
    ============================================================= */
 
 const AFFILIATE_CODE = "tucktraining";
-const SCORING_VERSION = "v6.0-2026-07"; // bump on ANY scoring change; see SCORING-RUNBOOK.md
+const SCORING_VERSION = "v6.1-2026-07"; // bump on ANY scoring change; see SCORING-RUNBOOK.md
 const TE_BASE        = "https://www.tennisexpress.com";
 
 const RACQUET_AFFILIATE_URLS = {
@@ -223,7 +227,7 @@ const RACQUET_AFFILIATE_URLS = {
   "Blade 100 v10":                "blade-100-v10-tennis-racquet",
   "Blade 98 18x20 v10":           "blade-98-18x20-v10-tennis-racquet",
   "Pro Staff 97 v14":             "wilson-pro-staff-97-v140-tennis-racquet-103535?variant=49252099391803",
-  "Ultra 100 v4":                 "ultra-100-v5-tennis-racquet", // AUDIT: links to v5; database says v4
+  "Ultra 100 v5":                 "ultra-100-v5-tennis-racquet", // v6.1: DB row updated to v5 — name/slug/specs now agree
   // HEAD
   "Speed Pro 2026":               "speed-pro-2026-tennis-racquet?variant=50778264633659",
   "Speed Tour 97 2026":           "speed-tour-2026-tennis-racquet?variant=50778266566971",
@@ -260,7 +264,12 @@ const RACQUET_AFFILIATE_URLS = {
   // Solinco
   "Blackout V2 300":              "blackout-v2-300g-tennis-racquet?variant=50589652943163",
   // ProKennex
-  "Ki Q+5":                       "ki-q-5x-pro-tennis-racquet?variant=50403074179387",
+  // Ki Q+5 — DELISTED July 13, 2026 (v6.1): the real Q+5 is no longer stocked
+  // at TE; its old slug resolved to the Ki Q+5X Pro, a DIFFERENT frame
+  // (27.5" extended / ~310g vs the Q+5's 27" / 290g). No slug = the
+  // out-of-stock convention → the availability filter excludes it from
+  // recommendations in both engines. DB row + dropdown entry deliberately
+  // KEPT so current-racket owners still get spec lookups and comparisons.
   // Black Ace 300 — search fallback (not currently stocked at TE)
 };
 
@@ -786,7 +795,7 @@ function whyText(r, d, injuryFactor, painNumeric) {
 //  - Control elite bonus: +3 for 305g+ AND +2 for 18x20 when control priority
 
 const POWER_SPECIALISTS = [
-  "Pure Drive 2025", "Ultra 100 v4", "EZONE 100 2025",
+  "Pure Drive 2025", "Ultra 100 v5", "EZONE 100 2025",
   "VCORE 100 2026", "SX 300 2025"
 ];
 const SPIN_SPECIALISTS = [

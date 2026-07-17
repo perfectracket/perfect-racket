@@ -6,7 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:scoring": "node test-scoring.mjs",
+    "test:report": "node --import ./test/register.mjs test/generate-report.test.mjs",
+    "test:genfail": "node --import ./test/register.mjs test/genfail-stats.test.mjs",
+    "test:results": "node test/results-render.test.mjs",
+    "test": "npm run test:report && npm run test:genfail && npm run test:results && npm run test:scoring"
   },
   "dependencies": {
     "@netlify/blobs": "^10.7.9",

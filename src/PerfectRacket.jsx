@@ -1751,7 +1751,11 @@ select.ti { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w
 
 /* -- RESULTS SCREEN ------------------------------------------------ */
 .results { min-height: 100vh; background: var(--cream); }
-.rid-wrap { background: var(--cream); padding: calc(var(--sp-4) + var(--safe-t)) var(--sp-4) 0; }
+.r-topnav { display: flex; align-items: center; padding: calc(var(--sp-3) + var(--safe-t)) var(--sp-4) 0; }
+.r-logo { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 23px; color: var(--ink); background: none; border: none; padding: 0; cursor: pointer; letter-spacing: -0.01em; line-height: 1; -webkit-tap-highlight-color: transparent; }
+.r-logo span { color: var(--clay); }
+.r-logo:hover { opacity: 0.82; }
+.rid-wrap { background: var(--cream); padding: var(--sp-3) var(--sp-4) 0; }
 .rid-card { position: relative; background: linear-gradient(168deg, var(--navy) 0%, #13233a 100%); border-radius: 18px; padding: var(--sp-7) var(--sp-5) var(--sp-6); text-align: center; overflow: hidden; box-shadow: 0 18px 46px rgba(13,27,42,0.26); animation: chkPop 0.55s cubic-bezier(0.34,1.2,0.64,1) both; }
 .rid-card::before { content: ""; position: absolute; inset: 7px; border: 1px solid rgba(196,154,60,0.5); border-radius: 13px; pointer-events: none; }
 .rid-seal { width: 48px; height: 48px; border-radius: 50%; background: var(--clay); color: var(--white); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 19px; margin: 0 auto var(--sp-3); box-shadow: 0 6px 18px rgba(200,82,42,0.4); position: relative; }
@@ -3106,6 +3110,12 @@ export default function PerfectRacket() {
         <style>{css}</style>
         <div className="pr-app">
           <div className="results screen">
+            {/* Clickable home wordmark — non-destructive: go("landing") keeps
+                recs/form state in memory, so the browser Back button returns
+                the user to their results. "Start Over" remains the hard reset. */}
+            <nav className="r-topnav">
+              <button className="r-logo" onClick={() => go("landing")} aria-label="Perfect Racket — go home">Perfect<span>Racket</span></button>
+            </nav>
             <div className="rid-wrap">
               <div className="rid-card">
                 <div className="rid-seal">PR</div>

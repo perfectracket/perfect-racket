@@ -25,6 +25,18 @@ const LEN = { name: 60, email: 120, currentRacket: 80, generic: 60, model: 60, s
 const WORDS_MIN = 160;
 const WORDS_MAX = 450;
 
+// -- Report-generation resilience (added July 17) --------------------------
+// A traffic burst (e.g. a findings video) throttles the Anthropic API; the
+// function used to give up on the first 429/529 and return nothing, leaving a
+// blank report-url (the report the user never got). Retry transient failures
+// with short backoff so those become delivered reports. Bounded to stay under
+// the client's 12s abort — past that the client blanks the report regardless.
+const GEN_BACKOFF_MS = (() => { // ms before attempts 0,1,2 — length = max attempts; env is a test-only override, guarded so a bad value never crashes generation
+  try { return process.env.GENREPORT_BACKOFF ? JSON.parse(process.env.GENREPORT_BACKOFF) : [0, 500, 1200]; } catch { return [0, 500, 1200]; }
+})();
+const GEN_TRANSIENT = new Set([429, 500, 502, 503, 504, 529]); // retryable; 400/401/403 are permanent (bad request / auth)
+const GEN_DEADLINE_MS = 9000; // total generation budget, comfortably under the 12s client abort
+
 // -- System prompt (locked per fitting-report-prompt.md) -------------------
 const SYSTEM_PROMPT = `You are the fitting expert behind Perfect Racket, writing a personal fitting report for one player who just completed the fitting quiz. You write in the voice of a knowledgeable, warm tennis-industry veteran — the trusted stringer at a good club — not a marketer and not a doctor. You write as Tucker, the founder, and sign off exactly: "— Tucker, Perfect Racket".
 
@@ -57,6 +69,8 @@ Tone: confident but never absolute ("this profile strongly suggests", not "this 
 // -- helpers ----------------------------------------------------------------
 const json = (obj, status = 200) =>
   new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json" } });
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const clip = (v, n) => (typeof v === "string" ? v.slice(0, n).trim() : "");
 
@@ -132,7 +146,7 @@ async function callAnthropic(apiKey, dataBlock) {
       messages: [{ role: "user", content: dataBlock }],
     }),
   });
-  if (!res.ok) throw new Error(`anthropic ${res.status}`);
+  if (!res.ok) { const err = new Error(`anthropic ${res.status}`); err.status = res.status; throw err; }
   const data = await res.json();
   return (data.content || [])
     .filter((b) => b.type === "text")
@@ -251,19 +265,42 @@ export default async (req, context) => {
     `tension_start: ${clip(String(b.tensionStart), 10)}`,
   ].join("\n");
 
-  // Generate (one retry on out-of-bounds output)
-  let text = "";
-  try {
-    for (let attempt = 0; attempt < 2; attempt++) {
-      text = stripMarkdown(stripUrls(await callAnthropic(apiKey, dataBlock))).trim();
-      const wc = wordCount(text);
-      if (text !== "REPORT_UNAVAILABLE" && wc >= WORDS_MIN && wc <= WORDS_MAX) break;
-      text = "";
+  // Generate. Retry transient Anthropic failures (429 / 529 / 5xx) AND
+  // out-of-bounds output with short backoff, bounded by GEN_DEADLINE_MS so total
+  // server time stays under the client's 12s abort. Permanent errors (400/401/
+  // 403) break immediately — retrying bad auth or a bad request never helps.
+  const genStart = Date.now();
+  let text = "", failReason = "";
+  for (let attempt = 0; attempt < GEN_BACKOFF_MS.length; attempt++) {
+    if (attempt > 0) {
+      if (Date.now() - genStart > GEN_DEADLINE_MS) { failReason = failReason || "deadline"; break; }
+      await sleep(GEN_BACKOFF_MS[attempt]);
     }
-  } catch {
-    text = "";
+    try {
+      const candidate = stripMarkdown(stripUrls(await callAnthropic(apiKey, dataBlock))).trim();
+      const wc = wordCount(candidate);
+      if (candidate !== "REPORT_UNAVAILABLE" && wc >= WORDS_MIN && wc <= WORDS_MAX) { text = candidate; break; }
+      failReason = "bounds"; // out-of-bounds length or the REPORT_UNAVAILABLE sentinel — retry
+    } catch (e) {
+      const status = e && e.status;
+      failReason = status ? `api-${status}` : "api-error";
+      if (status && !GEN_TRANSIENT.has(status)) break; // permanent — stop
+    }
   }
-  if (!text) return json({ error: "generation failed" }, 502);
+  if (!text) {
+    // Persistent failure counter — function logs retain only 24h, so a silent
+    // spike (like the July 15-16 blank-report-url wave) was invisible. Count
+    // failures per day and per reason in the meta store; best-effort, never
+    // blocks the 502. Read later via `genfail:YYYY-MM-DD` keys.
+    try {
+      const m = getStore("meta");
+      const day = new Date().toISOString().slice(0, 10);
+      const reason = failReason || "unknown";
+      await m.set(`genfail:${day}`, String((+(await m.get(`genfail:${day}`)) || 0) + 1));
+      await m.set(`genfail:${day}:${reason}`, String((+(await m.get(`genfail:${day}:${reason}`)) || 0) + 1));
+    } catch { /* counter is best-effort */ }
+    return json({ error: "generation failed" }, 502);
+  }
 
   // Store and index — v3 record: full top-3 frames + strings for the card page
   id = id || makeId();

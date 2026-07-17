@@ -22,8 +22,9 @@ const MAX_PER_IP_PER_HOUR = 20;    // raised July 4: serves shared IPs (clubs, c
 const MAX_GLOBAL_PER_DAY = 1000;   // circuit breaker; real cost backstop is the prepaid credit cap
 const REFRESH_GUARD_MINUTES = 10;    // same email within this window returns stored report
 const LEN = { name: 60, email: 120, currentRacket: 80, generic: 60, model: 60, stringName: 60, goals: 200 };
-const WORDS_MIN = 160;
-const WORDS_MAX = 450;
+const WORDS_MIN = 160;   // ideal-window floor; complete reports below this are still DELIVERED (see graceful delivery)
+const WORDS_MAX = 520;   // raised from 450 July 17: current-racket comparison + goals engagement make rich profiles run longer
+const WORDS_SANITY = 60; // below this (or the REPORT_UNAVAILABLE sentinel) = unusable garbage, never deliver
 
 // -- Report-generation resilience (added July 17) --------------------------
 // A traffic burst (e.g. a findings video) throttles the Anthropic API; the
@@ -265,12 +266,16 @@ export default async (req, context) => {
     `tension_start: ${clip(String(b.tensionStart), 10)}`,
   ].join("\n");
 
-  // Generate. Retry transient Anthropic failures (429 / 529 / 5xx) AND
-  // out-of-bounds output with short backoff, bounded by GEN_DEADLINE_MS so total
-  // server time stays under the client's 12s abort. Permanent errors (400/401/
-  // 403) break immediately — retrying bad auth or a bad request never helps.
+  // Generate. Retry transient Anthropic failures (429 / 529 / 5xx) with short
+  // backoff, bounded by GEN_DEADLINE_MS (under the client's 12s abort). Permanent
+  // errors (400/401/403) break immediately. GRACEFUL DELIVERY (July 17): a
+  // COMPLETE report that's merely off-length is DELIVERED, not blanked — the
+  // July-17 blanks were `bounds` failures, i.e. good reports thrown away for
+  // length. We retry for an in-window one, but an off-length report beats none.
+  // Only truly-unusable output (the REPORT_UNAVAILABLE sentinel or < WORDS_SANITY
+  // words) is rejected.
   const genStart = Date.now();
-  let text = "", failReason = "";
+  let text = "", fallback = "", fallbackDir = "", failReason = "";
   for (let attempt = 0; attempt < GEN_BACKOFF_MS.length; attempt++) {
     if (attempt > 0) {
       if (Date.now() - genStart > GEN_DEADLINE_MS) { failReason = failReason || "deadline"; break; }
@@ -279,19 +284,34 @@ export default async (req, context) => {
     try {
       const candidate = stripMarkdown(stripUrls(await callAnthropic(apiKey, dataBlock))).trim();
       const wc = wordCount(candidate);
-      if (candidate !== "REPORT_UNAVAILABLE" && wc >= WORDS_MIN && wc <= WORDS_MAX) { text = candidate; break; }
-      failReason = "bounds"; // out-of-bounds length or the REPORT_UNAVAILABLE sentinel — retry
+      if (candidate === "REPORT_UNAVAILABLE" || wc < WORDS_SANITY) { failReason = "unavailable"; continue; } // garbage — retry
+      if (wc >= WORDS_MIN && wc <= WORDS_MAX) { text = candidate; break; } // ideal window — done
+      fallback = candidate; // complete but off-length — hold it, try once more for in-window
+      fallbackDir = wc > WORDS_MAX ? "long" : "short";
+      failReason = "bounds-" + fallbackDir;
     } catch (e) {
       const status = e && e.status;
       failReason = status ? `api-${status}` : "api-error";
       if (status && !GEN_TRANSIENT.has(status)) break; // permanent — stop
     }
   }
+  // Deliver an off-length-but-complete report rather than blanking the user;
+  // record the off-length delivery (a success, not a failure) for visibility.
+  if (!text && fallback) {
+    text = fallback;
+    try {
+      const m = getStore("meta");
+      const day = new Date().toISOString().slice(0, 10);
+      await m.set(`genoff:${day}:${fallbackDir}`, String((+(await m.get(`genoff:${day}:${fallbackDir}`)) || 0) + 1));
+    } catch { /* best-effort */ }
+    failReason = ""; // delivered — not a failure
+  }
   if (!text) {
     // Persistent failure counter — function logs retain only 24h, so a silent
     // spike (like the July 15-16 blank-report-url wave) was invisible. Count
-    // failures per day and per reason in the meta store; best-effort, never
-    // blocks the 502. Read later via `genfail:YYYY-MM-DD` keys.
+    // failures per day and per reason (unavailable / deadline / api-NNN /
+    // api-error) in the meta store; best-effort, never blocks the 502. Read via
+    // /api/admin/genfail.
     try {
       const m = getStore("meta");
       const day = new Date().toISOString().slice(0, 10);

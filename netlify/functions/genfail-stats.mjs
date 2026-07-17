@@ -27,27 +27,34 @@ export default async (req) => {
   // 404 (not 401) so the endpoint's existence isn't advertised without the key.
   if (!adminKey || provided !== adminKey) return json({ error: "not found" }, 404);
 
-  const days = {};
+  const days = {};   // genfail:  — reports that blanked
+  const off = {};    // genoff:   — reports DELIVERED despite being off-length (success, for visibility)
   try {
     const meta = getStore("meta");
-    const { blobs } = await meta.list({ prefix: "genfail:" });
+    const { blobs } = await meta.list({ prefix: "gen" }); // covers genfail: and genoff:
     for (const b of blobs) {
-      const rest = b.key.slice("genfail:".length); // "2026-07-17"  or  "2026-07-17:api-529"
-      const count = +(await meta.get(b.key)) || 0;
+      const key = b.key;
+      const isFail = key.startsWith("genfail:"), isOff = key.startsWith("genoff:");
+      if (!isFail && !isOff) continue;
+      const bucket = isFail ? days : off;
+      const rest = key.slice((isFail ? "genfail:" : "genoff:").length); // "2026-07-17" or "2026-07-17:reason"
+      const count = +(await meta.get(key)) || 0;
       const c = rest.indexOf(":");
       if (c === -1) {
-        (days[rest] = days[rest] || { total: 0, reasons: {} }).total = count;
+        (bucket[rest] = bucket[rest] || { total: 0, reasons: {} }).total = count;
       } else {
         const day = rest.slice(0, c), reason = rest.slice(c + 1);
-        (days[day] = days[day] || { total: 0, reasons: {} }).reasons[reason] = count;
+        (bucket[day] = bucket[day] || { total: 0, reasons: {} }).reasons[reason] = count;
       }
     }
   } catch (e) {
     return json({ error: "read failed", detail: String((e && e.message) || e) }, 500);
   }
 
-  const failuresByDay = Object.fromEntries(
-    Object.entries(days).sort((a, b) => b[0].localeCompare(a[0])) // newest day first
-  );
-  return json({ generated: new Date().toISOString(), failuresByDay });
+  const newestFirst = (o) => Object.fromEntries(Object.entries(o).sort((a, b) => b[0].localeCompare(a[0])));
+  return json({
+    generated: new Date().toISOString(),
+    failuresByDay: newestFirst(days),
+    offLengthDeliveriesByDay: newestFirst(off),
+  });
 };

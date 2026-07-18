@@ -184,9 +184,31 @@ export default async (req, context) => {
   const index = getStore("report-index");
   const rates = getStore("rate-limits");
 
+  // -- Reserved client report id (July 18) ----------------------------------
+  // The client reserves an id up front and captures its URL into the lead form
+  // immediately, so a slow generation (past the client's 12s abort) no longer
+  // orphans the report. Strictly validated: exactly 21 chars of makeId's
+  // alphabet, and — critically — only usable if NO record already exists at
+  // that id (otherwise an attacker who learned someone's report URL could
+  // submit reportId=<victimId> and overwrite the victim's report). Fallbacks
+  // are silent: a bad/taken id never blocks the report (mint-backlog sends no
+  // id at all and keeps working unchanged).
+  const clientId = typeof b.reportId === "string" && /^[A-Za-z0-9_-]{21}$/.test(b.reportId) ? b.reportId : null;
+  let clientFree = false;
+  if (clientId) {
+    try { clientFree = !(await reports.get(clientId)); } catch { clientFree = false; }
+  }
+  // Redirect stub: when the canonical record lives at a DIFFERENT id than the
+  // one the client reserved (retake/refresh paths), park a tiny pointer at the
+  // reserved id so the URL already captured in the form still resolves.
+  const writeStub = async (from, to) => {
+    try { await reports.setJSON(from, { id: from, redirectTo: to, createdAt: new Date().toISOString() }); } catch { /* best-effort */ }
+  };
+
   // Per-email dedupe / refresh guard
   const emailHash = await sha256hex(email);
   let id = null;
+  let isFreshId = true;
   try {
     const existingId = await index.get(emailHash);
     if (existingId) {
@@ -194,9 +216,11 @@ export default async (req, context) => {
       if (existing && existing.text) {
         const ageMin = (Date.now() - new Date(existing.createdAt).getTime()) / 60000;
         if (ageMin < REFRESH_GUARD_MINUTES) {
+          if (clientId && clientFree && clientId !== existingId) await writeStub(clientId, existingId);
           return json({ id: existingId, url: `${SITE_URL}/report/${existingId}`, text: existing.text });
         }
-        id = existingId; // retake: overwrite under the same URL
+        id = existingId; // retake: overwrite under the same URL (canonical URL per email)
+        isFreshId = false;
       }
     }
   } catch { /* index miss is normal */ }
@@ -266,6 +290,19 @@ export default async (req, context) => {
     `tension_start: ${clip(String(b.tensionStart), 10)}`,
   ].join("\n");
 
+  // Finalize the record id BEFORE generation so the reserved-URL flow works:
+  // retakes keep their canonical id; otherwise use the client's reserved id
+  // (when valid + unclaimed); otherwise mint one server-side.
+  id = id || (clientFree ? clientId : null) || makeId();
+  if (clientId && clientFree && clientId !== id) await writeStub(clientId, id);
+  // Pending placeholder — FRESH ids only (never clobber an existing report on a
+  // retake). Lets /report/{id} distinguish "being written" (fresh pending) from
+  // "generation died" (stale pending) when the client aborts at 12s or this
+  // invocation is killed mid-generation.
+  if (isFreshId) {
+    try { await reports.setJSON(id, { id, pending: true, createdAt: new Date().toISOString() }); } catch { /* best-effort */ }
+  }
+
   // Generate. Retry transient Anthropic failures (429 / 529 / 5xx) with short
   // backoff, bounded by GEN_DEADLINE_MS (under the client's 12s abort). Permanent
   // errors (400/401/403) break immediately. GRACEFUL DELIVERY (July 17): a
@@ -322,8 +359,8 @@ export default async (req, context) => {
     return json({ error: "generation failed" }, 502);
   }
 
-  // Store and index — v3 record: full top-3 frames + strings for the card page
-  id = id || makeId();
+  // Store and index — id was finalized before generation (reserved-URL flow);
+  // the full record below overwrites the pending placeholder on fresh ids.
   const cleanRank = (r) => {
     if (!r || !r.model) return null;
     let url = typeof r.url === "string" ? r.url.slice(0, 300) : "";

@@ -19,7 +19,7 @@ const esc = (s) =>
 const heading = (eyebrow, title) =>
   `<div class="sec-head"><div class="sec-eyebrow">${eyebrow}</div><h2 class="sec-title">${title}</h2><div class="sec-rule"></div></div>`;
 
-const shell = (headExtra, bodyHtml, status = 200) =>
+const shell = (headExtra, bodyHtml, status = 200, cacheControl = "public, max-age=300") =>
   new Response(
     `<!doctype html>
 <html lang="en">
@@ -121,8 +121,10 @@ ${bodyHtml}
 </div>
 </body>
 </html>`,
-    { status, headers: { "content-type": "text/html; charset=utf-8", "x-robots-tag": "noindex, nofollow", "cache-control": "public, max-age=300" } }
+    { status, headers: { "content-type": "text/html; charset=utf-8", "x-robots-tag": "noindex, nofollow", "cache-control": cacheControl } }
   );
+
+const PENDING_STALE_MINUTES = 15; // pending older than this = generation died; show the honest page
 
 const notFound = () =>
   shell(`<title>Report not found | Perfect Racket</title>`,
@@ -136,6 +138,33 @@ export default async (req) => {
 
   let rec = null;
   try { rec = await getStore("reports").get(id, { type: "json" }); } catch { /* not found */ }
+
+  // Redirect stub — a reserved client id whose canonical report lives at
+  // another id (retake/refresh paths). Target format re-validated; no caching.
+  if (rec && typeof rec.redirectTo === "string" && /^[A-Za-z0-9_-]{10,32}$/.test(rec.redirectTo)) {
+    return new Response(null, { status: 302, headers: { location: `/report/${rec.redirectTo}`, "x-robots-tag": "noindex, nofollow", "cache-control": "no-store" } });
+  }
+
+  // Pending placeholder — generation in flight (fresh) or died (stale).
+  // NaN-safe: an unparseable createdAt falls through to the honest stale page
+  // rather than promising "generating" forever.
+  if (rec && rec.pending) {
+    const ageMin = (Date.now() - new Date(rec.createdAt).getTime()) / 60000;
+    if (ageMin < PENDING_STALE_MINUTES) {
+      return shell(
+        `<title>Your fitting report is being written | Perfect Racket</title>\n<meta http-equiv="refresh" content="6"/>`,
+        `${heading("Fitting Report", "Being written now")}
+<div class="notes"><p>Your personal fitting report is being written — it usually takes under a minute. This page refreshes itself; your report will appear here.</p><p style="font-family:'DM Mono',monospace;font-size:12px;color:var(--mid)">This link is permanent — you can close this page and come back any time.</p></div>`,
+        200, "no-store");
+    }
+    return shell(
+      `<title>Report couldn't be completed | Perfect Racket</title>`,
+      `${heading("Fitting Report", "This report couldn't be completed")}
+<div class="notes"><p>Something went wrong writing this fitting report — it happens rarely, and your fitting itself was not affected. The fastest fix is a fresh three-minute fitting: you'll get your recommendations and a new report immediately.</p></div>
+<div class="cta"><div class="t">Get a fresh fitting</div><p>Your answers take three minutes to redo.</p><a href="/">Retake the fitting</a></div>`,
+      404, "no-store");
+  }
+
   if (!rec || !rec.text) return notFound();
 
   const first = rec.first && rec.first.length > 1 ? rec.first : "";

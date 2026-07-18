@@ -176,4 +176,139 @@ await test("stripMarkdown still strips; honeypot still rejects", async () => {
   assert.equal((await post(p)).status, 400);
 });
 
+// ==============================================================================
+console.log("— Reserved-URL flow: client report ids —");
+
+const view = (await import(new URL("../netlify/functions/report-view.mjs", import.meta.url).href)).default;
+const renderReport = (id) => view(new Request(`https://perfectracket.com/report/${id}`));
+const CID = () => "C" + "x".repeat(20).replace(/x/g, () => "abcdefghij0123456789_-"[Math.floor(Math.random() * 22)]);
+const mutateRecord = (id, fn) => { const raw = _stores().get("reports")._raw; const r = JSON.parse(raw.get(id)); fn(r); raw.set(id, JSON.stringify(r)); };
+
+await test("valid client id honored — record stored at the reserved id", async () => {
+  reset();
+  const cid = CID();
+  const p = basePayload(); p.reportId = cid;
+  const res = await post(p);
+  assert.equal(res.status, 200);
+  const { id, url } = await res.json();
+  assert.equal(id, cid, "server must use the reserved id");
+  assert.ok(url.endsWith(`/report/${cid}`));
+  const rec = await storedRecord(cid);
+  assert.ok(rec.text && !rec.pending, "full record at reserved id, placeholder overwritten");
+});
+
+await test("malformed client ids ignored (short / bad chars / non-string) — server id used", async () => {
+  reset();
+  for (const bad of ["short", "x".repeat(22), "has spaces in it 21ch", 12345, "<script>aaaaaaaaaaaaa"]) {
+    const p = basePayload(); p.reportId = bad;
+    const { id } = await (await post(p)).json();
+    assert.notEqual(id, bad);
+    assert.match(id, /^[A-Za-z0-9_-]{21}$/, "fallback id has full entropy format");
+  }
+});
+
+await test("SECURITY: client id pointing at an EXISTING record cannot overwrite it", async () => {
+  reset();
+  const victim = basePayload();
+  const { id: victimId } = await (await post(victim)).json();
+  const victimText = (await storedRecord(victimId)).text;
+  const attacker = basePayload(); // fresh email
+  attacker.reportId = victimId;   // tries to claim the victim's id
+  const res = await post(attacker);
+  assert.equal(res.status, 200);
+  const { id: attackerId } = await res.json();
+  assert.notEqual(attackerId, victimId, "attacker must get a different id");
+  assert.equal((await storedRecord(victimId)).text, victimText, "victim record untouched");
+});
+
+await test("failed generation leaves a pending placeholder at the reserved id", async () => {
+  reset(); anthropicResponder = () => "far too short to be a report"; // garbage → 502
+  const cid = CID();
+  const p = basePayload(); p.reportId = cid;
+  assert.equal((await post(p)).status, 502);
+  const rec = await storedRecord(cid);
+  assert.ok(rec.pending && !rec.text, "placeholder remains for honest pending/stale states");
+  reset();
+});
+
+await test("pending FRESH renders 'being written' page; STALE renders honest failure + retake", async () => {
+  reset(); anthropicResponder = () => "far too short to be a report";
+  const cid = CID();
+  const p = basePayload(); p.reportId = cid;
+  await post(p);
+  reset();
+  let res = await renderReport(cid);
+  assert.equal(res.status, 200);
+  let html = await res.text();
+  assert.ok(html.includes("Being written now") && html.includes('http-equiv="refresh"'), "fresh pending page");
+  mutateRecord(cid, (r) => { r.createdAt = new Date(Date.now() - 20 * 60000).toISOString(); });
+  res = await renderReport(cid);
+  assert.equal(res.status, 404);
+  html = await res.text();
+  assert.ok(html.includes("couldn't be completed") && html.includes("Retake the fitting"), "honest stale page");
+  assert.ok(!html.includes("Being written"), "stale page must not promise generation");
+});
+
+await test("quick retake (refresh window) with a new client id → canonical id returned + redirect stub", async () => {
+  reset();
+  const p1 = basePayload();
+  const email = p1.email;
+  const { id: firstId } = await (await post(p1)).json();
+  const p2 = basePayload(); p2.email = email; // same email, within refresh window
+  const cid2 = CID(); p2.reportId = cid2;
+  const { id: secondId } = await (await post(p2)).json();
+  assert.equal(secondId, firstId, "refresh guard returns the canonical id");
+  const stub = await storedRecord(cid2);
+  assert.equal(stub.redirectTo, firstId, "reserved id carries a redirect stub");
+  const res = await renderReport(cid2);
+  assert.equal(res.status, 302);
+  assert.equal(res.headers.get("location"), `/report/${firstId}`);
+});
+
+await test("retake BEYOND window keeps canonical URL (overwrites old id) + stubs the reserved id", async () => {
+  reset();
+  const p1 = basePayload();
+  const email = p1.email;
+  const { id: firstId } = await (await post(p1)).json();
+  mutateRecord(firstId, (r) => { r.createdAt = new Date(Date.now() - 30 * 60000).toISOString(); });
+  const p2 = basePayload(); p2.email = email;
+  const cid2 = CID(); p2.reportId = cid2;
+  const { id: secondId } = await (await post(p2)).json();
+  assert.equal(secondId, firstId, "canonical-URL-per-email preserved");
+  assert.equal((await storedRecord(cid2)).redirectTo, firstId);
+});
+
+await test("retake-with-failure never clobbers the old report with a placeholder", async () => {
+  reset();
+  const p1 = basePayload();
+  const email = p1.email;
+  const { id: firstId } = await (await post(p1)).json();
+  const oldText = (await storedRecord(firstId)).text;
+  mutateRecord(firstId, (r) => { r.createdAt = new Date(Date.now() - 30 * 60000).toISOString(); });
+  anthropicResponder = () => "far too short to be a report"; // retake fails
+  const p2 = basePayload(); p2.email = email; p2.reportId = CID();
+  assert.equal((await post(p2)).status, 502);
+  const rec = await storedRecord(firstId);
+  assert.equal(rec.text, oldText, "old report intact — no pending overwrite on retakes");
+  reset();
+});
+
+await test("no reportId at all (mint-backlog path) unchanged — server mints id", async () => {
+  reset();
+  const { id } = await (await post(basePayload())).json();
+  assert.match(id, /^[A-Za-z0-9_-]{21}$/);
+});
+
+await test("complete records still render normally (no pending/redirect interference)", async () => {
+  reset();
+  const cid = CID();
+  const p = basePayload(); p.reportId = cid;
+  await post(p);
+  const res = await renderReport(cid);
+  assert.equal(res.status, 200);
+  const html = await res.text();
+  assert.ok(html.includes("The fitting holds together") || html.includes("Fitting Notes") || html.includes("fitting"), "report body renders");
+  assert.ok(!html.includes("Being written now"));
+});
+
 console.log(`\n${passed} assertion groups passed${process.exitCode ? " — WITH FAILURES" : ", 0 failures"}`);

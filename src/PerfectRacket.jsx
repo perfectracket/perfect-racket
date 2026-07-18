@@ -358,6 +358,22 @@ function isStringInStock(s) {
   return s && s.name && Object.prototype.hasOwnProperty.call(STRING_AFFILIATE_URLS, s.name);
 }
 
+/* Reserved report id (July 18): the client mints the report id up front so its
+   URL can be captured into the lead form immediately — a generation that runs
+   past the 12s abort no longer orphans the report. MUST match the server's
+   makeId exactly: 21 chars from this 64-char alphabet via crypto randomness
+   (the server validates ^[A-Za-z0-9_-]{21}$ and falls back to its own id on
+   anything else). */
+const REPORT_PAGE_BASE = "https://perfectracket.com/report/";
+function makeClientReportId() {
+  const alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_-";
+  const bytes = new Uint8Array(21);
+  crypto.getRandomValues(bytes);
+  let id = "";
+  for (const b of bytes) id += alphabet[b & 63];
+  return id;
+}
+
 function norm(val, min, max) {
   if (max === min) return 50;
   return Math.min(100, Math.max(0, ((val - min) / (max - min)) * 100));
@@ -2360,10 +2376,13 @@ export default function PerfectRacket() {
   };
 
   // AI fitting report — POSTs the profile + fixed recommendations to the
-  // generation function. Additive by design: any failure resolves to null and
-  // the caller proceeds exactly as before this feature existed. 12s timeout
-  // so lead capture (which waits on this) is never held hostage.
-  const requestFittingReport = async (snapshot, result) => {
+  // generation function. Additive by design. Outcomes (July 18):
+  //   object  → server responded with the report (may be at a different URL
+  //             than reserved, e.g. a retake's canonical id — trust it)
+  //   "failed"→ server said no (502 etc.) — generation genuinely failed
+  //   null    → abort/network: outcome UNKNOWN; the report is very likely
+  //             still landing server-side at the reserved id
+  const requestFittingReport = async (snapshot, result, reportId) => {
     try {
       const r = result.racquets || [];
       const s = result.strings || [];
@@ -2390,6 +2409,7 @@ export default function PerfectRacket() {
       const joinList = (a) => Array.isArray(a) ? a.join("; ") : "";
       const payload = {
         website: "", // honeypot — must stay empty
+        reportId, // reserved client id — server validates + falls back silently
         name: snapshot.name || "", email: snapshot.email || "",
         ntrp: snapshot.ntrp || "", ageRange: snapshot.ageRange || "",
         playFrequency: snapshot.playFrequency || "", playStyle: snapshot.playStyle || "",
@@ -2427,11 +2447,11 @@ export default function PerfectRacket() {
         signal: ctrl.signal,
       });
       clearTimeout(timer);
-      if (!res.ok) return null;
+      if (!res.ok) return "failed";
       const data = await res.json();
-      return data && data.url ? data : null;
+      return data && data.url ? data : "failed";
     } catch (e) {
-      return null;
+      return null; // abort/network — outcome unknown; report may still land server-side
     }
   };
 
@@ -2522,24 +2542,35 @@ export default function PerfectRacket() {
       } catch (e) { /* silent fail — never block results */ }
       };
 
-      // AI fitting report — additive. Lead capture ALWAYS happens: the form
-      // submits with the report URL on success, or without it on any failure
-      // or timeout. Fired here (loading start) so it races the reveal.
+      // Reserved-URL flow (July 18). The report id is minted client-side, so
+      // the URL is known NOW — and lead capture fires IMMEDIATELY instead of
+      // waiting up to 12s on generation (the old window where a closed tab
+      // lost the lead entirely). The CSV therefore no longer signals report
+      // health via blank report-urls — that job moved to /api/admin/genfail.
+      // submitForm's body is untouched; only its call site moved.
+      const reportId = makeClientReportId();
+      const reservedUrl = REPORT_PAGE_BASE + reportId;
+      submitForm(reservedUrl);
+
       setReport({ status: "pending", url: "", text: "" });
-      requestFittingReport(snapshot, result)
+      requestFittingReport(snapshot, result, reportId)
         .then((rep) => {
           if (rep && rep.url) {
+            // Server responded — trust ITS url (a quick retake resolves to the
+            // canonical id; the reserved id then carries a redirect stub).
             setReport({ status: "ready", url: rep.url, text: rep.text || "" });
-            submitForm(rep.url);
-          } else {
+          } else if (rep === "failed") {
+            // Server explicitly failed — the reserved URL will show the honest
+            // stale-pending page; don't advertise it in the UI.
             setReport({ status: "failed", url: "", text: "" });
-            submitForm("");
+          } else {
+            // Abort/timeout: almost certainly an orphaned success — the report
+            // lands at the reserved URL moments from now, and /report/{id}
+            // shows the branded "being written" page until it does.
+            setReport({ status: "ready", url: reservedUrl, text: "" });
           }
         })
-        .catch(() => {
-          setReport({ status: "failed", url: "", text: "" });
-          submitForm("");
-        })
+        .catch(() => { setReport({ status: "ready", url: reservedUrl, text: "" }); })
         .finally(() => { reportDone.current = true; });
 
       // Plausible — completion event

@@ -212,7 +212,7 @@ const CURRENT_RACKET_OPTIONS = [
    ============================================================= */
 
 const AFFILIATE_CODE = "tucktraining";
-const SCORING_VERSION = "v6.1-2026-07"; // bump on ANY scoring change; see SCORING-RUNBOOK.md
+const SCORING_VERSION = "v6.2-2026-07"; // bump on ANY scoring change; see SCORING-RUNBOOK.md
 const TE_BASE        = "https://www.tennisexpress.com";
 
 const RACQUET_AFFILIATE_URLS = {
@@ -541,7 +541,19 @@ function topStrengths(sub) {
   return scores.sort((a, b) => b[1] - a[1]).slice(0, 2).map(s => s[0]).join(" & ");
 }
 
-function calcTension(d, painNumeric) {
+/* Minimum tension by the string type we actually PRESCRIBE (v6.2, July 27).
+   Soft, lively strings (gut, multi) strung loose turn into trampolines: power
+   the player must fight and control they can't predict — the opposite of what a
+   hurting arm needs. Polyester is stiff, so dropping ITS tension is the correct
+   arm-friendly move. Before this, one blanket floor of 42 let the stack
+   (severe pain −6, low NTRP −2, slow swing −2) prescribe natural gut at 42.
+   KNOWN GAP (deliberate, deferred): the ±2 adjustments below still key off the
+   player's CURRENT string while the floor keys off the RECOMMENDED one. Fixing
+   that re-keying moves ~80% of arm-mode prescriptions and needs outcome data —
+   see the WIP. The floor removes the unsafe output; the re-keying is quality. */
+const TENSION_FLOOR = { "Natural Gut": 48, "Multifilament": 46, "Synthetic Gut": 44, "Polyester": 42 };
+
+function calcTension(d, painNumeric, recommendedStringType) {
   let base = 52;
   if (painNumeric >= 6) base -= 6;
   else if (painNumeric >= 3) base -= 3;
@@ -552,8 +564,12 @@ function calcTension(d, painNumeric) {
   else if (ntrp <= 3.0) base -= 2;
   if (d.swingSpeed === "Fast & Aggressive") base += 2;
   else if (d.swingSpeed === "Slow & Controlled") base -= 2;
-  base = Math.min(58, Math.max(42, base));
-  return { low: base - 2, high: base + 2, recommended: base };
+  const floor = TENSION_FLOOR[recommendedStringType] ?? 42;
+  base = Math.min(58, Math.max(floor, base));
+  // Clamp the range bottom too — otherwise base±2 prints a number below the
+  // floor we just enforced (the range goes asymmetric on floored cases, which
+  // reads fine: "48-50 lbs, starting at 48").
+  return { low: Math.max(base - 2, floor), high: base + 2, recommended: base };
 }
 
 function budgetFlag(price, budget) {
@@ -1192,7 +1208,7 @@ function selectStringsPerformance(d) {
 }
 
 // Performance-mode tension: NTRP and swing speed only. No pain-driven reductions.
-function tensionRangePerformance(d) {
+function tensionRangePerformance(d, recommendedStringType) {
   let base = 52;
   const ntrp = parseFloat(d.ntrp) || 3.5;
   if (ntrp >= 4.5) base += 2;
@@ -1202,8 +1218,10 @@ function tensionRangePerformance(d) {
   // Priority focus: control players string slightly tighter, power players slightly looser
   if (d.priorityFocus === "Control") base += 1;
   if (d.priorityFocus === "Power") base -= 1;
-  base = Math.min(58, Math.max(46, base));
-  return { low: base - 2, high: base + 2, recommended: base };
+  // Perf mode's own floor is 46; a softer prescribed string can only raise it.
+  const floor = Math.max(46, TENSION_FLOOR[recommendedStringType] ?? 46);
+  base = Math.min(58, Math.max(floor, base));
+  return { low: Math.max(base - 2, floor), high: base + 2, recommended: base };
 }
 
 // === END PERFORMANCE MODE SCORING ============================================
@@ -1361,7 +1379,8 @@ function generateRecommendations(d) {
     seenTexts.add(rc.whyText);
   });
   const strings = selectStrings(d, injuryFactor, painNumeric).slice(0, 3).map((s, i) => ({ ...s, top: i === 0 }));
-  const tension = calcTension(d, painNumeric);
+  // Tension is floored by the string we PRESCRIBE (strings[0]), not the one they arrive with.
+  const tension = calcTension(d, painNumeric, strings[0] && strings[0].type);
   const topRacquet = topRacquets[0];
   const topString = strings[0];
   const stringerScript = `I would like to string my ${topRacquet.model} with ${topString.name} at ${tension.low}-${tension.high} lbs, starting at ${tension.recommended} lbs.`;
@@ -1478,7 +1497,7 @@ function generateRecommendationsPerformance(d) {
   });
 
   const strings = selectStringsPerformance(d).slice(0, 3).map((s, i) => ({ ...s, top: i === 0 }));
-  const tension = tensionRangePerformance(d);
+  const tension = tensionRangePerformance(d, strings[0] && strings[0].type);
 
   const topRacquet = topRacquets[0];
   const topString = strings[0];

@@ -59,6 +59,14 @@ Plain paragraphs, `**bold**`, `*italic*`, `***bold italic***`,
 - Affiliate links exactly as the issue shipped them, and the disclosure
   line stays in the footer.
 
+## Fonts (only matters if the brand fonts ever change)
+
+The pages inline vendored Google Fonts CSS from `scripts/newsletter-fonts.css`
+instead of loading a render-blocking stylesheet (this is what keeps Lighthouse
+performance at 100). If the font families or weights ever change, refetch:
+curl the fonts.googleapis.com/css2 URL for the new families with a Chrome
+User-Agent header and replace the file below the comment block.
+
 ## Kit duplicate-content choice (Tucker's call, once per issue)
 
 The Kit public post for an issue duplicates these pages. Each PR page

@@ -84,6 +84,9 @@ const IMAGE_DIMS = {
 };
 
 // ---------- shared page chrome ----------
+// Vendored font-face rules, inlined so the page has no render-blocking
+// stylesheet fetch (kept the pages' Lighthouse performance at 90+).
+const FONT_CSS = readFileSync(join(ROOT, "scripts", "newsletter-fonts.css"), "utf8").trim();
 const CSS = `
 :root{--navy:#0D1B2A;--clay:#C8522A;--cream:#FAF7F2;--gold:#C49A3C;--ink:#3A3835;--soft:#6B6B6B}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -92,9 +95,7 @@ body{background:var(--navy);color:var(--ink);font-family:'Outfit',-apple-system,
 .wrap{max-width:680px;margin:0 auto;padding:34px 16px 56px}
 .issue-eyebrow{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);text-align:center;margin-bottom:14px}
 h1{font-family:'Cormorant Garamond',Georgia,serif;font-weight:700;font-size:clamp(28px,5.5vw,40px);line-height:1.18;color:var(--cream);text-align:center;margin-bottom:30px}
-.card{background:var(--cream);border:2px solid var(--clay);border-radius:10px;padding:30px 26px;margin-bottom:22px;overflow:hidden}
-.card.masthead-card{padding:0}
-.card.masthead-card img{display:block;width:100%;height:auto}
+.card{background:var(--cream);border:1px solid rgba(200,82,42,.65);border-radius:8px;padding:34px 30px;margin-bottom:24px;overflow:hidden}
 .card h2{font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-style:italic;font-size:30px;color:var(--navy);text-align:center;margin-bottom:18px}
 .card p{margin-bottom:14px}
 .card p:last-child,.card ul:last-child,.card figure:last-child,.card .callout:last-child{margin-bottom:0}
@@ -110,22 +111,27 @@ figcaption{font-size:13.5px;color:var(--soft);font-style:italic;text-align:cente
 .cta-link{margin-top:6px}
 .cta-link a{font-family:'DM Mono',monospace;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;font-weight:400;text-decoration:none;border-bottom:2px solid var(--gold);padding-bottom:3px}
 .sig{font-family:'Cormorant Garamond',Georgia,serif;font-size:21px;color:var(--navy)}
-.quiz-cta{background:var(--navy);border:2px solid var(--gold);border-radius:10px;padding:36px 28px;text-align:center;margin-bottom:22px}
-.quiz-cta h2{font-family:'Cormorant Garamond',Georgia,serif;font-weight:700;font-size:29px;color:var(--cream);margin-bottom:12px}
-.quiz-cta p{color:#C9C4BB;font-size:15.5px;max-width:46ch;margin:0 auto 20px}
-.quiz-cta .btn{display:inline-block;background:var(--clay);color:#FFFFFF;font-weight:700;font-size:19px;text-decoration:none;padding:14px 32px;border-radius:6px}
-.quiz-cta .fine{font-family:'DM Mono',monospace;font-size:11.5px;color:#8A94A3;margin:18px auto 0}
-.issue-list{list-style:none;margin:0}
-.issue-list li{padding:18px 0;border-bottom:1px solid #E5DFD4}
-.issue-list li:last-child{border-bottom:none}
-.issue-list a{font-family:'Cormorant Garamond',Georgia,serif;font-weight:700;font-size:23px;line-height:1.3;color:var(--navy);text-decoration:none}
-.issue-list a:hover{text-decoration:underline;text-decoration-color:var(--gold)}
-.issue-list .date{display:block;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--soft);margin-top:6px}
-.tagline{color:#C9C4BB;font-size:16px;text-align:center;max-width:52ch;margin:0 auto 30px}
-footer{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.5px;line-height:2.1;color:#8A94A3;text-align:center}
+.hairline{border:0;height:1px;background:rgba(196,154,60,.35);margin:0}
+.quiz-cta{text-align:center;padding:52px 8px 10px;margin-top:26px;border-top:1px solid rgba(196,154,60,.35)}
+.quiz-cta h2{font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:clamp(27px,4.5vw,34px);line-height:1.2;color:var(--cream);margin-bottom:14px}
+.quiz-cta p{color:#A9B4C0;font-size:16px;line-height:1.7;max-width:46ch;margin:0 auto 28px}
+.quiz-cta .btn{display:inline-block;background:var(--gold);color:var(--navy);font-family:'DM Mono',monospace;font-weight:500;font-size:13px;letter-spacing:2px;text-transform:uppercase;text-decoration:none;padding:17px 38px;border-radius:3px;transition:background .15s}
+.quiz-cta .btn:hover{background:var(--cream)}
+.quiz-cta .fine{font-size:13px;font-style:italic;color:#8A94A3;margin:22px auto 0;max-width:none}
+.masthead{margin:6px auto 0;max-width:560px}
+.masthead img{display:block;width:100%;height:auto}
+.index-head{padding:26px 0 40px;text-align:center}
+.tagline{color:#A9B4C0;font-size:16px;line-height:1.7;max-width:44ch;margin:0 auto}
+.issue-list{list-style:none;margin:0;padding:6px 0 26px}
+.issue-list li{padding:34px 0;border-top:1px solid rgba(196,154,60,.35)}
+.issue-list .kicker{display:block;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.issue-list a{font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:clamp(26px,4.5vw,33px);line-height:1.22;color:var(--cream);text-decoration:none}
+.issue-list a:hover{color:var(--gold)}
+.issue-list .desc{font-size:15.5px;line-height:1.65;color:#8A94A3;max-width:56ch;margin-top:12px}
+footer{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.5px;line-height:2.1;color:#8A94A3;text-align:center;padding-top:34px}
 footer a{color:#C9C4BB;text-decoration:underline}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-@media(max-width:480px){.card{padding:24px 18px}.card h2{font-size:26px}}
+@media(max-width:480px){.card{padding:24px 18px}.card h2{font-size:26px}.issue-list li{padding:28px 0}}
 `.trim();
 
 const head = ({ title, description, canonical, ogImage, jsonld }) => `<!DOCTYPE html>
@@ -147,11 +153,10 @@ const head = ({ title, description, canonical, ogImage, jsonld }) => `<!DOCTYPE 
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Outfit:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 ${jsonld ? `<script type="application/ld+json">${jsonld}</script>` : ""}
-<style>${CSS}</style>
+<style>${FONT_CSS}
+${CSS}</style>
 </head>
 <body>
 <div class="top-rule"></div>
@@ -159,12 +164,12 @@ ${jsonld ? `<script type="application/ld+json">${jsonld}</script>` : ""}
 
 // The single CTA block: the quiz is the only door (standing decision, Aug 7).
 // Copy is fixed by the build brief. No email field anywhere on these pages.
-const QUIZ_CTA = `<div class="quiz-cta">
+const QUIZ_CTA = `<section class="quiz-cta">
 <h2>Find your racket. Get the report.</h2>
 <p>Take the free fitting and get matched to the frames that actually fit your game, your level, and your arm. You'll also get The Racket Report Monthly, one email a month with what real players are playing, plus your personal fitting report.</p>
 <a class="btn" href="/">Find your perfect racket</a>
 <p class="fine">Free, takes about two minutes. One email a month, unsubscribe anytime.</p>
-</div>`;
+</section>`;
 
 const footer = (isIssue) => `<footer>
 PERFECT RACKET &middot; <a href="/">PERFECTRACKET.COM</a>${isIssue ? ` &middot; <a href="/newsletter/">ALL ISSUES</a>` : ""}<br>
@@ -219,7 +224,8 @@ for (const it of issues) {
     head({ title: `${it.title} | ${NAV_NAME}`, description: it.description, canonical, ogImage: `${SITE}/newsletter/assets/masthead.png`, jsonld }) +
     `<p class="issue-eyebrow">Issue No. ${it.num} &middot; ${longDate(it.date)}</p>
 <h1>${inline(it.title)}</h1>
-<div class="card masthead-card"><img src="/newsletter/assets/masthead.png" alt="${NAV_NAME} by Perfect Racket" width="1040" height="470" fetchpriority="high"></div>
+<div class="masthead"><img src="/newsletter/assets/masthead.png" alt="${NAV_NAME} by Perfect Racket" width="1040" height="470" fetchpriority="high"></div>
+<div style="height:30px"></div>
 ${cardsHtml}
 ${QUIZ_CTA}
 ` + footer(true);
@@ -232,16 +238,20 @@ ${QUIZ_CTA}
 {
   const canonical = `${SITE}/newsletter/`;
   const list = issues
-    .map((it) => `<li><a href="/newsletter/${it.slug}/">${inline(it.title)}</a><span class="date">Issue No. ${it.num} &middot; ${longDate(it.date)}</span></li>`)
+    .map((it) => `<li>
+<span class="kicker">Issue No. ${it.num} &middot; ${longDate(it.date)}</span>
+<a href="/newsletter/${it.slug}/">${inline(it.title)}</a>
+<p class="desc">${escapeHtml(it.description)}</p>
+</li>`)
     .join("\n");
   const html =
     head({ title: `${NAV_NAME} | Perfect Racket`, description: TAGLINE, canonical, ogImage: `${SITE}/newsletter/assets/masthead.png`, jsonld: null }) +
-    `<div class="card masthead-card"><img src="/newsletter/assets/masthead.png" alt="${NAV_NAME} by Perfect Racket" width="1040" height="470" fetchpriority="high"></div>
+    `<div class="masthead"><img src="/newsletter/assets/masthead.png" alt="${NAV_NAME} by Perfect Racket" width="1040" height="470" fetchpriority="high"></div>
 <h1 class="sr-only">${NAV_NAME}</h1>
-<p class="tagline">${TAGLINE}</p>
-<div class="card"><ul class="issue-list">
+<div class="index-head"><p class="tagline">${TAGLINE}</p></div>
+<ul class="issue-list">
 ${list}
-</ul></div>
+</ul>
 ${QUIZ_CTA}
 ` + footer(false);
   writeFileSync(join(OUT, "index.html"), emDashGuard(html, "index"));

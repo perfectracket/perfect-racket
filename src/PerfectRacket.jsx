@@ -372,6 +372,25 @@ function isStringInStock(s) {
   return s && s.name && Object.prototype.hasOwnProperty.call(STRING_AFFILIATE_URLS, s.name);
 }
 
+/* UTM capture (Aug 2026): the `referrer` field on every submission reads the
+   internal URL, so paid vs organic could only ever be inferred from Plausible
+   arithmetic, never measured per row. Read once at module load — the landing
+   URL is the only place these params exist, and the quiz is a single-page
+   session, so an in-memory snapshot survives every step (no storage needed).
+   Values are attacker-controllable URL input that lands in a CSV Tucker opens,
+   so they're capped and stripped of characters that start a formula or a tag. */
+const UTM_PARAMS = (() => {
+  const out = { source: "", medium: "", campaign: "" };
+  try {
+    const q = new URLSearchParams(window.location.search);
+    const clean = (v) => (v || "").replace(/[<>]/g, "").replace(/^[=+@-]+/, "").slice(0, 100).trim();
+    out.source = clean(q.get("utm_source"));
+    out.medium = clean(q.get("utm_medium"));
+    out.campaign = clean(q.get("utm_campaign"));
+  } catch { /* no window/search (SSR, odd embed): fields submit empty */ }
+  return out;
+})();
+
 /* Reserved report id (July 18): the client mints the report id up front so its
    URL can be captured into the lead form immediately — a generation that runs
    past the 12s abort no longer orphans the report. MUST match the server's
@@ -2571,6 +2590,9 @@ export default function PerfectRacket() {
         formData.append("injury-factor", result.injuryFactor != null ? result.injuryFactor.toFixed(3) : "");
         formData.append("report-url", reportUrl || "");
         formData.append("scoring-version", SCORING_VERSION);
+        formData.append("utm-source", UTM_PARAMS.source);
+        formData.append("utm-medium", UTM_PARAMS.medium);
+        formData.append("utm-campaign", UTM_PARAMS.campaign);
         fetch("/", { method: "POST", body: formData });
       } catch (e) { /* silent fail — never block results */ }
       };

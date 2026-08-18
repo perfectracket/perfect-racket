@@ -11,7 +11,8 @@ import { getStore } from "@netlify/blobs";
 
 export const config = { path: "/report/:id" };
 
-const SHOP_URL_PREFIX = "https://www.tennisexpress.com";
+const SHOP_URL_PREFIXES = ["https://www.tennisexpress.com", "https://mantissport.com"];
+const shopUrlAllowed = (url) => SHOP_URL_PREFIXES.some((p) => url.startsWith(p));
 
 const esc = (s) =>
   String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -226,7 +227,7 @@ ${rec.playStyle ? `<span class="chip">${esc(rec.playStyle)}</span>` : ""}
         r.swingWeight ? `SW ${r.swingWeight}` : null, r.ra ? `RA ${r.ra}` : null,
         r.pattern ? esc(r.pattern) : null,
       ].filter(Boolean).join(" · ");
-      const shopOk = typeof r.shopUrl === "string" && r.shopUrl.startsWith(SHOP_URL_PREFIX);
+      const shopOk = typeof r.shopUrl === "string" && shopUrlAllowed(r.shopUrl);
       return `<div class="fcard${i === 0 ? " top" : ""}">
 <div class="f-row"><div class="rank">Nº${i + 1}</div><div class="f-name">${esc(r.model)}</div>${r.price ? `<div class="f-price">$${r.price}</div>` : ""}</div>
 ${specs ? `<div class="f-specs">${specs}</div>` : ""}
@@ -244,7 +245,7 @@ ${shopOk ? `<a class="f-shop" href="${esc(r.shopUrl)}" rel="noopener">${i === 0 
     // the allowlist at render time — same defense-in-depth as frame shopUrls.
     const rows = rec.strings.map((entry, i) => {
       const s = typeof entry === "string" ? { name: entry, url: "" } : (entry || {});
-      const shopOk = typeof s.url === "string" && s.url.startsWith(SHOP_URL_PREFIX);
+      const shopOk = typeof s.url === "string" && shopUrlAllowed(s.url);
       return `<div class="s-row"><span class="s-rank">Nº${i + 1}</span><span class="s-name">${esc(s.name)}</span>${i === 0 ? '<span class="s-note">The Pick</span>' : ""}${shopOk ? `<a class="s-shop" href="${esc(s.url)}" rel="noopener">Shop</a>` : ""}</div>`;
     }).join("\n");
     const tension = rec.tensionRange ? `<div class="tension-line">String at <b>${esc(rec.tensionRange)}</b>${rec.tensionStart ? ` — start at <b>${esc(rec.tensionStart)} lbs</b> and adjust from there.` : "."}</div>` : "";

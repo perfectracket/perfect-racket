@@ -84,6 +84,9 @@ const RACQUET_DB = [
   // -- PROKENNEX --
   { brand:"ProKennex",  model:"Ki Q+5",                headSize:100, weight:290, balance:5,  swingWeight:308, mains:16, crosses:19, beamWidth:24, ra:55, length:27.0, price:249, armFriendly:true  },
   { brand:"ProKennex",  model:"Black Ace 300",          headSize:100, weight:300, balance:4,  swingWeight:324, mains:16, crosses:19, beamWidth:21, ra:55, length:27.0, price:249, armFriendly:true  },
+  // -- MANTIS -- (swingWeight = Tennisnerd measured, brand's own numbers were on a non-comparable scale; PS 300 beam is a 23.5/25/22.5 taper, widest point per DB convention)
+  { brand:"Mantis",     model:"Pro 310",               headSize:98,  weight:310, balance:9,  swingWeight:330, mains:16, crosses:19, beamWidth:21, ra:67, length:27.0, price:227, armFriendly:false },
+  { brand:"Mantis",     model:"PS 300",                headSize:100, weight:300, balance:7,  swingWeight:322, mains:16, crosses:19, beamWidth:25, ra:70, length:27.0, price:227, armFriendly:false },
 ];
 
 const STRING_DB = [
@@ -160,6 +163,10 @@ const CURRENT_RACKET_OPTIONS = [
     { label: "Speed Pro", value: "Speed Pro 2026" },
     { label: "Speed Tour 97", value: "Speed Tour 97 2026" },
   ]},
+  { brand: "Mantis", items: [
+    { label: "Pro 310", value: "Pro 310" },
+    { label: "PS 300", value: "PS 300" },
+  ]},
   { brand: "ProKennex", items: [
     { label: "Black Ace 300", value: "Black Ace 300" },
     { label: "Ki Q+5", value: "Ki Q+5" },
@@ -212,7 +219,7 @@ const CURRENT_RACKET_OPTIONS = [
    ============================================================= */
 
 const AFFILIATE_CODE = "tucktraining";
-const SCORING_VERSION = "v6.2-2026-07"; // bump on ANY scoring change; see SCORING-RUNBOOK.md
+const SCORING_VERSION = "v6.3-2026-08"; // bump on ANY scoring change; see SCORING-RUNBOOK.md
 const TE_BASE        = "https://www.tennisexpress.com";
 
 const RACQUET_AFFILIATE_URLS = {
@@ -240,6 +247,12 @@ const RACQUET_AFFILIATE_URLS = {
   "Boom MP 2026":                 "boom-mp-2006-tennis-racquet", // AUDIT: TE typo says 2006, link works
   "Radical MP 2025":              "radical-mp-2025-tennis-racquet",
   "Extreme MP 2025":              "head-extreme-mp-2024-tennis-racquet-111203", // AUDIT: TE only carries 2024
+  // Mantis — FULL URLs, not TE slugs: these are Mantis-direct affiliate links
+  // (UpPromote; ?sca_ref is the tracking param, case-sensitive, verbatim).
+  // getRacquetShopUrl passes absolute URLs through untouched — no TE
+  // discount wrapper, no /products/ prefix.
+  "Pro 310":                      "https://mantissport.com/products/mantis-pro-310-v4-phantom?sca_ref=12053984.dN5SKDIzkR",
+  "PS 300":                       "https://mantissport.com/products/mantis-ps-300-v4-tour?sca_ref=12053984.dN5SKDIzkR",
   // Babolat
   "Pure Aero 2026":               "pure-aero-2026-tennis-racquet",
   "Pure Aero 98 2026":            "pure-aero-98-2026-tennis-racquet",
@@ -335,6 +348,7 @@ function buildSearchShopUrl(query) {
    not present. */
 function getRacquetShopUrl(r) {
   const slug = RACQUET_AFFILIATE_URLS[r.model];
+  if (slug && slug.startsWith("https://")) return slug; // non-TE retailer (Mantis): full URL stored, used verbatim
   if (slug) return buildShopUrl(slug);
   return buildSearchShopUrl(`${r.brand} ${r.model}`);
 }
@@ -3412,7 +3426,7 @@ export default function PerfectRacket() {
                   <a href={getRacquetShopUrl(r)}
                      target="_blank" rel="noopener noreferrer" style={{textDecoration:"none"}}
                      onClick={() => { if (typeof window.plausible === "function") window.plausible("Shop Click", { props: { product: `${r.brand} ${r.model}`, type: "racquet" } }); }}>
-                    <div className="shop-discount">5% off applied at checkout for Perfect Racket users</div>
+                    {getRacquetShopUrl(r).startsWith(TE_BASE) && <div className="shop-discount">5% off applied at checkout for Perfect Racket users</div>}
                     <button className={`shop-btn${r.top ? "" : " secondary"}`}>Shop the {r.model}</button>
                   </a>
                 </div>

@@ -167,6 +167,16 @@ await test("record shape intact, promptVersion v2.2, v4 string URLs, bad rank UR
   assert.deepEqual(rec.strings[0], { name: "Head Lynx Tour 17", url: "https://www.tennisexpress.com/discount/tucktraining?redirect=%2Fproducts%2Fs1" });
 });
 
+await test("mantissport.com rank URL passes the allowlist (Mantis frames, Aug 2026)", async () => {
+  reset();
+  const p = basePayload();
+  p.rank1.url = "https://mantissport.com/products/mantis-pro-310-v4-phantom?sca_ref=12053984.dN5SKDIzkR";
+  const { id } = await (await post(p)).json();
+  const rec = await storedRecord(id);
+  assert.equal(rec.ranks[0].shopUrl, "https://mantissport.com/products/mantis-pro-310-v4-phantom?sca_ref=12053984.dN5SKDIzkR",
+    "Mantis-direct URL must survive the allowlist untouched (sca_ref intact)");
+});
+
 await test("stripMarkdown still strips; honeypot still rejects", async () => {
   reset(); anthropicResponder = () => `# H\n**bold** \`x\`. ${words(180)} — Tucker, Perfect Racket`;
   const { text } = await (await post(basePayload())).json();

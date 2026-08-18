@@ -14,7 +14,8 @@ export const config = { path: "/api/generate-report" };
 const REPORT_MODEL = "claude-haiku-4-5";
 const PROMPT_VERSION = "v2.2-2026-07-08";
 const SITE_URL = "https://perfectracket.com";
-const SHOP_URL_PREFIX = "https://www.tennisexpress.com"; // server-side allowlist: report page will only ever link here
+const SHOP_URL_PREFIXES = ["https://www.tennisexpress.com", "https://mantissport.com"]; // server-side allowlist: report page will only ever link to these retailers
+const shopUrlAllowed = (url) => SHOP_URL_PREFIXES.some((p) => url.startsWith(p));
 const SERIAL_SEED = 1050; // display serial starting point (~all-time fittings at launch); cosmetic, adjust freely
 
 // -- Security limits (see spec: SECURITY REQUIREMENTS) ---------------------
@@ -364,7 +365,7 @@ export default async (req, context) => {
   const cleanRank = (r) => {
     if (!r || !r.model) return null;
     let url = typeof r.url === "string" ? r.url.slice(0, 300) : "";
-    if (!url.startsWith(SHOP_URL_PREFIX)) url = ""; // per-rank allowlist: never render an untrusted link
+    if (!shopUrlAllowed(url)) url = ""; // per-rank allowlist: never render an untrusted link
     return {
       model: clip(r.model, LEN.model),
       headSize: Number.isFinite(+r.headSize) ? +r.headSize : null,
@@ -383,7 +384,7 @@ export default async (req, context) => {
   // (plain name strings) text-only, unchanged.
   const cleanStringUrl = (u) => {
     const url = typeof u === "string" ? u.slice(0, 300) : "";
-    return url.startsWith(SHOP_URL_PREFIX) ? url : "";
+    return shopUrlAllowed(url) ? url : "";
   };
   const stringsList = [
     [b.string1, b.string1Url], [b.string2, b.string2Url], [b.string3, b.string3Url],

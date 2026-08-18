@@ -843,7 +843,7 @@ const CONTROL_SPECIALISTS = [
 
 function performanceSubscores(r, d) {
   const ra = r.ra ?? SETTINGS.BlankRA_Default;
-  const sw = r.swingWeight, density = r.mains * r.crosses;
+  const sw = r.swingWeight ?? SETTINGS.BlankSW_Default, density = r.mains * r.crosses;
   const ntrp = parseFloat(d.ntrp) || 3.5;
   const fastSwing = d.swingSpeed === "Fast & Aggressive";
   const slowSwing = d.swingSpeed === "Slow & Controlled";

@@ -44,8 +44,8 @@ const armFriendlyOf = (r) =>
 
 const RACQUET_DB = [
   // -- WILSON --
-  { brand:"Wilson",     model:"RF 01 Pro",            headSize:98,  weight:320, balance:7,  swingWeight:325, mains:16, crosses:19, beamWidth:23, ra:65, length:27.0, price:349 },
-  { brand:"Wilson",     model:"RF 01",                headSize:98,  weight:300, balance:5,  swingWeight:315, mains:16, crosses:19, beamWidth:23, ra:64, length:27.0, price:329 },
+  { brand:"Wilson",     model:"RF 01 Pro",            headSize:98,  weight:320, balance:6,  swingWeight:326, mains:16, crosses:19, beamWidth:24, ra:62, length:27.0, price:349 }, // spec verified: Tennis Express 2026-08-25
+  { brand:"Wilson",     model:"RF 01",                headSize:98,  weight:300, balance:5,  swingWeight:316, mains:16, crosses:19, beamWidth:24, ra:62, length:27.0, price:329 }, // spec verified: Tennis Express 2026-08-25
   { brand:"Wilson",     model:"RF 01 Future",          headSize:98,  weight:281, balance:4,  swingWeight:300, mains:16, crosses:19, beamWidth:22, ra:62, length:27.0, price:309 },
   { brand:"Wilson",     model:"Clash 100 v3",          headSize:100, weight:295, balance:6,  swingWeight:316, mains:16, crosses:19, beamWidth:24, ra:55, length:27.0, price:299 },
   { brand:"Wilson",     model:"Clash 100L v3",         headSize:100, weight:280, balance:6,  swingWeight:301, mains:16, crosses:19, beamWidth:25, ra:54, length:27.0, price:289 },
@@ -60,38 +60,38 @@ const RACQUET_DB = [
   // (TW measures 67 — TE is the DB convention). Weight/head/pattern unchanged.
   { brand:"Wilson",     model:"Ultra 100 v5", specPower:true,          headSize:100, weight:300, balance:4,  swingWeight:326, mains:16, crosses:19, beamWidth:26.5, ra:68, length:27.0, price:299 },
   // -- HEAD --
-  { brand:"HEAD",       model:"Speed Pro 2026", specControl:true,        headSize:100, weight:310, balance:3,  swingWeight:330, mains:18, crosses:20, beamWidth:23, ra:61, length:27.0, price:269 },
+  { brand:"HEAD",       model:"Speed Pro 2026", specControl:true,        headSize:100, weight:310, balance:6,  swingWeight:328, mains:18, crosses:20, beamWidth:23, ra:63, length:27.0, price:269 }, // spec verified: Tennis Express 2026-08-25
   { brand:"HEAD",       model:"Speed Tour 97 2026",    headSize:97,  weight:305, balance:4,  swingWeight:325, mains:16, crosses:19, beamWidth:23, ra:61, length:27.0, price:269 },
-  { brand:"HEAD",       model:"Speed MP 2026",         headSize:100, weight:300, balance:4,  swingWeight:326, mains:16, crosses:19, beamWidth:23, ra:60, length:27.0, price:259 },
-  { brand:"HEAD",       model:"Speed MP L 2026",       headSize:100, weight:280, balance:6,  swingWeight:298, mains:16, crosses:19, beamWidth:23, ra:60, length:27.0, price:249 },
+  { brand:"HEAD",       model:"Speed MP 2026",         headSize:100, weight:300, balance:4,  swingWeight:327, mains:16, crosses:19, beamWidth:23, ra:63, length:27.0, price:259 }, // spec verified: Tennis Express 2026-08-25
+  { brand:"HEAD",       model:"Speed MP L 2026",       headSize:100, weight:285, balance:3,  swingWeight:312, mains:16, crosses:19, beamWidth:23, ra:63, length:27.0, price:249 }, // spec verified: Tennis Express 2026-08-25
   { brand:"HEAD",       model:"Speed MP UL 2026",       headSize:100, weight:265, balance:1,  swingWeight:293, mains:16, crosses:19, beamWidth:23, ra:63, length:27.0, price:249 },
-  { brand:"HEAD",       model:"Gravity MP 2025",       headSize:100, weight:295, balance:5,  swingWeight:318, mains:16, crosses:20, beamWidth:22, ra:58, length:27.0, price:289 },
+  { brand:"HEAD",       model:"Gravity MP 2025",       headSize:100, weight:295, balance:3,  swingWeight:323, mains:16, crosses:20, beamWidth:22, ra:60, length:27.0, price:289 }, // spec verified: Tennis Express 2026-08-25
   { brand:"HEAD",       model:"Gravity Tour 2025",     headSize:98,  weight:310, balance:4,  swingWeight:328, mains:16, crosses:20, beamWidth:22, ra:59, length:27.0, price:299 },
   { brand:"HEAD",       model:"Gravity Pro 2025", specControl:true,       headSize:100, weight:315, balance:7,  swingWeight:329, mains:18, crosses:20, beamWidth:20, ra:59, length:27.0, price:269 },
   { brand:"HEAD",       model:"Boom MP 2026",          headSize:100, weight:300, balance:5,  swingWeight:308, mains:16, crosses:19, beamWidth:25, ra:63, length:27.0, price:259, armFriendlyOverride:true }, // editorial: plays softer than RA 63 suggests,
-  { brand:"HEAD",       model:"Radical MP 2025", specControl:true,       headSize:98,  weight:305, balance:4,  swingWeight:323, mains:16, crosses:19, beamWidth:22, ra:66, length:27.0, price:289 },
-  { brand:"HEAD",       model:"Extreme MP 2025", specSpin:true,       headSize:100, weight:300, balance:4,  swingWeight:323, mains:16, crosses:19, beamWidth:26, ra:66, length:27.0, price:289 },
+  { brand:"HEAD",       model:"Radical MP 2025", specControl:true,       headSize:98,  weight:300, balance:4,  swingWeight:325, mains:16, crosses:19, beamWidth:23, ra:64, length:27.0, price:289 }, // spec verified: Tennis Express 2026-08-25
+  { brand:"HEAD",       model:"Extreme MP 2025", specSpin:true,       headSize:100, weight:300, balance:4,  swingWeight:323, mains:16, crosses:19, beamWidth:26, ra:66, length:27.0, price:289 }, // HELD 2026-08-25: TE page is a different edition/generation, identity unresolved
   // -- BABOLAT --
   { brand:"Babolat",    model:"Pure Aero 2026", specSpin:true,        headSize:100, weight:300, balance:4,  swingWeight:320, mains:16, crosses:19, beamWidth:26, ra:68, length:27.0, price:299 },
   { brand:"Babolat",    model:"Pure Aero 98 2026", specSpin:true,     headSize:98,  weight:305, balance:3,  swingWeight:318, mains:16, crosses:20, beamWidth:23, ra:68, length:27.0, price:309 },
   { brand:"Babolat",    model:"Pure Drive 2025", specPower:true,       headSize:100, weight:300, balance:3,  swingWeight:323, mains:16, crosses:19, beamWidth:26, ra:71, length:27.0, price:299 },
-  { brand:"Babolat",    model:"Pure Strike 100",       headSize:100, weight:300, balance:5,  swingWeight:318, mains:16, crosses:19, beamWidth:21, ra:64, length:27.0, price:289 },
-  { brand:"Babolat",    model:"Pure Strike Team",      headSize:100, weight:285, balance:5,  swingWeight:302, mains:16, crosses:19, beamWidth:21, ra:62, length:27.0, price:269 },
-  { brand:"Babolat",    model:"Pure Strike 100 16x20 Carbon Grey", specControl:true, headSize:100, weight:305, balance:7,  swingWeight:320, mains:16, crosses:20, beamWidth:22, ra:60, length:27.0, price:289 },
+  { brand:"Babolat",    model:"Pure Strike 100",       headSize:100, weight:300, balance:4,  swingWeight:315, mains:16, crosses:19, beamWidth:23, ra:66, length:27.0, price:289 }, // spec verified: Tennis Express 2026-08-25
+  { brand:"Babolat",    model:"Pure Strike Team",      headSize:100, weight:285, balance:1,  swingWeight:305, mains:16, crosses:19, beamWidth:23, ra:66, length:27.0, price:269 }, // spec verified: Tennis Express 2026-08-25
+  { brand:"Babolat",    model:"Pure Strike 100 16x20 Carbon Grey", specControl:true, headSize:100, weight:305, balance:7,  swingWeight:317, mains:16, crosses:20, beamWidth:23, ra:64, length:27.0, price:289 }, // spec verified: Tennis Express 2026-08-25
   // -- YONEX --
   { brand:"Yonex",      model:"EZONE 100 2025", specPower:true,        headSize:100, weight:300, balance:4,  swingWeight:315, mains:16, crosses:19, beamWidth:25, ra:68, length:27.0, price:305 },
   { brand:"Yonex",      model:"EZONE 98 2025", specControl:true,         headSize:98,  weight:305, balance:4,  swingWeight:320, mains:16, crosses:19, beamWidth:24, ra:63, length:27.0, price:305, armFriendlyOverride:true }, // editorial: plays softer than RA 63 suggests,
   { brand:"Yonex",      model:"VCORE 98 8th Gen 2026", specSpin:true, specControl:true, headSize:98,  weight:305, balance:4,  swingWeight:321, mains:16, crosses:19, beamWidth:23, ra:65, length:27.0, price:305 },
-  { brand:"Yonex",      model:"VCORE 100 2026", specPower:true, specSpin:true,        headSize:100, weight:300, balance:4,  swingWeight:318, mains:16, crosses:19, beamWidth:24, ra:65, length:27.0, price:305 },
+  { brand:"Yonex",      model:"VCORE 100 2026", specPower:true, specSpin:true,        headSize:100, weight:300, balance:4,  swingWeight:323, mains:16, crosses:19, beamWidth:26, ra:66, length:27.0, price:305 }, // spec verified: Tennis Express 2026-08-25
   { brand:"Yonex",      model:"PERCEPT 100",           headSize:100, weight:305, balance:5,  swingWeight:318, mains:16, crosses:19, beamWidth:23, ra:60, length:27.0, price:305 },
   { brand:"Yonex",      model:"PERCEPT 97",            headSize:97,  weight:310, balance:4,  swingWeight:328, mains:16, crosses:19, beamWidth:22, ra:60, length:27.0, price:305 },
   // -- DUNLOP --
-  { brand:"Dunlop",     model:"CX 200 16x19",          headSize:98,  weight:305, balance:4,  swingWeight:320, mains:16, crosses:19, beamWidth:21, ra:62, length:27.0, price:250 },
-  { brand:"Dunlop",     model:"SX 300 2025", specPower:true, specSpin:true,           headSize:100, weight:300, balance:4,  swingWeight:318, mains:16, crosses:19, beamWidth:25, ra:65, length:27.0, price:250 },
+  { brand:"Dunlop",     model:"CX 200 16x19",          headSize:98,  weight:305, balance:4,  swingWeight:320, mains:16, crosses:19, beamWidth:21, ra:62, length:27.0, price:250 }, // HELD 2026-08-25: TE page is a different edition/generation, identity unresolved
+  { brand:"Dunlop",     model:"SX 300 2025", specPower:true, specSpin:true,           headSize:100, weight:300, balance:4,  swingWeight:318, mains:16, crosses:19, beamWidth:26, ra:69, length:27.0, price:250 }, // spec verified: Tennis Express 2026-08-25
   { brand:"Dunlop",     model:"SX 300 Lite 2025",       headSize:100, weight:270, balance:4,  swingWeight:295, mains:16, crosses:19, beamWidth:25, ra:68, length:27.0, price:250 },
   // -- TECNIFIBRE --
   { brand:"Tecnifibre", model:"TFight 305", specControl:true,            headSize:98,  weight:305, balance:4,  swingWeight:325, mains:16, crosses:19, beamWidth:22, ra:65, length:27.0, price:279 },
-  { brand:"Tecnifibre", model:"TFight 315", specControl:true,            headSize:98,  weight:315, balance:3,  swingWeight:335, mains:16, crosses:19, beamWidth:22, ra:67, length:27.0, price:259 },
+  { brand:"Tecnifibre", model:"TFight 315", specControl:true,            headSize:98,  weight:315, balance:3,  swingWeight:335, mains:16, crosses:19, beamWidth:22, ra:67, length:27.0, price:259 }, // HELD 2026-08-25: TE page is a different edition/generation, identity unresolved
   // -- SOLINCO --
   { brand:"Solinco",    model:"Blackout V2 300",       headSize:100, weight:300, balance:4,  swingWeight:318, mains:16, crosses:19, beamWidth:26, ra:66, length:27.0, price:240 },
   // -- PROKENNEX --
@@ -232,7 +232,7 @@ const CURRENT_RACKET_OPTIONS = [
    ============================================================= */
 
 const AFFILIATE_CODE = "tucktraining";
-const SCORING_VERSION = "v6.3-2026-08"; // bump on ANY scoring change; see SCORING-RUNBOOK.md
+const SCORING_VERSION = "v6.4-2026-08"; // bump on ANY scoring change; see SCORING-RUNBOOK.md
 const TE_BASE        = "https://www.tennisexpress.com";
 
 const RACQUET_AFFILIATE_URLS = {
@@ -246,7 +246,7 @@ const RACQUET_AFFILIATE_URLS = {
   "Blade 98 16x19 v10":           "blade-98-16x19-v10-tennis-racquet",
   "Blade 100 v10":                "blade-100-v10-tennis-racquet",
   "Blade 98 18x20 v10":           "blade-98-18x20-v10-tennis-racquet",
-  "Pro Staff 97 v14":             "wilson-pro-staff-97-v140-tennis-racquet-103535?variant=49252099391803",
+  "Pro Staff 97 v14":             "pro-staff-97-v14-sesion-soiree-tennis-racquet?variant=50680438292795", // 2026 Session Soiree colourway; old slug redirected to a category page. Re-check if it sells out.
   "Ultra 100 v5":                 "ultra-100-v5-tennis-racquet", // v6.1: DB row updated to v5 — name/slug/specs now agree
   // HEAD
   "Speed Pro 2026":               "speed-pro-2026-tennis-racquet?variant=50778264633659",
@@ -279,7 +279,9 @@ const RACQUET_AFFILIATE_URLS = {
   "VCORE 98 8th Gen 2026":        "vcore-98-tennis-racquet-ruby-red",
   "VCORE 100 2026":               "vcore-100-tennis-racquet-ruby-red?variant=50810432291131",
   // PERCEPT 100 — search fallback (not currently stocked at TE)
-  "PERCEPT 97":                   "percept-97-tennis-racquet-midnight-navy?variant=50271763759419",
+  // PERCEPT 97: slug REMOVED 2026-08-25 — TE dropped the PERCEPT line (old slug 404s).
+  // Same treatment as Ki Q+5: DB row + dropdown stay for current-racket lookups,
+  // the out-of-stock convention keeps it out of recommendations.
   // Dunlop
   "CX 200 16x19":                 "cx200-limited-edition-16x19-tennis-racquet",
   "SX 300 2025":                  "sx-tennis-racquet",

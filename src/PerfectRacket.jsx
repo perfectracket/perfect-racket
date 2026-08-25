@@ -29,64 +29,77 @@ const PAIN_NUMERIC = {
   "Severe pain that limits play": 9,
 };
 
+/* armFriendly is DERIVED from the frame's own stiffness, never hand-set. A row
+   can no longer claim to be arm-friendly while its RA says otherwise — the
+   Aug 25 catalog audit found rows that had drifted exactly that way, and the
+   flag drives both scoring (antiComfortPenalty, arm-specialist penalty) and a
+   user-facing "Arm Friendly" badge. Editorial exceptions are the ONLY way to
+   disagree with the RA, must use armFriendlyOverride, and must carry a comment
+   on their DB row saying why.
+   TRAP: a frame with no `ra` falls back to BlankRA_Default (62), which sits
+   exactly ON the cutoff and would therefore read as arm-friendly. Never ship a
+   frame without an RA. */
+const armFriendlyOf = (r) =>
+  r.armFriendlyOverride ?? ((r.ra ?? SETTINGS.BlankRA_Default) <= SETTINGS.RA_ArmFriendly_Cutoff);
+
 const RACQUET_DB = [
   // -- WILSON --
-  { brand:"Wilson",     model:"RF 01 Pro",            headSize:98,  weight:320, balance:7,  swingWeight:325, mains:16, crosses:19, beamWidth:23, ra:65, length:27.0, price:349, armFriendly:false },
-  { brand:"Wilson",     model:"RF 01",                headSize:98,  weight:300, balance:5,  swingWeight:315, mains:16, crosses:19, beamWidth:23, ra:64, length:27.0, price:329, armFriendly:false },
-  { brand:"Wilson",     model:"RF 01 Future",          headSize:98,  weight:281, balance:4,  swingWeight:300, mains:16, crosses:19, beamWidth:22, ra:62, length:27.0, price:309, armFriendly:true  },
-  { brand:"Wilson",     model:"Clash 100 v3",          headSize:100, weight:295, balance:6,  swingWeight:316, mains:16, crosses:19, beamWidth:24, ra:55, length:27.0, price:299, armFriendly:true  },
-  { brand:"Wilson",     model:"Clash 100L v3",         headSize:100, weight:280, balance:6,  swingWeight:301, mains:16, crosses:19, beamWidth:25, ra:54, length:27.0, price:289, armFriendly:true  },
-  { brand:"Wilson",     model:"Clash 100 Pro v3",      headSize:100, weight:303, balance:10, swingWeight:327, mains:16, crosses:20, beamWidth:25, ra:57, length:27.0, price:259, armFriendly:true  },
-  { brand:"Wilson",     model:"Blade 98 16x19 v10", specControl:true,    headSize:98,  weight:306, balance:4,  swingWeight:322, mains:16, crosses:19, beamWidth:21, ra:61, length:27.0, price:299, armFriendly:true  },
-  { brand:"Wilson",     model:"Blade 100 v10",         headSize:100, weight:300, balance:4,  swingWeight:319, mains:16, crosses:19, beamWidth:22, ra:61, length:27.0, price:299, armFriendly:true  },
-  { brand:"Wilson",     model:"Blade 98 18x20 v10", specControl:true,    headSize:98,  weight:306, balance:4,  swingWeight:325, mains:18, crosses:20, beamWidth:21, ra:61, length:27.0, price:299, armFriendly:true  },
-  { brand:"Wilson",     model:"Pro Staff 97 v14", specControl:true,      headSize:97,  weight:315, balance:3,  swingWeight:325, mains:16, crosses:19, beamWidth:21, ra:66, length:27.0, price:289, armFriendly:false },
+  { brand:"Wilson",     model:"RF 01 Pro",            headSize:98,  weight:320, balance:7,  swingWeight:325, mains:16, crosses:19, beamWidth:23, ra:65, length:27.0, price:349 },
+  { brand:"Wilson",     model:"RF 01",                headSize:98,  weight:300, balance:5,  swingWeight:315, mains:16, crosses:19, beamWidth:23, ra:64, length:27.0, price:329 },
+  { brand:"Wilson",     model:"RF 01 Future",          headSize:98,  weight:281, balance:4,  swingWeight:300, mains:16, crosses:19, beamWidth:22, ra:62, length:27.0, price:309 },
+  { brand:"Wilson",     model:"Clash 100 v3",          headSize:100, weight:295, balance:6,  swingWeight:316, mains:16, crosses:19, beamWidth:24, ra:55, length:27.0, price:299 },
+  { brand:"Wilson",     model:"Clash 100L v3",         headSize:100, weight:280, balance:6,  swingWeight:301, mains:16, crosses:19, beamWidth:25, ra:54, length:27.0, price:289 },
+  { brand:"Wilson",     model:"Clash 100 Pro v3",      headSize:100, weight:303, balance:10, swingWeight:327, mains:16, crosses:20, beamWidth:25, ra:57, length:27.0, price:259 },
+  { brand:"Wilson",     model:"Blade 98 16x19 v10", specControl:true,    headSize:98,  weight:306, balance:4,  swingWeight:322, mains:16, crosses:19, beamWidth:21, ra:61, length:27.0, price:299 },
+  { brand:"Wilson",     model:"Blade 100 v10",         headSize:100, weight:300, balance:4,  swingWeight:319, mains:16, crosses:19, beamWidth:22, ra:61, length:27.0, price:299 },
+  { brand:"Wilson",     model:"Blade 98 18x20 v10", specControl:true,    headSize:98,  weight:306, balance:4,  swingWeight:325, mains:18, crosses:20, beamWidth:21, ra:61, length:27.0, price:299 },
+  { brand:"Wilson",     model:"Pro Staff 97 v14", specControl:true,      headSize:97,  weight:315, balance:3,  swingWeight:325, mains:16, crosses:19, beamWidth:21, ra:66, length:27.0, price:289 },
   // v6.1 (July 13, 2026): v4→v5 per TE spec sheet (Tucker-pasted) — SW 318→326,
   // balance 6→4 pts HL, beam 26→26.5 (max, per DB convention), price 249→299
   // (TW/Wilson-verified; crosses budget brackets). RA 68 UNCHANGED per TE
   // (TW measures 67 — TE is the DB convention). Weight/head/pattern unchanged.
-  { brand:"Wilson",     model:"Ultra 100 v5", specPower:true,          headSize:100, weight:300, balance:4,  swingWeight:326, mains:16, crosses:19, beamWidth:26.5, ra:68, length:27.0, price:299, armFriendly:false },
+  { brand:"Wilson",     model:"Ultra 100 v5", specPower:true,          headSize:100, weight:300, balance:4,  swingWeight:326, mains:16, crosses:19, beamWidth:26.5, ra:68, length:27.0, price:299 },
   // -- HEAD --
-  { brand:"HEAD",       model:"Speed Pro 2026", specControl:true,        headSize:100, weight:310, balance:3,  swingWeight:330, mains:18, crosses:20, beamWidth:23, ra:61, length:27.0, price:269, armFriendly:true  },
-  { brand:"HEAD",       model:"Speed Tour 97 2026",    headSize:97,  weight:305, balance:4,  swingWeight:325, mains:16, crosses:19, beamWidth:23, ra:61, length:27.0, price:269, armFriendly:true  },
-  { brand:"HEAD",       model:"Speed MP 2026",         headSize:100, weight:300, balance:4,  swingWeight:326, mains:16, crosses:19, beamWidth:23, ra:60, length:27.0, price:259, armFriendly:true  },
-  { brand:"HEAD",       model:"Speed MP L 2026",       headSize:100, weight:280, balance:6,  swingWeight:298, mains:16, crosses:19, beamWidth:23, ra:60, length:27.0, price:249, armFriendly:true  },
-  { brand:"HEAD",       model:"Speed MP UL 2026",       headSize:100, weight:265, balance:1,  swingWeight:293, mains:16, crosses:19, beamWidth:23, ra:63, length:27.0, price:249, armFriendly:false },
-  { brand:"HEAD",       model:"Gravity MP 2025",       headSize:100, weight:295, balance:5,  swingWeight:318, mains:16, crosses:20, beamWidth:22, ra:58, length:27.0, price:289, armFriendly:true  },
-  { brand:"HEAD",       model:"Gravity Tour 2025",     headSize:98,  weight:310, balance:4,  swingWeight:328, mains:16, crosses:20, beamWidth:22, ra:59, length:27.0, price:299, armFriendly:true  },
-  { brand:"HEAD",       model:"Gravity Pro 2025", specControl:true,       headSize:100, weight:315, balance:7,  swingWeight:329, mains:18, crosses:20, beamWidth:20, ra:59, length:27.0, price:269, armFriendly:true  },
-  { brand:"HEAD",       model:"Boom MP 2026",          headSize:100, weight:300, balance:5,  swingWeight:308, mains:16, crosses:19, beamWidth:25, ra:63, length:27.0, price:259, armFriendly:true  }, // editorial: plays softer than RA 63 suggests,
-  { brand:"HEAD",       model:"Radical MP 2025", specControl:true,       headSize:98,  weight:305, balance:4,  swingWeight:323, mains:16, crosses:19, beamWidth:22, ra:66, length:27.0, price:289, armFriendly:false },
-  { brand:"HEAD",       model:"Extreme MP 2025", specSpin:true,       headSize:100, weight:300, balance:4,  swingWeight:323, mains:16, crosses:19, beamWidth:26, ra:66, length:27.0, price:289, armFriendly:false },
+  { brand:"HEAD",       model:"Speed Pro 2026", specControl:true,        headSize:100, weight:310, balance:3,  swingWeight:330, mains:18, crosses:20, beamWidth:23, ra:61, length:27.0, price:269 },
+  { brand:"HEAD",       model:"Speed Tour 97 2026",    headSize:97,  weight:305, balance:4,  swingWeight:325, mains:16, crosses:19, beamWidth:23, ra:61, length:27.0, price:269 },
+  { brand:"HEAD",       model:"Speed MP 2026",         headSize:100, weight:300, balance:4,  swingWeight:326, mains:16, crosses:19, beamWidth:23, ra:60, length:27.0, price:259 },
+  { brand:"HEAD",       model:"Speed MP L 2026",       headSize:100, weight:280, balance:6,  swingWeight:298, mains:16, crosses:19, beamWidth:23, ra:60, length:27.0, price:249 },
+  { brand:"HEAD",       model:"Speed MP UL 2026",       headSize:100, weight:265, balance:1,  swingWeight:293, mains:16, crosses:19, beamWidth:23, ra:63, length:27.0, price:249 },
+  { brand:"HEAD",       model:"Gravity MP 2025",       headSize:100, weight:295, balance:5,  swingWeight:318, mains:16, crosses:20, beamWidth:22, ra:58, length:27.0, price:289 },
+  { brand:"HEAD",       model:"Gravity Tour 2025",     headSize:98,  weight:310, balance:4,  swingWeight:328, mains:16, crosses:20, beamWidth:22, ra:59, length:27.0, price:299 },
+  { brand:"HEAD",       model:"Gravity Pro 2025", specControl:true,       headSize:100, weight:315, balance:7,  swingWeight:329, mains:18, crosses:20, beamWidth:20, ra:59, length:27.0, price:269 },
+  { brand:"HEAD",       model:"Boom MP 2026",          headSize:100, weight:300, balance:5,  swingWeight:308, mains:16, crosses:19, beamWidth:25, ra:63, length:27.0, price:259, armFriendlyOverride:true }, // editorial: plays softer than RA 63 suggests,
+  { brand:"HEAD",       model:"Radical MP 2025", specControl:true,       headSize:98,  weight:305, balance:4,  swingWeight:323, mains:16, crosses:19, beamWidth:22, ra:66, length:27.0, price:289 },
+  { brand:"HEAD",       model:"Extreme MP 2025", specSpin:true,       headSize:100, weight:300, balance:4,  swingWeight:323, mains:16, crosses:19, beamWidth:26, ra:66, length:27.0, price:289 },
   // -- BABOLAT --
-  { brand:"Babolat",    model:"Pure Aero 2026", specSpin:true,        headSize:100, weight:300, balance:4,  swingWeight:320, mains:16, crosses:19, beamWidth:26, ra:68, length:27.0, price:299, armFriendly:false },
-  { brand:"Babolat",    model:"Pure Aero 98 2026", specSpin:true,     headSize:98,  weight:305, balance:3,  swingWeight:318, mains:16, crosses:20, beamWidth:23, ra:68, length:27.0, price:309, armFriendly:false },
-  { brand:"Babolat",    model:"Pure Drive 2025", specPower:true,       headSize:100, weight:300, balance:3,  swingWeight:323, mains:16, crosses:19, beamWidth:26, ra:71, length:27.0, price:299, armFriendly:false },
-  { brand:"Babolat",    model:"Pure Strike 100",       headSize:100, weight:300, balance:5,  swingWeight:318, mains:16, crosses:19, beamWidth:21, ra:64, length:27.0, price:289, armFriendly:false },
-  { brand:"Babolat",    model:"Pure Strike Team",      headSize:100, weight:285, balance:5,  swingWeight:302, mains:16, crosses:19, beamWidth:21, ra:62, length:27.0, price:269, armFriendly:true  },
-  { brand:"Babolat",    model:"Pure Strike 100 16x20 Carbon Grey", specControl:true, headSize:100, weight:305, balance:7,  swingWeight:320, mains:16, crosses:20, beamWidth:22, ra:60, length:27.0, price:289, armFriendly:true  },
+  { brand:"Babolat",    model:"Pure Aero 2026", specSpin:true,        headSize:100, weight:300, balance:4,  swingWeight:320, mains:16, crosses:19, beamWidth:26, ra:68, length:27.0, price:299 },
+  { brand:"Babolat",    model:"Pure Aero 98 2026", specSpin:true,     headSize:98,  weight:305, balance:3,  swingWeight:318, mains:16, crosses:20, beamWidth:23, ra:68, length:27.0, price:309 },
+  { brand:"Babolat",    model:"Pure Drive 2025", specPower:true,       headSize:100, weight:300, balance:3,  swingWeight:323, mains:16, crosses:19, beamWidth:26, ra:71, length:27.0, price:299 },
+  { brand:"Babolat",    model:"Pure Strike 100",       headSize:100, weight:300, balance:5,  swingWeight:318, mains:16, crosses:19, beamWidth:21, ra:64, length:27.0, price:289 },
+  { brand:"Babolat",    model:"Pure Strike Team",      headSize:100, weight:285, balance:5,  swingWeight:302, mains:16, crosses:19, beamWidth:21, ra:62, length:27.0, price:269 },
+  { brand:"Babolat",    model:"Pure Strike 100 16x20 Carbon Grey", specControl:true, headSize:100, weight:305, balance:7,  swingWeight:320, mains:16, crosses:20, beamWidth:22, ra:60, length:27.0, price:289 },
   // -- YONEX --
-  { brand:"Yonex",      model:"EZONE 100 2025", specPower:true,        headSize:100, weight:300, balance:4,  swingWeight:315, mains:16, crosses:19, beamWidth:25, ra:68, length:27.0, price:305, armFriendly:false },
-  { brand:"Yonex",      model:"EZONE 98 2025", specControl:true,         headSize:98,  weight:305, balance:4,  swingWeight:320, mains:16, crosses:19, beamWidth:24, ra:63, length:27.0, price:305, armFriendly:true  }, // editorial: plays softer than RA 63 suggests,
-  { brand:"Yonex",      model:"VCORE 98 8th Gen 2026", specSpin:true, specControl:true, headSize:98,  weight:305, balance:4,  swingWeight:321, mains:16, crosses:19, beamWidth:23, ra:65, length:27.0, price:305, armFriendly:false },
-  { brand:"Yonex",      model:"VCORE 100 2026", specPower:true, specSpin:true,        headSize:100, weight:300, balance:4,  swingWeight:318, mains:16, crosses:19, beamWidth:24, ra:65, length:27.0, price:305, armFriendly:false },
-  { brand:"Yonex",      model:"PERCEPT 100",           headSize:100, weight:305, balance:5,  swingWeight:318, mains:16, crosses:19, beamWidth:23, ra:60, length:27.0, price:305, armFriendly:true  },
-  { brand:"Yonex",      model:"PERCEPT 97",            headSize:97,  weight:310, balance:4,  swingWeight:328, mains:16, crosses:19, beamWidth:22, ra:60, length:27.0, price:305, armFriendly:true  },
+  { brand:"Yonex",      model:"EZONE 100 2025", specPower:true,        headSize:100, weight:300, balance:4,  swingWeight:315, mains:16, crosses:19, beamWidth:25, ra:68, length:27.0, price:305 },
+  { brand:"Yonex",      model:"EZONE 98 2025", specControl:true,         headSize:98,  weight:305, balance:4,  swingWeight:320, mains:16, crosses:19, beamWidth:24, ra:63, length:27.0, price:305, armFriendlyOverride:true }, // editorial: plays softer than RA 63 suggests,
+  { brand:"Yonex",      model:"VCORE 98 8th Gen 2026", specSpin:true, specControl:true, headSize:98,  weight:305, balance:4,  swingWeight:321, mains:16, crosses:19, beamWidth:23, ra:65, length:27.0, price:305 },
+  { brand:"Yonex",      model:"VCORE 100 2026", specPower:true, specSpin:true,        headSize:100, weight:300, balance:4,  swingWeight:318, mains:16, crosses:19, beamWidth:24, ra:65, length:27.0, price:305 },
+  { brand:"Yonex",      model:"PERCEPT 100",           headSize:100, weight:305, balance:5,  swingWeight:318, mains:16, crosses:19, beamWidth:23, ra:60, length:27.0, price:305 },
+  { brand:"Yonex",      model:"PERCEPT 97",            headSize:97,  weight:310, balance:4,  swingWeight:328, mains:16, crosses:19, beamWidth:22, ra:60, length:27.0, price:305 },
   // -- DUNLOP --
-  { brand:"Dunlop",     model:"CX 200 16x19",          headSize:98,  weight:305, balance:4,  swingWeight:320, mains:16, crosses:19, beamWidth:21, ra:62, length:27.0, price:250, armFriendly:true  },
-  { brand:"Dunlop",     model:"SX 300 2025", specPower:true, specSpin:true,           headSize:100, weight:300, balance:4,  swingWeight:318, mains:16, crosses:19, beamWidth:25, ra:65, length:27.0, price:250, armFriendly:false },
-  { brand:"Dunlop",     model:"SX 300 Lite 2025",       headSize:100, weight:270, balance:4,  swingWeight:295, mains:16, crosses:19, beamWidth:25, ra:68, length:27.0, price:250, armFriendly:false },
+  { brand:"Dunlop",     model:"CX 200 16x19",          headSize:98,  weight:305, balance:4,  swingWeight:320, mains:16, crosses:19, beamWidth:21, ra:62, length:27.0, price:250 },
+  { brand:"Dunlop",     model:"SX 300 2025", specPower:true, specSpin:true,           headSize:100, weight:300, balance:4,  swingWeight:318, mains:16, crosses:19, beamWidth:25, ra:65, length:27.0, price:250 },
+  { brand:"Dunlop",     model:"SX 300 Lite 2025",       headSize:100, weight:270, balance:4,  swingWeight:295, mains:16, crosses:19, beamWidth:25, ra:68, length:27.0, price:250 },
   // -- TECNIFIBRE --
-  { brand:"Tecnifibre", model:"TFight 305", specControl:true,            headSize:98,  weight:305, balance:4,  swingWeight:325, mains:16, crosses:19, beamWidth:22, ra:65, length:27.0, price:279, armFriendly:false },
-  { brand:"Tecnifibre", model:"TFight 315", specControl:true,            headSize:98,  weight:315, balance:3,  swingWeight:335, mains:16, crosses:19, beamWidth:22, ra:67, length:27.0, price:259, armFriendly:false },
+  { brand:"Tecnifibre", model:"TFight 305", specControl:true,            headSize:98,  weight:305, balance:4,  swingWeight:325, mains:16, crosses:19, beamWidth:22, ra:65, length:27.0, price:279 },
+  { brand:"Tecnifibre", model:"TFight 315", specControl:true,            headSize:98,  weight:315, balance:3,  swingWeight:335, mains:16, crosses:19, beamWidth:22, ra:67, length:27.0, price:259 },
   // -- SOLINCO --
-  { brand:"Solinco",    model:"Blackout V2 300",       headSize:100, weight:300, balance:4,  swingWeight:318, mains:16, crosses:19, beamWidth:26, ra:66, length:27.0, price:240, armFriendly:false },
+  { brand:"Solinco",    model:"Blackout V2 300",       headSize:100, weight:300, balance:4,  swingWeight:318, mains:16, crosses:19, beamWidth:26, ra:66, length:27.0, price:240 },
   // -- PROKENNEX --
-  { brand:"ProKennex",  model:"Ki Q+5",                headSize:100, weight:290, balance:5,  swingWeight:308, mains:16, crosses:19, beamWidth:24, ra:55, length:27.0, price:249, armFriendly:true  },
-  { brand:"ProKennex",  model:"Black Ace 300",          headSize:100, weight:300, balance:4,  swingWeight:324, mains:16, crosses:19, beamWidth:21, ra:55, length:27.0, price:249, armFriendly:true  },
+  { brand:"ProKennex",  model:"Ki Q+5",                headSize:100, weight:290, balance:5,  swingWeight:308, mains:16, crosses:19, beamWidth:24, ra:55, length:27.0, price:249 },
+  { brand:"ProKennex",  model:"Black Ace 300",          headSize:100, weight:300, balance:4,  swingWeight:324, mains:16, crosses:19, beamWidth:21, ra:55, length:27.0, price:249 },
   // -- MANTIS -- (swingWeight = Tennisnerd measured, brand's own numbers were on a non-comparable scale; PS 300 beam is a 23.5/25/22.5 taper, widest point per DB convention)
-  { brand:"Mantis",     model:"Pro 310",               headSize:98,  weight:310, balance:9,  swingWeight:330, mains:16, crosses:19, beamWidth:21, ra:67, length:27.0, price:227, armFriendly:false },
-  { brand:"Mantis",     model:"PS 300",                headSize:100, weight:300, balance:7,  swingWeight:322, mains:16, crosses:19, beamWidth:25, ra:70, length:27.0, price:227, armFriendly:false },
+  { brand:"Mantis",     model:"Pro 310",               headSize:98,  weight:310, balance:9,  swingWeight:330, mains:16, crosses:19, beamWidth:21, ra:67, length:27.0, price:227 },
+  { brand:"Mantis",     model:"PS 300",                headSize:100, weight:300, balance:7,  swingWeight:322, mains:16, crosses:19, beamWidth:25, ra:70, length:27.0, price:227 },
 ];
 
 const STRING_DB = [
@@ -795,7 +808,7 @@ function whyText(r, d, injuryFactor, painNumeric) {
   const parts = [];
 
   // Sentence 1: arm health (if relevant) or the spec that drove the score most
-  if (severeArm && r.armFriendly) {
+  if (severeArm && armFriendlyOf(r)) {
     parts.push(raLine());
   } else if (hasArm) {
     parts.push(raLine());
@@ -1176,7 +1189,7 @@ function categorySpecialistBonus(r, priorityFocus, ntrp) {
 }
 
 function antiComfortPenalty(r, priorityFocus) {
-  if (!r.armFriendly) return 0;
+  if (!armFriendlyOf(r)) return 0;
   if (priorityFocus === "Power" || priorityFocus === "Spin") return -4;
   return 0;
 }
@@ -1323,7 +1336,7 @@ function generateRecommendations(d) {
     // Max 5pts: enough to push Clash/Ki Q+5 out of top 3 for healthy perf-first
     // players while keeping them competitive for everyone else.
     const raCurrent = r.ra ?? SETTINGS.BlankRA_Default;
-    const isArmSpecialist = r.armFriendly && raCurrent <= 58;
+    const isArmSpecialist = armFriendlyOf(r) && raCurrent <= 58;
     const armSpecialistPenalty = isArmSpecialist ? 5.0 * Math.max(0, 1 - injuryFactor * 2) : 0;
 
     // Weight appropriateness penalty (Arm Health pipeline):
@@ -1344,7 +1357,7 @@ function generateRecommendations(d) {
     return {
       brand: r.brand, model: r.model, finalScore, performanceScore,
       userRiskPenalty, hardGatePenalty, budgetFlag: budget,
-      topStrengths: strengths, armFriendly: r.armFriendly, price: r.price,
+      topStrengths: strengths, armFriendly: armFriendlyOf(r), price: r.price,
       whyText: whyText(r, d, injuryFactor, painNumeric),
       specs: {
         "HEAD SIZE": `${r.headSize} sq in`,
@@ -1475,7 +1488,7 @@ function generateRecommendationsPerformance(d) {
     return {
       brand: r.brand, model: r.model, finalScore, performanceScore: baseScore,
       userRiskPenalty: 0, hardGatePenalty: 0, budgetFlag: budget,
-      topStrengths: strengths, armFriendly: r.armFriendly, price: r.price,
+      topStrengths: strengths, armFriendly: armFriendlyOf(r), price: r.price,
       whyText: whyText(r, d, 0, 0),
       specs: {
         "HEAD SIZE": `${r.headSize} sq in`,

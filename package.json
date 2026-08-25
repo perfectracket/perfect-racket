@@ -13,6 +13,7 @@
     "test:results": "node test/results-render.test.mjs",
     "test:tension": "node test/tension.test.mjs",
     "test:blanksw": "node test/blank-sw.test.mjs",
+    "test:armfriendly": "node test/arm-friendly.test.mjs",
     "test:utm": "node test/utm.test.mjs",
     "test": "npm run test:report && npm run test:genfail && npm run test:results && npm run test:tension && npm run test:scoring"
   },

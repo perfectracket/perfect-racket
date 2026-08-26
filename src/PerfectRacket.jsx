@@ -70,7 +70,7 @@ const RACQUET_DB = [
   { brand:"HEAD",       model:"Gravity Pro 2025", specControl:true,       headSize:100, weight:315, balance:7,  swingWeight:329, mains:18, crosses:20, beamWidth:20, ra:59, length:27.0, price:269 },
   { brand:"HEAD",       model:"Boom MP 2026",          headSize:100, weight:300, balance:5,  swingWeight:308, mains:16, crosses:19, beamWidth:25, ra:63, length:27.0, price:259, armFriendlyOverride:true }, // editorial: plays softer than RA 63 suggests,
   { brand:"HEAD",       model:"Radical MP 2025", specControl:true,       headSize:98,  weight:300, balance:4,  swingWeight:325, mains:16, crosses:19, beamWidth:23, ra:64, length:27.0, price:289 }, // spec verified: Tennis Express 2026-08-25
-  { brand:"HEAD",       model:"Extreme MP 2025", specSpin:true,       headSize:100, weight:300, balance:4,  swingWeight:323, mains:16, crosses:19, beamWidth:26, ra:66, length:27.0, price:289 }, // HELD 2026-08-25: TE page is a different edition/generation, identity unresolved
+  { brand:"HEAD",       model:"Extreme MP 2025", specSpin:true,       headSize:100, weight:300, balance:4,  swingWeight:318, mains:16, crosses:19, beamWidth:26, ra:65, length:27.0, price:289 }, // spec verified: Tennis Express 2026-08-25 ("Extreme MP 2024 Tennis Racquet") — accepted Aug 25: TE sells this edition/gen, so its specs are what players actually buy
   // -- BABOLAT --
   { brand:"Babolat",    model:"Pure Aero 2026", specSpin:true,        headSize:100, weight:300, balance:4,  swingWeight:320, mains:16, crosses:19, beamWidth:26, ra:68, length:27.0, price:299 },
   { brand:"Babolat",    model:"Pure Aero 98 2026", specSpin:true,     headSize:98,  weight:305, balance:3,  swingWeight:318, mains:16, crosses:20, beamWidth:23, ra:68, length:27.0, price:309 },
@@ -86,12 +86,12 @@ const RACQUET_DB = [
   { brand:"Yonex",      model:"PERCEPT 100",           headSize:100, weight:305, balance:5,  swingWeight:318, mains:16, crosses:19, beamWidth:23, ra:60, length:27.0, price:305 },
   { brand:"Yonex",      model:"PERCEPT 97",            headSize:97,  weight:310, balance:4,  swingWeight:328, mains:16, crosses:19, beamWidth:22, ra:60, length:27.0, price:305 },
   // -- DUNLOP --
-  { brand:"Dunlop",     model:"CX 200 16x19",          headSize:98,  weight:305, balance:4,  swingWeight:320, mains:16, crosses:19, beamWidth:21, ra:62, length:27.0, price:250 }, // HELD 2026-08-25: TE page is a different edition/generation, identity unresolved
+  { brand:"Dunlop",     model:"CX 200 16x19",          headSize:98,  weight:305, balance:7,  swingWeight:318, mains:16, crosses:19, beamWidth:21.5, ra:65, length:27.0, price:250 }, // spec verified: Tennis Express 2026-08-25 ("CX 200 Limited Edition 16x19 Tennis Racquet") — accepted Aug 25: TE sells this edition/gen, so its specs are what players actually buy
   { brand:"Dunlop",     model:"SX 300 2025", specPower:true, specSpin:true,           headSize:100, weight:300, balance:4,  swingWeight:318, mains:16, crosses:19, beamWidth:26, ra:69, length:27.0, price:250 }, // spec verified: Tennis Express 2026-08-25
   { brand:"Dunlop",     model:"SX 300 Lite 2025",       headSize:100, weight:270, balance:4,  swingWeight:295, mains:16, crosses:19, beamWidth:25, ra:68, length:27.0, price:250 },
   // -- TECNIFIBRE --
   { brand:"Tecnifibre", model:"TFight 305", specControl:true,            headSize:98,  weight:305, balance:4,  swingWeight:325, mains:16, crosses:19, beamWidth:22, ra:65, length:27.0, price:279 },
-  { brand:"Tecnifibre", model:"TFight 315", specControl:true,            headSize:98,  weight:315, balance:3,  swingWeight:335, mains:16, crosses:19, beamWidth:22, ra:67, length:27.0, price:259 }, // HELD 2026-08-25: TE page is a different edition/generation, identity unresolved
+  { brand:"Tecnifibre", model:"TFight 315", specControl:true,            headSize:98,  weight:315, balance:7,  swingWeight:325, mains:16, crosses:19, beamWidth:22.5, ra:65, length:27.0, price:259 }, // spec verified: Tennis Express 2026-08-25 ("T-Fight 315s 2025 Tennis Racquet") — accepted Aug 25: TE sells this edition/gen, so its specs are what players actually buy
   // -- SOLINCO --
   { brand:"Solinco",    model:"Blackout V2 300",       headSize:100, weight:300, balance:4,  swingWeight:318, mains:16, crosses:19, beamWidth:26, ra:66, length:27.0, price:240 },
   // -- PROKENNEX --
@@ -232,7 +232,7 @@ const CURRENT_RACKET_OPTIONS = [
    ============================================================= */
 
 const AFFILIATE_CODE = "tucktraining";
-const SCORING_VERSION = "v6.4-2026-08"; // bump on ANY scoring change; see SCORING-RUNBOOK.md
+const SCORING_VERSION = "v6.5-2026-08"; // bump on ANY scoring change; see SCORING-RUNBOOK.md
 const TE_BASE        = "https://www.tennisexpress.com";
 
 const RACQUET_AFFILIATE_URLS = {
